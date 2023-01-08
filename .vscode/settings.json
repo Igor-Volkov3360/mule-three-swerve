@@ -29,6 +29,7 @@
     ],
     "java.test.defaultConfig": "WPIlibUnitTests",
     "[java]": {
+        "editor.tabSize": 2,
         "spotlessGradle.format.enable": true,
         "editor.defaultFormatter": "richardwillis.vscode-spotless-gradle",
         "spotlessGradle.diagnostics.enable": true,
