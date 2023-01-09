@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.InvertType;
 import edu.wpi.first.math.geometry.Translation2d;
+import frc.robot.subsystems.HyperionSwerveModule.HyperionSwerveModuleConfig;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -16,6 +17,7 @@ import edu.wpi.first.math.geometry.Translation2d;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
   public static class OperatorConstants {
     public static final int kDriverControllerPort = 0;
   }
@@ -25,17 +27,15 @@ public final class Constants {
     public static final double kMaxSpeedX = 4.0;
     public static final double kMaxSpeedY = 4.0;
     public static final double kMaxSpeetRot = 30.0;
-
     public static final double kDeadband = 0.05;
   }
 
   public static class HyperionSwerveModule {
-    public static final int[] kDriveMotorIds = {7, 8, 10};
-    public static final int[] kTurnMotorIds = {6, 5, 9};
-    public static final int[] kAnalogZero = {412, 875, 738};
-    public static final boolean[] kSensorPhases = {false, true, false};
-    public static final InvertType[] kInvertType = {
-      InvertType.None, InvertType.InvertMotorOutput, InvertType.InvertMotorOutput
+
+    public static final HyperionSwerveModuleConfig[] kConfigs = {
+      new HyperionSwerveModuleConfig(7, 6, 412, InvertType.None, false),
+      new HyperionSwerveModuleConfig(8, 5, 875, InvertType.InvertMotorOutput, true),
+      new HyperionSwerveModuleConfig(10, 9, 738, InvertType.InvertMotorOutput, false)
     };
 
     public static final Translation2d[] kLocations = {

@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.HyperionSwerveModule.HyperionSwerveModuleFactory;
 import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {

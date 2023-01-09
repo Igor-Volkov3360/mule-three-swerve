@@ -27,6 +27,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+    // Drive in robot relative velocities
+    // Axis are inverted to follow North-West-Up (NWU) convention
     m_drive.setDefaultCommand(
         m_drive.driveCommand(
             () -> -m_driverController.getLeftY(),
