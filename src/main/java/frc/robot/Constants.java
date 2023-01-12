@@ -22,6 +22,17 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
+  public static class Gripper {
+
+    public static final int kGripMotorId = 0;
+
+    public static final double kGripKp = 0;
+    public static final double kGripKf = 0;
+
+    public static final double kOpenCurrent = 0;
+    public static final double kCloseCurrent = 0;
+  }
+
   public static class DriveTrain {
     public static final double kMaxModuleSpeed = 4.0;
     public static final double kMaxSpeedX = 4.0;
