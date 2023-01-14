@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.subsystems.HyperionSwerveModule.HyperionSwerveModuleConfig;
+import frc.robot.subsystems.WCPSwerveModule.WCPSwerveModuleConfig;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -39,6 +40,11 @@ public final class Constants {
     public static final double kMaxSpeedY = 4.0;
     public static final double kMaxSpeetRot = 30.0;
     public static final double kDeadband = 0.05;
+  }
+
+  public static class WCPSwerveModule {
+    public static final WCPSwerveModuleConfig[] kConfigs = {};
+    public static final Translation2d[] kLocations = {};
   }
 
   public static class HyperionSwerveModule {
