@@ -24,10 +24,23 @@ public final class Constants {
 
   public static class DriveTrain {
     public static final double kMaxModuleSpeed = 4.0;
+
     public static final double kMaxSpeedX = 4.0;
     public static final double kMaxSpeedY = 4.0;
-    public static final double kMaxSpeetRot = 30.0;
-    public static final double kDeadband = 0.05;
+    public static final double kMaxSpeedRot = 30.0;
+
+    public static final double kMaxAccTrans = 8.0;
+    public static final double kMaxAccRot = 90.0;
+
+    public static final double kJoystickDeadband = 0.05;
+
+    public static final double kHoloKP = 1.0;
+    public static final double kHoloKI = 0.0;
+    public static final double kHoloKD = 0.0;
+
+    public static final double kRotKP = 1.0;
+    public static final double kRotKI = 0.0;
+    public static final double kRotKD = 0.0;
   }
 
   public static class HyperionSwerveModule {

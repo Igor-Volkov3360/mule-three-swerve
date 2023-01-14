@@ -6,34 +6,54 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.DriveTrain.*;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.subsystems.HyperionSwerveModule.HyperionSwerveModuleFactory;
+import frc.robot.subsystems.Vision.Vision;
+import frc.robot.subsystems.Vision.VisionMeasurement;
 import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {
 
   private final SwerveModuleFactory m_moduleFactory = new HyperionSwerveModuleFactory();
-
   private final SwerveModule[] m_modules = m_moduleFactory.createModules();
-
-  private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro();
-
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(m_moduleFactory.getLocations());
 
-  private final SwerveDriveOdometry m_odometry =
-      new SwerveDriveOdometry(m_kinematics, m_gyro.getRotation2d(), this.getModulePositions());
+  private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro();
+  private final SwerveDrivePoseEstimator m_odometry =
+      new SwerveDrivePoseEstimator(
+          m_kinematics, m_gyro.getRotation2d(), this.getModulePositions(), new Pose2d());
+
+  private final HolonomicDriveController m_holonomicController =
+      new HolonomicDriveController(
+          new PIDController(kHoloKP, kHoloKI, kHoloKD),
+          new PIDController(kHoloKP, kHoloKI, kHoloKD),
+          new ProfiledPIDController(
+              kRotKP, kRotKI, kRotKD, new Constraints(kMaxSpeedRot, kMaxAccRot)));
+
+  private final Vision m_vision;
+  private double m_lastVisionTimestamp = -1.0;
 
   /** Creates a new DriveTrain. */
-  public DriveTrain() {
+  public DriveTrain(Vision vision) {
 
-    // Reset gyro on code startup
+    m_vision = vision;
+
+    // Reset gyro on code startup (Required as odometry starts at 0)
     m_gyro.reset();
   }
 
@@ -41,6 +61,13 @@ public class DriveTrain extends SubsystemBase {
   public void periodic() {
     // Update odometry on each code loop
     m_odometry.update(m_gyro.getRotation2d(), this.getModulePositions());
+
+    // Add vision measurement if it's available
+    VisionMeasurement visionMes = m_vision.getMeasurement();
+    if (visionMes != null && visionMes.m_timestamp != m_lastVisionTimestamp) {
+      m_odometry.addVisionMeasurement(visionMes.m_pose, visionMes.m_timestamp);
+      m_lastVisionTimestamp = visionMes.m_timestamp;
+    }
   }
 
   /**
@@ -64,7 +91,7 @@ public class DriveTrain extends SubsystemBase {
    * @param rotSpeed Rotation speed around x (deg/s)
    * @param fieldRelative Velocity are field relative
    */
-  public void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative) {
+  private void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative) {
     var moduleStates =
         m_kinematics.toSwerveModuleStates(
             fieldRelative
@@ -79,7 +106,41 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * Command that drives using axis from the provided suppliers.
+   * Drives the robot in closed-loop velocity
+   *
+   * @param moduleStates Swerve modules states
+   */
+  public void drive(SwerveModuleState[] moduleStates) {
+    for (int i = 0; i < m_modules.length; ++i) {
+      m_modules[i].setDesiredState(moduleStates[i]);
+    }
+  }
+
+  /**
+   * Gets the current pose of the robot from the state estimator
+   *
+   * @return Field relative robot pose
+   */
+  public Pose2d getPose() {
+    return m_odometry.getEstimatedPosition();
+  }
+
+  /**
+   * Scales a joystick input to make it suitable as a velocity value
+   *
+   * @param valueSupplier Raw joystick value supplier (-1, 1)
+   * @return Scaled joystick value (physical units)
+   */
+  private static double scaleJoystickInput(DoubleSupplier valueSupplier, double maxValue) {
+    double value = valueSupplier.getAsDouble();
+
+    return Math.abs(value) > kJoystickDeadband
+        ? value * value * Math.signum(value) * maxValue
+        : 0.0;
+  }
+
+  /**
+   * Command that drives using axis from the provided suppliers
    *
    * @param xSpeed Velocity along x (-1, 1) supplier
    * @param ySpeed Velocity along y (-1, 1) supplier
@@ -98,19 +159,18 @@ public class DriveTrain extends SubsystemBase {
             this.drive(
                 DriveTrain.scaleJoystickInput(xSpeed, kMaxSpeedX),
                 DriveTrain.scaleJoystickInput(ySpeed, kMaxSpeedY),
-                DriveTrain.scaleJoystickInput(rotSpeed, kMaxSpeetRot),
+                DriveTrain.scaleJoystickInput(rotSpeed, kMaxSpeedRot),
                 fieldRelative));
   }
 
   /**
-   * Scales a joystick input to make it suitable as a velocity value
+   * Command that follows a trajectory
    *
-   * @param valueSupplier Raw joystick value supplier (-1, 1)
-   * @return Scaled joystick value (physical units)
+   * @param trajectory trajectory to follow
+   * @return schedulable command
    */
-  private static double scaleJoystickInput(DoubleSupplier valueSupplier, double maxValue) {
-    double value = valueSupplier.getAsDouble();
-
-    return Math.abs(value) > kDeadband ? value * value * Math.signum(value) * maxValue : 0.0;
+  public Command followCommand(Trajectory trajectory) {
+    return new SwerveControllerCommand(
+        trajectory, this::getPose, m_kinematics, m_holonomicController, this::drive, this);
   }
 }
