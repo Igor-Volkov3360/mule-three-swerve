@@ -46,9 +46,10 @@ public final class Constants {
   public static class HyperionSwerveModule {
 
     public static final HyperionSwerveModuleConfig[] kConfigs = {
-      new HyperionSwerveModuleConfig(7, 6, 412, InvertType.None, false),
-      new HyperionSwerveModuleConfig(8, 5, 875, InvertType.InvertMotorOutput, true),
-      new HyperionSwerveModuleConfig(10, 9, 738, InvertType.InvertMotorOutput, false)
+      new HyperionSwerveModuleConfig("Front", 7, 6, 0, 455, InvertType.InvertMotorOutput, false),
+      new HyperionSwerveModuleConfig("Left Rear", 8, 5, 1, 861, InvertType.InvertMotorOutput, true),
+      new HyperionSwerveModuleConfig(
+          "Right Rear", 10, 9, 2, 721, InvertType.InvertMotorOutput, false)
     };
 
     public static final Translation2d[] kLocations = {
@@ -57,18 +58,19 @@ public final class Constants {
 
     public static final double kAnalogToDeg = 360.0 / 1024;
     public static final double kDegToAnalog = 1.0 / kAnalogToDeg;
+    public static final double kAnalogWrapThreshold = 2.5;
 
     public static final double kTickToMeter = 1.0 / 3243;
     public static final double kTickToMeterPerS = 10.0 * kTickToMeter;
 
     public static final double kMeterPerSToTick = 1.0 / kTickToMeterPerS;
 
-    public static final double kTurnKp = 16.0;
+    public static final double kTurnKp = 8.0;
     public static final double kTurnKi = 0.0;
-    public static final double kTurnKd = 320.0;
+    public static final double kTurnKd = 0.0;
     public static final double kTurnIZone = 0.0;
 
-    public static final double kDriveKp = 4.0;
+    public static final double kDriveKp = 0.0;
     public static final double kDriveKi = 0.0;
     public static final double kDriveKd = 0.0;
     public static final double kDriveKf = 0.5;
