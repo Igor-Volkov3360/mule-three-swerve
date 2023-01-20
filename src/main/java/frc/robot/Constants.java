@@ -23,16 +23,16 @@ public final class Constants {
   }
 
   public static class DriveTrain {
-    public static final double kMaxModuleSpeed = 8.0;
+    public static final double kMaxModuleSpeed = 2.0;
 
-    public static final double kMaxSpeedX = 8.0;
-    public static final double kMaxSpeedY = 8.0;
-    public static final double kMaxSpeedRot = 10.0;
+    public static final double kMaxSpeedX = 2.0;
+    public static final double kMaxSpeedY = 2.0;
+    public static final double kMaxSpeedRot = 270.0;
 
     public static final double kMaxAccTrans = 8.0;
     public static final double kMaxAccRot = 90.0;
 
-    public static final double kJoystickDeadband = 0.05;
+    public static final double kJoystickDeadband = 0.15;
 
     public static final double kHoloKP = 1.0;
     public static final double kHoloKI = 0.0;
@@ -65,7 +65,7 @@ public final class Constants {
 
     public static final double kMeterPerSToTick = 1.0 / kTickToMeterPerS;
 
-    public static final double kTurnKp = 12.0;
+    public static final double kTurnKp = 10.0;
     public static final double kTurnKi = 0.0;
     public static final double kTurnKd = 0.0;
     public static final double kTurnIZone = 0.0;

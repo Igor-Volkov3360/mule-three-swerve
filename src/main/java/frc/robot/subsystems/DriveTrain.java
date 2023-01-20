@@ -92,6 +92,7 @@ public class DriveTrain extends SubsystemBase {
    * @param fieldRelative Velocity are field relative
    */
   private void drive(double xSpeed, double ySpeed, double rotSpeed, boolean fieldRelative) {
+    rotSpeed = Math.toRadians(rotSpeed);
     var moduleStates =
         m_kinematics.toSwerveModuleStates(
             fieldRelative
