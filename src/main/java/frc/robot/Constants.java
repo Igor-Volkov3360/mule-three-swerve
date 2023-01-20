@@ -23,11 +23,11 @@ public final class Constants {
   }
 
   public static class DriveTrain {
-    public static final double kMaxModuleSpeed = 4.0;
+    public static final double kMaxModuleSpeed = 8.0;
 
-    public static final double kMaxSpeedX = 4.0;
-    public static final double kMaxSpeedY = 4.0;
-    public static final double kMaxSpeedRot = 30.0;
+    public static final double kMaxSpeedX = 8.0;
+    public static final double kMaxSpeedY = 8.0;
+    public static final double kMaxSpeedRot = 10.0;
 
     public static final double kMaxAccTrans = 8.0;
     public static final double kMaxAccRot = 90.0;
@@ -47,7 +47,7 @@ public final class Constants {
 
     public static final HyperionSwerveModuleConfig[] kConfigs = {
       new HyperionSwerveModuleConfig("Front", 7, 6, 0, 455, InvertType.InvertMotorOutput, false),
-      new HyperionSwerveModuleConfig("Left Rear", 8, 5, 1, 861, InvertType.InvertMotorOutput, true),
+      new HyperionSwerveModuleConfig("Left Rear", 8, 5, 1, 871, InvertType.InvertMotorOutput, true),
       new HyperionSwerveModuleConfig(
           "Right Rear", 10, 9, 2, 721, InvertType.InvertMotorOutput, false)
     };
@@ -65,15 +65,15 @@ public final class Constants {
 
     public static final double kMeterPerSToTick = 1.0 / kTickToMeterPerS;
 
-    public static final double kTurnKp = 8.0;
+    public static final double kTurnKp = 12.0;
     public static final double kTurnKi = 0.0;
     public static final double kTurnKd = 0.0;
     public static final double kTurnIZone = 0.0;
 
-    public static final double kDriveKp = 0.0;
+    public static final double kDriveKp = 3.0;
     public static final double kDriveKi = 0.0;
     public static final double kDriveKd = 0.0;
-    public static final double kDriveKf = 0.5;
+    public static final double kDriveKf = 0.0; // 0.5;
     public static final double kDriveIZone = 0.0;
   }
 }
