@@ -6,6 +6,9 @@ package frc.robot.subsystems;
 
 import static frc.robot.Constants.DriveTrain.*;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -55,6 +58,9 @@ public class DriveTrain extends SubsystemBase {
 
     // Reset gyro on code startup (Required as odometry starts at 0)
     m_gyro.reset();
+
+    // Run path planning server
+    PathPlannerServer.startServer(kPathServerPort);
   }
 
   @Override
@@ -173,5 +179,18 @@ public class DriveTrain extends SubsystemBase {
   public Command followCommand(Trajectory trajectory) {
     return new SwerveControllerCommand(
         trajectory, this::getPose, m_kinematics, m_holonomicController, this::drive, this);
+  }
+
+  public Command followPathCommand(PathPlannerTrajectory trajectory) {
+    return new PPSwerveControllerCommand(
+        trajectory,
+        this::getPose,
+        this.m_kinematics,
+        new PIDController(kHoloKP, kHoloKI, kHoloKD),
+        new PIDController(kHoloKP, kHoloKI, kHoloKD),
+        new PIDController(kRotKP, kRotKI, kRotKD),
+        this::drive,
+        false,
+        this);
   }
 }

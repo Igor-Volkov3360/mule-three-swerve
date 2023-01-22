@@ -45,13 +45,15 @@ public final class Constants {
 
     public static final double kJoystickDeadband = 0.15;
 
-    public static final double kHoloKP = 1.0;
+    public static final double kHoloKP = 2.0;
     public static final double kHoloKI = 0.0;
     public static final double kHoloKD = 0.0;
 
-    public static final double kRotKP = 1.0;
+    public static final double kRotKP = 8.0;
     public static final double kRotKI = 0.0;
     public static final double kRotKD = 0.0;
+
+    public static final int kPathServerPort = 5811;
   }
 
   public static class HyperionSwerveModule {
