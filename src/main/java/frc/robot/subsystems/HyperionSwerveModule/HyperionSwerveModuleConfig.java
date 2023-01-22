@@ -27,9 +27,6 @@ public class HyperionSwerveModuleConfig {
   /** Is the drive motor sensor out of phase */
   public final boolean m_driveSensorInvertPhase;
 
-  /** Name of this module */
-  public final String m_name;
-
   /**
    * Constructs a configuration
    *
@@ -40,7 +37,6 @@ public class HyperionSwerveModuleConfig {
    * @param driveSensorInvertPhase is the drive motor sensor phase inverted
    */
   public HyperionSwerveModuleConfig(
-      String name,
       int driveMotorId,
       int turnMotorId,
       int turnEncoderChannel,
@@ -48,7 +44,6 @@ public class HyperionSwerveModuleConfig {
       InvertType driveMotorInversion,
       boolean driveSensorInvertPhase) {
 
-    m_name = name;
     m_driveMotorId = driveMotorId;
     m_turnMotorId = turnMotorId;
     m_turnEncoderChannel = turnEncoderChannel;

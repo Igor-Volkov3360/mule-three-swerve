@@ -57,10 +57,9 @@ public final class Constants {
   public static class HyperionSwerveModule {
 
     public static final HyperionSwerveModuleConfig[] kConfigs = {
-      new HyperionSwerveModuleConfig("Front", 7, 6, 0, 455, InvertType.InvertMotorOutput, false),
-      new HyperionSwerveModuleConfig("Left Rear", 8, 5, 1, 871, InvertType.InvertMotorOutput, true),
-      new HyperionSwerveModuleConfig(
-          "Right Rear", 10, 9, 2, 721, InvertType.InvertMotorOutput, false)
+      new HyperionSwerveModuleConfig(7, 6, 0, 455, InvertType.InvertMotorOutput, false),
+      new HyperionSwerveModuleConfig(8, 5, 1, 871, InvertType.InvertMotorOutput, true),
+      new HyperionSwerveModuleConfig(10, 9, 2, 721, InvertType.InvertMotorOutput, false)
     };
 
     public static final Translation2d[] kLocations = {
@@ -69,7 +68,6 @@ public final class Constants {
 
     public static final double kAnalogToDeg = 360.0 / 1024;
     public static final double kDegToAnalog = 1.0 / kAnalogToDeg;
-    public static final double kAnalogWrapThreshold = 2.5;
 
     public static final double kTickToMeter = 1.0 / 3243;
     public static final double kTickToMeterPerS = 10.0 * kTickToMeter;
