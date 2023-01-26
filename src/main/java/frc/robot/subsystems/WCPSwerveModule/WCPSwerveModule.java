@@ -17,14 +17,14 @@ import frc.robot.subsystems.SwerveModule;
 /** Add your docs here. */
 public class WCPSwerveModule implements SwerveModule {
 
-  private final int m_analogZero;
+  private final int m_encoderZero;
 
   private final TalonFX m_turnMotor;
   private final TalonFX m_driveMotor;
 
   WCPSwerveModule(WCPSwerveModuleConfig config) {
 
-    m_analogZero = config.m_analogZero;
+    m_encoderZero = config.m_analogZero;
 
     m_driveMotor = new TalonFX(config.m_driveMotorId);
     m_driveMotor.configFactoryDefault();
@@ -42,7 +42,7 @@ public class WCPSwerveModule implements SwerveModule {
     m_turnMotor = new TalonFX(config.m_turnMotorId);
     m_turnMotor.configFactoryDefault();
 
-    m_turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
+    m_turnMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
     m_turnMotor.config_kP(0, kTurnKp);
     m_turnMotor.config_kI(0, kTurnKi);
     m_turnMotor.config_kD(0, kTurnKd);
@@ -68,12 +68,12 @@ public class WCPSwerveModule implements SwerveModule {
     var state = SwerveModuleState.optimize(desiredState, this.getRotation());
     m_driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond * kMeterPerSToTick);
     m_turnMotor.set(
-        ControlMode.Position, state.angle.unaryMinus().getDegrees() * kDegToAnalog + m_analogZero);
+        ControlMode.Position, state.angle.unaryMinus().getDegrees() * kDegToAnalog + m_encoderZero);
   }
 
   private Rotation2d getRotation() {
     return Rotation2d.fromDegrees(
-            (m_turnMotor.getSelectedSensorPosition() - m_analogZero) * kAnalogToDeg)
+            (m_turnMotor.getSelectedSensorPosition() - m_encoderZero) * kAnalogToDeg)
         .unaryMinus();
   }
 }
