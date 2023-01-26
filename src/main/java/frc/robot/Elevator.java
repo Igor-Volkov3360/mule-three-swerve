@@ -6,26 +6,26 @@ package frc.robot;
 
 import static frc.robot.Constants.Elevator.*;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
 
-  private final TalonSRX m_elevator = new TalonSRX(kElevatorId);
+  private final CANSparkMax m_elevator = new CANSparkMax(kElevatorId, MotorType.kBrushless);
   /** Creates a new Elevator. */
   public Elevator() {
 
-    m_elevator.configFactoryDefault();
+    m_elevator.restoreFactoryDefaults();
   }
 
   public void up() {
-    m_elevator.set(ControlMode.Current, kUpCurrent);
+    m_elevator.set(kUpCurrent);
   }
 
   public void down() {
-    m_elevator.set(ControlMode.Current, kDownCurrent);
+    m_elevator.set(kDownCurrent);
   }
 
   public Command upCommand() {
