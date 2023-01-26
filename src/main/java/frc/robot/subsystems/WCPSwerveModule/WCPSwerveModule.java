@@ -4,7 +4,12 @@
 
 package frc.robot.subsystems.WCPSwerveModule;
 
+import static frc.robot.Constants.WCPSwerveModule.*;
+
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.subsystems.SwerveModule;
@@ -12,33 +17,63 @@ import frc.robot.subsystems.SwerveModule;
 /** Add your docs here. */
 public class WCPSwerveModule implements SwerveModule {
 
+  private final int m_analogZero;
+
   private final TalonFX m_turnMotor;
   private final TalonFX m_driveMotor;
 
   WCPSwerveModule(WCPSwerveModuleConfig config) {
 
-    m_turnMotor = new TalonFX(config.m_turnMotorId);
-    m_turnMotor.configFactoryDefault();
+    m_analogZero = config.m_analogZero;
 
     m_driveMotor = new TalonFX(config.m_driveMotorId);
     m_driveMotor.configFactoryDefault();
+
+    m_driveMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+
+    m_driveMotor.config_kP(0, kDriveKp);
+    m_driveMotor.config_kI(0, kDriveKi);
+    m_driveMotor.config_kD(0, kDriveKd);
+    m_driveMotor.config_kF(0, kDriveKf);
+    m_driveMotor.config_IntegralZone(0, kDriveIZone);
+    m_driveMotor.setInverted(config.m_driveMotorInversion);
+    m_driveMotor.setSensorPhase(config.m_driveSensorInvertPhase);
+
+    m_turnMotor = new TalonFX(config.m_turnMotorId);
+    m_turnMotor.configFactoryDefault();
+
+    m_turnMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog);
+    m_turnMotor.config_kP(0, kTurnKp);
+    m_turnMotor.config_kI(0, kTurnKi);
+    m_turnMotor.config_kD(0, kTurnKd);
+    m_turnMotor.config_IntegralZone(0, kTurnIZone);
   }
 
   @Override
   public SwerveModuleState getState() {
-    // TODO Auto-generated method stub
-    return null;
+
+    return new SwerveModuleState(
+        m_driveMotor.getSelectedSensorVelocity() * kTickToMeterPerS, this.getRotation());
   }
 
   @Override
   public SwerveModulePosition getPosition() {
-    // TODO Auto-generated method stub
-    return null;
+
+    return new SwerveModulePosition(
+        m_driveMotor.getSelectedSensorPosition() * kTickToMeter, this.getRotation());
   }
 
   @Override
   public void setDesiredState(SwerveModuleState desiredState) {
-    // TODO Auto-generated method stub
+    var state = SwerveModuleState.optimize(desiredState, this.getRotation());
+    m_driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond * kMeterPerSToTick);
+    m_turnMotor.set(
+        ControlMode.Position, state.angle.unaryMinus().getDegrees() * kDegToAnalog + m_analogZero);
+  }
 
+  private Rotation2d getRotation() {
+    return Rotation2d.fromDegrees(
+            (m_turnMotor.getSelectedSensorPosition() - m_analogZero) * kAnalogToDeg)
+        .unaryMinus();
   }
 }
