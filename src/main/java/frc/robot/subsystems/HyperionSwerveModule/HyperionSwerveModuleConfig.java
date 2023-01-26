@@ -15,8 +15,11 @@ public class HyperionSwerveModuleConfig {
   /** Turning motor CAN id */
   public final int m_turnMotorId;
 
-  /** Analog encore value when module is at angle 0 */
+  /** Analog encoder value when module is at angle 0 */
   public final int m_analogZero;
+
+  /** Analog channel of the module angle encoder */
+  public final int m_turnEncoderChannel;
 
   /** Inversion of the drive motor */
   public final InvertType m_driveMotorInversion;
@@ -36,12 +39,14 @@ public class HyperionSwerveModuleConfig {
   public HyperionSwerveModuleConfig(
       int driveMotorId,
       int turnMotorId,
+      int turnEncoderChannel,
       int analogZero,
       InvertType driveMotorInversion,
       boolean driveSensorInvertPhase) {
 
     m_driveMotorId = driveMotorId;
     m_turnMotorId = turnMotorId;
+    m_turnEncoderChannel = turnEncoderChannel;
     m_analogZero = analogZero;
     m_driveMotorInversion = driveMotorInversion;
     m_driveSensorInvertPhase = driveSensorInvertPhase;

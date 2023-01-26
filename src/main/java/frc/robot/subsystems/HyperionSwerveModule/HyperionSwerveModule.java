@@ -9,9 +9,11 @@ import static frc.robot.Constants.HyperionSwerveModule.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.AnalogInput;
 import frc.robot.subsystems.SwerveModule;
 
 /** Implements a single Hyperion custom swerve module */
@@ -22,6 +24,11 @@ public class HyperionSwerveModule implements SwerveModule {
 
   /** Turning motor */
   private final WPI_TalonSRX m_turnMotor;
+
+  private final AnalogInput m_turnEncoder;
+
+  /** Turning PID */
+  private final PIDController m_turnPid = new PIDController(kTurnKp, kTurnKi, kTurnKd);
 
   /** Analog encoder value when module is at angle 0 */
   private final int m_analogZero;
@@ -55,6 +62,9 @@ public class HyperionSwerveModule implements SwerveModule {
     m_turnMotor.config_kI(0, kTurnKi);
     m_turnMotor.config_kD(0, kTurnKd);
     m_turnMotor.config_IntegralZone(0, kTurnIZone);
+
+    m_turnEncoder = new AnalogInput(config.m_turnEncoderChannel);
+    m_turnPid.enableContinuousInput(0.0, 1023.0);
   }
 
   public SwerveModuleState getState() {
@@ -68,10 +78,20 @@ public class HyperionSwerveModule implements SwerveModule {
   }
 
   public void setDesiredState(SwerveModuleState desiredState) {
-    var state = SwerveModuleState.optimize(desiredState, this.getRotation());
-    m_driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond * kMeterPerSToTick);
-    m_turnMotor.set(
-        ControlMode.Position, state.angle.unaryMinus().getDegrees() * kDegToAnalog + m_analogZero);
+
+    // Optimize desired state based on current rotation
+    var optimizedState = SwerveModuleState.optimize(desiredState, this.getRotation());
+
+    // Drive command
+    m_driveMotor.set(ControlMode.Velocity, optimizedState.speedMetersPerSecond * kMeterPerSToTick);
+
+    // Turn target in degree
+    final double turnTarget =
+        optimizedState.angle.unaryMinus().getDegrees() * kDegToAnalog + m_analogZero;
+
+    // Turn command
+    final double turnCommand = m_turnPid.calculate(this.getTurnEncoderValue(), turnTarget);
+    m_turnMotor.set(turnCommand / 1023.0);
   }
 
   /**
@@ -80,8 +100,16 @@ public class HyperionSwerveModule implements SwerveModule {
    * @return Current module rotation.
    */
   private Rotation2d getRotation() {
-    return Rotation2d.fromDegrees(
-            (m_turnMotor.getSelectedSensorPosition() - m_analogZero) * kAnalogToDeg)
+    return Rotation2d.fromDegrees((this.getTurnEncoderValue() - m_analogZero) * kAnalogToDeg)
         .unaryMinus();
+  }
+
+  /**
+   * Gets the current raw turn encoder value.
+   *
+   * @return Current turn encoder value (0 - 1023)
+   */
+  private double getTurnEncoderValue() {
+    return m_turnEncoder.getVoltage() * 1023.0 / 5.0;
   }
 }

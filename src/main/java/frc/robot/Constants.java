@@ -35,11 +35,26 @@ public final class Constants {
   }
 
   public static class DriveTrain {
-    public static final double kMaxModuleSpeed = 4.0;
-    public static final double kMaxSpeedX = 4.0;
-    public static final double kMaxSpeedY = 4.0;
-    public static final double kMaxSpeetRot = 30.0;
-    public static final double kDeadband = 0.05;
+    public static final double kMaxModuleSpeed = 2.0;
+
+    public static final double kMaxSpeedX = 2.0;
+    public static final double kMaxSpeedY = 2.0;
+    public static final double kMaxSpeedRot = 270.0;
+
+    public static final double kMaxAccTrans = 8.0;
+    public static final double kMaxAccRot = 90.0;
+
+    public static final double kJoystickDeadband = 0.15;
+
+    public static final double kHoloKP = 2.0;
+    public static final double kHoloKI = 0.0;
+    public static final double kHoloKD = 0.0;
+
+    public static final double kRotKP = 8.0;
+    public static final double kRotKI = 0.0;
+    public static final double kRotKD = 0.0;
+
+    public static final int kPathServerPort = 5811;
   }
 
   public static class WCPSwerveModule {
@@ -50,9 +65,9 @@ public final class Constants {
   public static class HyperionSwerveModule {
 
     public static final HyperionSwerveModuleConfig[] kConfigs = {
-      new HyperionSwerveModuleConfig(7, 6, 412, InvertType.None, false),
-      new HyperionSwerveModuleConfig(8, 5, 875, InvertType.InvertMotorOutput, true),
-      new HyperionSwerveModuleConfig(10, 9, 738, InvertType.InvertMotorOutput, false)
+      new HyperionSwerveModuleConfig(7, 6, 0, 455, InvertType.InvertMotorOutput, false),
+      new HyperionSwerveModuleConfig(8, 5, 1, 871, InvertType.InvertMotorOutput, true),
+      new HyperionSwerveModuleConfig(10, 9, 2, 721, InvertType.InvertMotorOutput, false)
     };
 
     public static final Translation2d[] kLocations = {
@@ -67,15 +82,15 @@ public final class Constants {
 
     public static final double kMeterPerSToTick = 1.0 / kTickToMeterPerS;
 
-    public static final double kTurnKp = 16.0;
+    public static final double kTurnKp = 10.0;
     public static final double kTurnKi = 0.0;
-    public static final double kTurnKd = 320.0;
+    public static final double kTurnKd = 0.0;
     public static final double kTurnIZone = 0.0;
 
-    public static final double kDriveKp = 4.0;
+    public static final double kDriveKp = 3.0;
     public static final double kDriveKi = 0.0;
     public static final double kDriveKd = 0.0;
-    public static final double kDriveKf = 0.5;
+    public static final double kDriveKf = 0.0; // 0.5;
     public static final double kDriveIZone = 0.0;
   }
 }
