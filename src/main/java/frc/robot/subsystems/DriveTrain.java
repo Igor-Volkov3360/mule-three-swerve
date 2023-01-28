@@ -24,14 +24,14 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.subsystems.HyperionSwerveModule.HyperionSwerveModuleFactory;
 import frc.robot.subsystems.Vision.Vision;
 import frc.robot.subsystems.Vision.VisionMeasurement;
+import frc.robot.subsystems.WCPSwerveModule.WCPSwerveModuleFactory;
 import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {
 
-  private final SwerveModuleFactory m_moduleFactory = new HyperionSwerveModuleFactory();
+  private final SwerveModuleFactory m_moduleFactory = new WCPSwerveModuleFactory();
   private final SwerveModule[] m_modules = m_moduleFactory.createModules();
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(m_moduleFactory.getLocations());

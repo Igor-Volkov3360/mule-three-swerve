@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.InvertType;
 import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.subsystems.HyperionSwerveModule.HyperionSwerveModuleConfig;
+import frc.robot.subsystems.WCPSwerveModule.WCPSwerveModuleConfig;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -33,6 +34,19 @@ public final class Constants {
     public static final double kCloseCurrent = 0;
   }
 
+  public static class Elevator {
+    public static final int kElevatorId = 0;
+
+    public static final double kUpCurrent = 0;
+    public static final double kDownCurrent = 0;
+
+    public static final int kLeaderId = 0;
+    public static final int kFollowerId = 0;
+
+    public static final boolean kLeaderInverted = false;
+    public static final boolean kFollowerOpposeLeader = false;
+  }
+
   public static class DriveTrain {
     public static final double kMaxModuleSpeed = 2.0;
 
@@ -54,6 +68,36 @@ public final class Constants {
     public static final double kRotKD = 0.0;
 
     public static final int kPathServerPort = 5811;
+  }
+
+  public static class WCPSwerveModule {
+
+    public static final WCPSwerveModuleConfig[] kConfigs = {
+      new WCPSwerveModuleConfig(0, 0, 0, null, false),
+      new WCPSwerveModuleConfig(0, 0, 0, null, false),
+      new WCPSwerveModuleConfig(0, 0, 0, null, false),
+      new WCPSwerveModuleConfig(0, 0, 0, null, false)
+    };
+    public static final Translation2d[] kLocations = {};
+
+    public static final double kAnalogToDeg = 360.0 / 1024;
+    public static final double kDegToAnalog = 1.0 / kAnalogToDeg;
+
+    public static final double kTickToMeter = 1.0 / 3243;
+    public static final double kTickToMeterPerS = 10.0 * kTickToMeter;
+
+    public static final double kMeterPerSToTick = 1.0 / kTickToMeterPerS;
+
+    public static final double kTurnKp = 0.0;
+    public static final double kTurnKi = 0.0;
+    public static final double kTurnKd = 0.0;
+    public static final double kTurnIZone = 0.0;
+
+    public static final double kDriveKp = 0.0;
+    public static final double kDriveKi = 0.0;
+    public static final double kDriveKd = 0.0;
+    public static final double kDriveKf = 0.0;
+    public static final double kDriveIZone = 0.0;
   }
 
   public static class HyperionSwerveModule {
