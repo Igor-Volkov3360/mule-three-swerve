@@ -8,28 +8,31 @@ import static frc.robot.Constants.Elevator.*;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
 
   private final CANSparkMax m_elevator = new CANSparkMax(kElevatorId, MotorType.kBrushless);
+
+  private final SparkMaxPIDController m_pidController = m_elevator.getPIDController();
   /** Creates a new Elevator. */
   public Elevator() {
 
     m_elevator.restoreFactoryDefaults();
   }
 
-  public void up() {
-    m_elevator.set(kUpCurrent);
+  public void up(double height) {
+    m_pidController.setReference(height, CANSparkMax.ControlType.kSmartMotion);
   }
 
   public void down() {
     m_elevator.set(kDownCurrent);
   }
 
-  public Command upCommand() {
-    return this.run(this::up);
+  public Command upCommand(double meters) {
+    return this.run(() -> this.up(meters));
   }
 
   public Command downCommand() {
