@@ -17,10 +17,20 @@ public class Elevator extends SubsystemBase {
   private final CANSparkMax m_elevator = new CANSparkMax(kElevatorId, MotorType.kBrushless);
 
   private final SparkMaxPIDController m_pidController = m_elevator.getPIDController();
+
   /** Creates a new Elevator. */
   public Elevator() {
-
     m_elevator.restoreFactoryDefaults();
+    int maxVel = 0;
+    int minVel = 0;
+    int maxAcc = 0;
+    int smartMotionSlot = 0;
+    int allowedError = 0;
+    // trapezoidal velocity using smartMotion
+    m_pidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
+    m_pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
+    m_pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
+    m_pidController.setSmartMotionAllowedClosedLoopError(allowedError, smartMotionSlot);
   }
 
   public void up(double height) {
@@ -32,7 +42,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command upCommand(double meters) {
-    return this.run(() -> this.up(meters));
+    return this.run(() -> this.up(meters)).until(null);
   }
 
   public Command downCommand() {
