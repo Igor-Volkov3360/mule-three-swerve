@@ -23,17 +23,6 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  public static class Gripper {
-
-    public static final int kGripMotorId = 0;
-
-    public static final double kGripKp = 0;
-    public static final double kGripKf = 0;
-
-    public static final double kOpenCurrent = 0;
-    public static final double kCloseCurrent = 0;
-  }
-
   public static class Elevator {
     public static final int kElevatorId = 0;
 

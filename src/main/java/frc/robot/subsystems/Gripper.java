@@ -4,47 +4,59 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Gripper.*;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class Gripper extends SubsystemBase {
 
-  private final TalonSRX m_gripMotor = new TalonSRX(kGripMotorId);
+  // Subsystem parameters
+  private final int kGripperId = 0;
+  private final double kClosePercent = 0.2;
+  private final double kOpenPercent = 0.0;
+  private final double kTransitSeconds = 0.5;
+
+  // Member objects
+  private final CANSparkMax m_gripper = new CANSparkMax(kGripperId, MotorType.kBrushless);
+
+  // Process variables
+  private double m_outputPercent = kOpenPercent;
+
   /** Creates a new Gripper. */
   public Gripper() {
 
-    m_gripMotor.configFactoryDefault();
-
-    m_gripMotor.config_kP(0, kGripKp);
-    m_gripMotor.config_kF(0, kGripKf);
+    m_gripper.restoreFactoryDefaults();
+    m_gripper.burnFlash();
   }
 
-  public void open() {
+  /**
+   * Open the gripper
+   *
+   * @return blocking command
+   */
+  public Command open() {
 
-    m_gripMotor.set(ControlMode.Current, kOpenCurrent);
+    return this.runOnce(() -> m_outputPercent = kOpenPercent)
+        .andThen(new WaitCommand(kTransitSeconds));
   }
 
-  public void close() {
+  /**
+   * Close the gripper
+   *
+   * @return blocking command
+   */
+  public Command close() {
 
-    m_gripMotor.set(ControlMode.Current, kCloseCurrent);
-  }
-
-  public Command openCommand() {
-
-    return this.run(this::open);
-  }
-
-  public Command closeCommand() {
-
-    return this.run(this::close);
+    return this.runOnce(() -> m_outputPercent = kClosePercent)
+        .andThen(new WaitCommand(kTransitSeconds));
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    m_gripper.set(m_outputPercent);
   }
 }
