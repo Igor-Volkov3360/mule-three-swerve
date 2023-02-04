@@ -12,7 +12,6 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 public class PivotArm extends SubsystemBase {
 
@@ -92,7 +91,6 @@ public class PivotArm extends SubsystemBase {
    * @return blocking command
    */
   public Command PivotTo(double degrees) {
-    return this.runOnce(() -> m_targetRad = Math.toRadians(degrees))
-        .andThen(new WaitUntilCommand(this::onTarget));
+    return this.run(() -> m_targetRad = Math.toRadians(degrees)).until(this::onTarget);
   }
 }

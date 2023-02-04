@@ -25,6 +25,8 @@ public class Spindexer extends SubsystemBase {
   private static double kUpDeg = 90.0;
   private static double kDownDeg = 0.0;
 
+  private static boolean kIndexedBool = true;
+
   // Member objects
   private final TalonSRX m_table = new TalonSRX(kTableId);
   private final TalonSRX m_roller = new TalonSRX(kRollerId);
@@ -60,7 +62,7 @@ public class Spindexer extends SubsystemBase {
    * @return game piece is indexed
    */
   public boolean atIndex() {
-    return m_switch.get();
+    return m_switch.get() == kIndexedBool;
   }
 
   /**
