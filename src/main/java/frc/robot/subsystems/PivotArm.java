@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -56,6 +57,13 @@ public class PivotArm extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // Set target to current when robot is disabled to prevent sudden motion on enable
+    if (DriverStation.isDisabled()) {
+      m_targetRad = m_encoder.getPosition();
+    }
+
+    // Set reference in periodic to allow for arbitrary PID computation
     m_pid.setReference(m_targetRad, ControlType.kSmartMotion, 0, this.computeFeedForward());
   }
 
