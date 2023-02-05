@@ -4,53 +4,96 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.Elevator.*;
-
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.SparkMaxPIDController;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Elevator extends SubsystemBase {
 
-  private final CANSparkMax m_elevator = new CANSparkMax(kElevatorId, MotorType.kBrushless);
+  // Subsystem parameters
+  public static final int kLeadId = 0;
+  public static final int kFollowId = 0;
 
-  private final SparkMaxPIDController m_pidController = m_elevator.getPIDController();
+  private static final double kNativeToMeter = 1.0 / 1024.0;
+  private static final double kNominalVolt = 10.0;
+
+  private static final double kNeutralMeter = 0.0;
+  private static final double kGravityPercent = 0.0;
+
+  private static final double kTargetTolMeter = 0.1;
+  private static final double kP = 0.0;
+  private static final double kI = 0.0;
+  private static final double kD = 0.0;
+
+  private static final double kVelMeter = 1.0;
+  private static final double kAccMeter = 2.0;
+
+  // Member objects
+  private final TalonSRX m_lead = new TalonSRX(kLeadId);
+  private final TalonSRX m_follow = new TalonSRX(kFollowId);
+
+  // Process variables
+  private double m_targetMeter = kNeutralMeter;
 
   /** Creates a new Elevator. */
   public Elevator() {
-    m_elevator.restoreFactoryDefaults();
-    int maxVel = 0;
-    int minVel = 0;
-    int maxAcc = 0;
-    int smartMotionSlot = 0;
-    int allowedError = 0;
-    // trapezoidal velocity using smartMotion
-    m_pidController.setSmartMotionMaxVelocity(maxVel, smartMotionSlot);
-    m_pidController.setSmartMotionMinOutputVelocity(minVel, smartMotionSlot);
-    m_pidController.setSmartMotionMaxAccel(maxAcc, smartMotionSlot);
-    m_pidController.setSmartMotionAllowedClosedLoopError(allowedError, smartMotionSlot);
-  }
 
-  public void up(double height) {
-    m_pidController.setReference(height, CANSparkMax.ControlType.kSmartMotion);
-  }
+    m_lead.configFactoryDefault();
+    m_lead.configVoltageCompSaturation(kNominalVolt);
+    m_lead.enableVoltageCompensation(true);
 
-  public void down() {
-    m_elevator.set(kDownCurrent);
-  }
+    m_lead.setSelectedSensorPosition(kNeutralMeter / kNativeToMeter);
 
-  public Command upCommand(double meters) {
-    return this.run(() -> this.up(meters)).until(null);
-  }
+    m_lead.config_kP(0, kP);
+    m_lead.config_kI(0, kI);
+    m_lead.config_kD(0, kD);
 
-  public Command downCommand() {
-    return this.run(this::down);
+    m_lead.configMotionCruiseVelocity(kVelMeter / kNativeToMeter / 10.0);
+    m_lead.configMotionAcceleration(kAccMeter / kNativeToMeter / 10.0);
+
+    m_follow.configFactoryDefault();
+    m_follow.configVoltageCompSaturation(kNominalVolt);
+    m_follow.enableVoltageCompensation(true);
+    m_follow.follow(m_lead);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    // Set target to current when robot is disabled to preven sudden motion on enable
+    if (DriverStation.isDisabled()) {
+      m_targetMeter = m_lead.getSelectedSensorPosition() * kNativeToMeter;
+    }
+
+    // Set reference in periodic to allow arbitrary feed-forward
+    m_lead.set(
+        ControlMode.MotionMagic,
+        m_targetMeter / kNativeToMeter,
+        DemandType.ArbitraryFeedForward,
+        kGravityPercent);
+  }
+
+  /**
+   * Check wether the elevator reached its target extension
+   *
+   * @return elevator is at target
+   */
+  private boolean onTarget() {
+    return Math.abs(m_lead.getSelectedSensorPosition() * kNativeToMeter - m_targetMeter)
+        < kTargetTolMeter;
+  }
+
+  /**
+   * Extend the elevator to a given length
+   *
+   * @param meters length (meter)
+   * @return blocking command
+   */
+  public Command extendTo(double meters) {
+    return this.run(() -> m_targetMeter = meters).until(this::onTarget);
   }
 }

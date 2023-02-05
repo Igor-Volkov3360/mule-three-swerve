@@ -23,19 +23,6 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  public static class Elevator {
-    public static final int kElevatorId = 0;
-
-    public static final double kUpCurrent = 0;
-    public static final double kDownCurrent = 0;
-
-    public static final int kLeaderId = 0;
-    public static final int kFollowerId = 0;
-
-    public static final boolean kLeaderInverted = false;
-    public static final boolean kFollowerOpposeLeader = false;
-  }
-
   public static class DriveTrain {
     public static final double kMaxModuleSpeed = 2.0;
 

@@ -31,6 +31,9 @@ public class Intake extends SubsystemBase {
   private static final double kI = 0.0;
   private static final double kD = 0.0;
 
+  private static final double kAngVelRad = Math.toRadians(90.0);
+  private static final double kAngAccRed = Math.toRadians(90.0);
+
   private static final double kRetractRad = Math.toRadians(110.0);
   private static final double kExtendRad = Math.toRadians(45.0);
   private static final double kRollerPercent = 0.5;
@@ -61,6 +64,9 @@ public class Intake extends SubsystemBase {
     m_pid.setP(kP);
     m_pid.setD(kD);
     m_pid.setI(kI);
+
+    m_pid.setSmartMotionMaxVelocity(kAngVelRad, 0);
+    m_pid.setSmartMotionMaxAccel(kAngAccRed, 0);
 
     m_pivotLead.burnFlash();
 

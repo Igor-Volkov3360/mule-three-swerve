@@ -28,6 +28,9 @@ public class PivotArm extends SubsystemBase {
   private static final double kI = 0.0;
   private static final double kD = 0.0;
 
+  private static final double kAngVelRad = Math.toRadians(90.0);
+  private static final double kAngAccRed = Math.toRadians(90.0);
+
   // Member objects
   private final CANSparkMax m_pivot = new CANSparkMax(kLeadId, MotorType.kBrushless);
   private final SparkMaxPIDController m_pid = m_pivot.getPIDController();
@@ -50,6 +53,9 @@ public class PivotArm extends SubsystemBase {
     m_pid.setD(kD);
     m_pid.setI(kI);
 
+    m_pid.setSmartMotionMaxVelocity(kAngVelRad, 0);
+    m_pid.setSmartMotionMaxAccel(kAngAccRed, 0);
+
     m_pivot.burnFlash();
   }
 
@@ -62,7 +68,7 @@ public class PivotArm extends SubsystemBase {
       m_targetRad = m_encoder.getPosition();
     }
 
-    // Set reference in periodic to allow for arbitrary PID computation
+    // Set reference in periodic to allow for arbitrary feed-forward computation
     m_pid.setReference(m_targetRad, ControlType.kSmartMotion, 0, this.computeFeedForward());
   }
 
@@ -90,7 +96,7 @@ public class PivotArm extends SubsystemBase {
    * @param degrees target angle (degrees)
    * @return blocking command
    */
-  public Command PivotTo(double degrees) {
+  public Command pivotTo(double degrees) {
     return this.run(() -> m_targetRad = Math.toRadians(degrees)).until(this::onTarget);
   }
 }
