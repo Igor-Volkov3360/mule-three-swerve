@@ -7,7 +7,6 @@ package frc.robot.subsystems.WCPSwerveModule;
 import static frc.robot.Constants.WCPSwerveModule.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -29,7 +28,7 @@ public class WCPSwerveModule implements SwerveModule {
     m_driveMotor = new TalonFX(config.m_driveMotorId);
     m_driveMotor.configFactoryDefault();
 
-    m_driveMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+    // m_driveMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
 
     m_driveMotor.config_kP(0, kDriveKp);
     m_driveMotor.config_kI(0, kDriveKi);
@@ -42,7 +41,7 @@ public class WCPSwerveModule implements SwerveModule {
     m_turnMotor = new TalonFX(config.m_turnMotorId);
     m_turnMotor.configFactoryDefault();
 
-    m_turnMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
+    // m_turnMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
     m_turnMotor.config_kP(0, kTurnKp);
     m_turnMotor.config_kI(0, kTurnKi);
     m_turnMotor.config_kD(0, kTurnKd);
