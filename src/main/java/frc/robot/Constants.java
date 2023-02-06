@@ -49,14 +49,19 @@ public final class Constants {
   public static class WCPSwerveModule {
 
     public static final WCPSwerveModuleConfig[] kConfigs = {
-      new WCPSwerveModuleConfig(0, 0, 0, null, false),
-      new WCPSwerveModuleConfig(0, 0, 0, null, false),
-      new WCPSwerveModuleConfig(0, 0, 0, null, false),
-      new WCPSwerveModuleConfig(0, 0, 0, null, false)
+      new WCPSwerveModuleConfig(2, 1, 0, InvertType.None, false),
+      new WCPSwerveModuleConfig(4, 3, 0, InvertType.None, false),
+      new WCPSwerveModuleConfig(6, 5, 0, InvertType.None, false),
+      new WCPSwerveModuleConfig(8, 7, 0, InvertType.None, false)
     };
-    public static final Translation2d[] kLocations = {};
+    public static final Translation2d[] kLocations = {
+      new Translation2d(0.3525, 0.275),
+      new Translation2d(0.3525, -0.275),
+      new Translation2d(-0.3525, 0.275),
+      new Translation2d(-0.3525, -0.275)
+    };
 
-    public static final double kAnalogToDeg = 360.0 / 1024;
+    public static final double kAnalogToDeg = 360.0 / 28000;
     public static final double kDegToAnalog = 1.0 / kAnalogToDeg;
 
     public static final double kTickToMeter = 1.0 / 3243;
@@ -64,7 +69,7 @@ public final class Constants {
 
     public static final double kMeterPerSToTick = 1.0 / kTickToMeterPerS;
 
-    public static final double kTurnKp = 0.0;
+    public static final double kTurnKp = 0.21;
     public static final double kTurnKi = 0.0;
     public static final double kTurnKd = 0.0;
     public static final double kTurnIZone = 0.0;

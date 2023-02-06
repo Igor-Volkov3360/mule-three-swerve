@@ -7,6 +7,7 @@ package frc.robot.subsystems.WCPSwerveModule;
 import static frc.robot.Constants.WCPSwerveModule.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -40,6 +41,9 @@ public class WCPSwerveModule implements SwerveModule {
 
     m_turnMotor = new TalonFX(config.m_turnMotorId);
     m_turnMotor.configFactoryDefault();
+    m_turnMotor.setInverted(InvertType.InvertMotorOutput);
+    m_turnMotor.configVoltageCompSaturation(10);
+    m_turnMotor.enableVoltageCompensation(true);
 
     // m_turnMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute);
     m_turnMotor.config_kP(0, kTurnKp);
