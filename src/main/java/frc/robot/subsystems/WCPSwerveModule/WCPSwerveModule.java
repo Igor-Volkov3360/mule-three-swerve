@@ -81,7 +81,7 @@ public class WCPSwerveModule implements SwerveModule {
   @Override
   public void setDesiredState(SwerveModuleState desiredState) {
     var state = SwerveModuleState.optimize(desiredState, this.getRotation());
-    var rotationDelta = state.angle.minus(this.getRotation());
+    var rotationDelta = state.angle.minus(this.getRotation()); // .minus may be a problem?
     var setpointDegrees = getEncoderDegrees() + rotationDelta.getDegrees();
 
     m_driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond * kMeterPerSToTick);
