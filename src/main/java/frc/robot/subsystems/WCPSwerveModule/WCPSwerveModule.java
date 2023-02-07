@@ -52,6 +52,13 @@ public class WCPSwerveModule implements SwerveModule {
     m_turnMotor.config_IntegralZone(0, kTurnIZone);
   }
 
+  private Rotation2d getRotation() {
+
+    double encoderDegrees = getEncoderDegrees();
+
+    return Rotation2d.fromDegrees(encoderDegrees % 360);
+  }
+
   @Override
   public SwerveModuleState getState() {
 
@@ -66,25 +73,20 @@ public class WCPSwerveModule implements SwerveModule {
         m_driveMotor.getSelectedSensorPosition() * kTickToMeter, this.getRotation());
   }
 
-  @Override
-  public void setDesiredState(SwerveModuleState desiredState) {
-    var state = SwerveModuleState.optimize(desiredState, this.getRotation());
-    m_driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond * kMeterPerSToTick);
-    m_turnMotor.set(ControlMode.Position, state.angle.getDegrees() * kDegToAnalog + m_encoderZero);
-    var rotationDelta = state.angle.minus(this.getRotation());
-    var setpointDegrees = getEncoderDegrees() + rotationDelta.getDegrees();
-    m_turnMotor.set(ControlMode.Position, setpointDegrees * kDegToAnalog + m_encoderZero);
-  }
-
-  private Rotation2d getRotation() {
-
-    double encoderDegrees = getEncoderDegrees();
-
-    return Rotation2d.fromDegrees(encoderDegrees % 360);
-  }
-
   private double getEncoderDegrees() {
 
     return (m_turnMotor.getSelectedSensorPosition() - m_encoderZero) * kAnalogToDeg;
+  }
+
+  @Override
+  public void setDesiredState(SwerveModuleState desiredState) {
+    var state = SwerveModuleState.optimize(desiredState, this.getRotation());
+    var rotationDelta = state.angle.minus(this.getRotation());
+    var setpointDegrees = getEncoderDegrees() + rotationDelta.getDegrees();
+
+    m_driveMotor.set(ControlMode.Velocity, state.speedMetersPerSecond * kMeterPerSToTick);
+
+    m_turnMotor.set(ControlMode.Position, state.angle.getDegrees() * kDegToAnalog + m_encoderZero);
+    m_turnMotor.set(ControlMode.Position, setpointDegrees * kDegToAnalog + m_encoderZero);
   }
 }
