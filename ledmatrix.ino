@@ -46,13 +46,12 @@ int allVal = 0;
 
 void setup() {
   matrix.begin();
-  matrix.setTextWrap(false);  // Allow text to run off right edge
+  matrix.setTextWrap(false);
   matrix.setTextSize(2);
 
   pinMode(select1, INPUT);
   pinMode(select2, INPUT);
   pinMode(select3, INPUT);
-  
 }
 
 void loop() {
@@ -62,6 +61,7 @@ void loop() {
   select3Val = digitalRead(select3)<<2;
 
   allVal = select1Val + select2Val + select3Val;
+
 
   switch(allVal){
     case 0:
@@ -91,12 +91,13 @@ void loop() {
     case 6:
       setBlue();
       break;
-
-  }
+  } 
 
   matrix.swapBuffers(true);
   delay(10);
-}
+
+  
+}  
 
 void setGreen() {
   for (int x = 0; x < 32; x++)
@@ -149,12 +150,9 @@ void setBlue() {
 void set3360() {
   matrix.fillScreen(0);
   matrix.setTextSize(1);
-  matrix.setTextColor(matrix.Color333(orange[0], orange[1], orange[2])/*ColorHSV(color3360, 255, 255, false)*/);
+  matrix.setTextColor(matrix.Color333(orange[0], orange[1], orange[2]));
   matrix.setCursor(4, 4);
   matrix.print(F2(teamNumber));
-
-  //color3360++;
-  //if(color3360 > 1500) color3360 = 0;
 }
 
 void setScrollAltern() {
@@ -165,6 +163,30 @@ void setScrollAltern() {
   matrix.print(F2(hyperion));
   if ((--scrollAlternX) < teamMin) scrollAlternX = matrix.width();
 }
+
+void set3360Green() {
+  matrix.fillScreen(0);
+   for (int x = 0; x < 32; x++)
+    for (int y = 0; y < 16; y++)
+      matrix.writePixel(x, y, matrix.Color333(vert[0], vert[1], vert[2]));
+  matrix.setTextSize(1);
+  matrix.setTextColor(matrix.Color333(orange[0], orange[1], orange[2]));
+  matrix.setCursor(4, 4);
+  matrix.print(F2(teamNumber)); 
+}
+
+void set3360Red() {
+  matrix.fillScreen(0);
+   for (int x = 0; x < 32; x++)
+    for (int y = 0; y < 16; y++)
+      matrix.writePixel(x, y, matrix.Color333(rouge[0], rouge[1], rouge[2]));
+  matrix.setTextSize(1);
+  matrix.setTextColor(matrix.Color333(orange[0], orange[1], orange[2]));
+  matrix.setCursor(4, 4);
+  matrix.print(F2(teamNumber)); 
+}
+
+  
 
 
 

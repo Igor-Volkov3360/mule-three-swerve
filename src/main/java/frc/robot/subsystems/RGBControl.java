@@ -8,6 +8,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Subsystem for the RGBPanel */
@@ -25,6 +26,34 @@ public class RGBControl extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  public Command Command3360() {
+    return this.run(() -> set3360());
+  }
+
+  public Command blueCommand() {
+    return this.run(() -> setBlue());
+  }
+
+  public Command greenCommand() {
+    return this.run(() -> setGreen());
+  }
+
+  public Command redCommand() {
+    return this.run(() -> setRed());
+  }
+
+  public Command orangeCommand() {
+    return this.run(() -> setOrange());
+  }
+
+  public Command purpleCommand() {
+    return this.run(() -> setPurple());
+  }
+
+  public Command teamCommand() {
+    return this.run(() -> setTeam());
   }
 
   public static void setTeam() {

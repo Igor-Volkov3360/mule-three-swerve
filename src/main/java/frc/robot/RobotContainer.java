@@ -60,6 +60,10 @@ public class RobotContainer {
 
     // m_driverController.a().onTrue(m_gripper.closeCommand());
     // m_driverController.b().onTrue(m_gripper.openCommand());
+    m_driverController.x().onTrue(m_rgbPanel.blueCommand());
+    m_driverController.a().onTrue(m_rgbPanel.greenCommand());
+    m_driverController.b().onTrue(m_rgbPanel.redCommand());
+    m_driverController.y().onTrue(m_rgbPanel.Command3360());
   }
 
   /**
