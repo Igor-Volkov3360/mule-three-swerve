@@ -10,6 +10,7 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/** Subsystem for the RGBPanel */
 public class RGBControl extends SubsystemBase {
 
   private static DigitalOutput select1 = new DigitalOutput(0);
@@ -18,7 +19,7 @@ public class RGBControl extends SubsystemBase {
 
   /** Creates a new RGBControl. */
   public RGBControl() {
-    set3360(); // Set the default display to 3360
+    set3360();
   }
 
   @Override

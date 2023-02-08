@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Vision.Vision;
 
 /**
@@ -22,6 +23,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Vision m_vision = new Vision();
   private final DriveTrain m_drive = new DriveTrain(m_vision);
+  private final RGBControl m_rgbPanel = new RGBControl();
   // private final Gripper m_gripper = new Gripper();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -41,7 +43,6 @@ public class RobotContainer {
             true));
 
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
-
     // Configure the trigger bindings
     configureBindings();
   }
