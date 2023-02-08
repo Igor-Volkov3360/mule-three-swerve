@@ -141,9 +141,7 @@ public class DriveTrain extends SubsystemBase {
   private static double scaleJoystickInput(DoubleSupplier valueSupplier, double maxValue) {
     double value = valueSupplier.getAsDouble();
 
-    return Math.abs(value) > kJoystickDeadband
-        ? value * value * Math.signum(value) * maxValue
-        : 0.0;
+    return (value < kJoystickDeadband && value > -kJoystickDeadband) ? 0.0 : value * maxValue;
   }
 
   /**
