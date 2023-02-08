@@ -49,16 +49,14 @@ void setup() {
   matrix.setTextWrap(false);  // Allow text to run off right edge
   matrix.setTextSize(2);
 
-  //pinMode(select1, INPUT);
-  //pinMode(select2, INPUT);
-  //pinMode(select3, INPUT);
+  pinMode(select1, INPUT);
+  pinMode(select2, INPUT);
+  pinMode(select3, INPUT);
   
 }
 
 void loop() {
-  setScrollAltern();
   
-    /*
   select1Val = digitalRead(select1);
   select2Val = digitalRead(select2)<<1;
   select3Val = digitalRead(select3)<<2;
@@ -97,7 +95,7 @@ void loop() {
       break;
 
   }
-*/
+
   matrix.swapBuffers(true);
   delay(10);
 }
