@@ -62,8 +62,6 @@ void loop() {
   select3Val = digitalRead(select3)<<2;
 
   allVal = select1Val + select2Val + select3Val;
-  Serial.println(allVal);
-  Serial.println();
 
   switch(allVal){
     case 0:
