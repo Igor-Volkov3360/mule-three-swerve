@@ -2,6 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+// This is a subsystem that controls the RGB LED on the RoboRIO
+// it works by creating a binary number from the three digital outputs,
+// the arduino decodes this number and sets the LED accordingly
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
@@ -14,7 +17,9 @@ public class RGBControl extends SubsystemBase {
   private static DigitalOutput select3 = new DigitalOutput(2);
 
   /** Creates a new RGBControl. */
-  public RGBControl() {}
+  public RGBControl() {
+    set3360(); // Set the default display to 3360
+  }
 
   @Override
   public void periodic() {
