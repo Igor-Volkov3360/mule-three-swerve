@@ -44,6 +44,7 @@ public class RobotContainer {
 
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
+    m_rgbPanel.setDefaultCommand(m_rgbPanel.Command3360());
     configureBindings();
   }
 

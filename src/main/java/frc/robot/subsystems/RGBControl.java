@@ -19,9 +19,7 @@ public class RGBControl extends SubsystemBase {
   private static DigitalOutput select3 = new DigitalOutput(2);
 
   /** Creates a new RGBControl. */
-  public RGBControl() {
-    set3360();
-  }
+  public RGBControl() {}
 
   @Override
   public void periodic() {
@@ -55,6 +53,14 @@ public class RGBControl extends SubsystemBase {
   public Command teamCommand() {
     return this.run(() -> setTeam());
   }
+
+  /*
+  public Command testCommand() {
+    return this.run(() -> select1.set(false))
+        .alongWith(() -> select2.set(false))
+        .alongWith(() -> select3.set(false));
+  }
+  */
 
   public static void setTeam() {
     select1.set(false);
