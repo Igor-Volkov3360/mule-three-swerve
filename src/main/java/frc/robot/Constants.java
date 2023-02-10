@@ -26,11 +26,11 @@ public final class Constants {
   public static class DriveTrain {
     public static final double kMaxModuleSpeed = 2.0;
 
-    public static final double kMaxSpeedX = 2.0;
-    public static final double kMaxSpeedY = 2.0;
-    public static final double kMaxSpeedRot = 270.0;
+    public static final double kMaxSpeedX = 1.0;
+    public static final double kMaxSpeedY = 1.0;
+    public static final double kMaxSpeedRot = 180.0;
 
-    public static final double kMaxAccTrans = 8.0;
+    public static final double kMaxAccTrans = 2.0;
     public static final double kMaxAccRot = 90.0;
 
     public static final double kJoystickDeadband = 0.15;
