@@ -27,80 +27,65 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command Command3360() {
-    return this.run(() -> set3360());
+    return this.run(
+        () -> {
+          select1.set(true);
+          select2.set(false);
+          select3.set(false);
+        });
   }
 
   public Command blueCommand() {
-    return this.run(() -> setBlue());
+    return this.run(
+        () -> {
+          select1.set(false);
+          select2.set(true);
+          select3.set(true);
+        });
   }
 
   public Command greenCommand() {
-    return this.run(() -> setGreen());
+    return this.run(
+        () -> {
+          select1.set(true);
+          select2.set(false);
+          select3.set(true);
+        });
   }
 
   public Command redCommand() {
-    return this.run(() -> setRed());
+    return this.run(
+        () -> {
+          select1.set(false);
+          select2.set(false);
+          select3.set(true);
+        });
   }
 
   public Command orangeCommand() {
-    return this.run(() -> setOrange());
+    return this.run(
+        () -> {
+          select1.set(false);
+          select2.set(true);
+          select3.set(false);
+        });
   }
 
   public Command purpleCommand() {
-    return this.run(() -> setPurple());
+    return this.runOnce(
+        () -> {
+          select1.set(true);
+          select2.set(true);
+          select3.set(false);
+        });
   }
 
-  public Command teamCommand() {
-    return this.run(() -> setTeam());
-  }
-
-  /*
-  public Command testCommand() {
-    return this.run(() -> select1.set(false))
-        .alongWith(() -> select2.set(false))
-        .alongWith(() -> select3.set(false));
-  }
-  */
-
-  public static void setTeam() {
-    select1.set(false);
-    select2.set(false);
-    select3.set(false);
-  }
-
-  public static void set3360() {
-    select1.set(true);
-    select2.set(false);
-    select3.set(false);
-  }
-
-  public static void setOrange() {
-    select1.set(false);
-    select2.set(true);
-    select3.set(false);
-  }
-
-  public static void setPurple() {
-    select1.set(true);
-    select2.set(true);
-    select3.set(false);
-  }
-
-  public static void setRed() {
-    select1.set(false);
-    select2.set(false);
-    select3.set(true);
-  }
-
-  public static void setGreen() {
-    select1.set(true);
-    select2.set(false);
-    select3.set(true);
-  }
-
-  public static void setBlue() {
-    select1.set(false);
-    select2.set(true);
-    select3.set(true);
+  public Command teamCOmmand() {
+    return this.runOnce(
+        () -> {
+          select1.set(false);
+          select2.set(false);
+          select3.set(false);
+        });
   }
 }
