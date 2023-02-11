@@ -112,4 +112,9 @@ public class HyperionSwerveModule implements SwerveModule {
   private double getTurnEncoderValue() {
     return m_turnEncoder.getVoltage() * 1023.0 / 5.0;
   }
+
+  @Override
+  public void periodic() {
+    // Nothing to do here
+  }
 }

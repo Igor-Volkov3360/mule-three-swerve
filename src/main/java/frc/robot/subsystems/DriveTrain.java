@@ -33,7 +33,7 @@ public class DriveTrain extends SubsystemBase {
   public static final double kMaxSpeedRot = 180.0;
 
   public static final double kMaxAccTrans = 2.0;
-  public static final double kMaxAccRot = 90.0;
+  public static final double kMaxAccRot = 360.0;
 
   public static final double kJoystickDeadband = 0.15;
 
@@ -81,6 +81,11 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Call module periodic
+    for (final var module : m_modules) {
+      module.periodic();
+    }
+
     // Update odometry on each code loop
     m_odometry.update(m_gyro.getRotation2d(), this.getModulePositions());
 
@@ -169,7 +174,7 @@ public class DriveTrain extends SubsystemBase {
     double value =
         Math.abs(rawValue) > kJoystickDeadband ? rawValue * rawValue * Math.signum(rawValue) : 0.0;
 
-    return rateLimiter.calculate(value);
+    return rateLimiter.calculate(value * maxValue);
   }
 
   /**

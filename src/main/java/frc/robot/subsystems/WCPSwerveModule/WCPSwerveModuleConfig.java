@@ -4,31 +4,19 @@
 
 package frc.robot.subsystems.WCPSwerveModule;
 
-import com.ctre.phoenix.motorcontrol.InvertType;
-
 /** Add your docs here. */
 public class WCPSwerveModuleConfig {
 
   public final int m_turnMotorId;
-
   public final int m_driveMotorId;
-
-  public final int m_analogZero;
-
-  public final InvertType m_driveMotorInversion;
-
-  public final boolean m_driveSensorInvertPhase;
+  public final double m_analogZero;
+  public final int m_magEncoderChannel;
 
   public WCPSwerveModuleConfig(
-      int turnMotorId,
-      int driveMotorId,
-      int analogZero,
-      InvertType driveMotorInversion,
-      boolean driveSensorInvertPhase) {
+      int turnMotorId, int driveMotorId, int magEncoderChannel, double analogZero) {
     m_turnMotorId = turnMotorId;
     m_driveMotorId = driveMotorId;
+    m_magEncoderChannel = magEncoderChannel;
     m_analogZero = analogZero;
-    m_driveMotorInversion = driveMotorInversion;
-    m_driveSensorInvertPhase = driveSensorInvertPhase;
   }
 }
