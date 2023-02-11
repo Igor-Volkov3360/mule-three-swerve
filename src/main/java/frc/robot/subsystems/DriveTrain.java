@@ -4,26 +4,20 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.DriveTrain.*;
-
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import com.pathplanner.lib.server.PathPlannerServer;
-import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import frc.robot.subsystems.Vision.Vision;
 import frc.robot.subsystems.Vision.VisionMeasurement;
 import frc.robot.subsystems.WCPSwerveModule.WCPSwerveModuleFactory;
@@ -31,6 +25,29 @@ import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {
 
+  // Subsystem parameters
+  public static final double kMaxModuleSpeed = 2.0;
+
+  public static final double kMaxSpeedX = 1.0;
+  public static final double kMaxSpeedY = 1.0;
+  public static final double kMaxSpeedRot = 180.0;
+
+  public static final double kMaxAccTrans = 2.0;
+  public static final double kMaxAccRot = 90.0;
+
+  public static final double kJoystickDeadband = 0.15;
+
+  public static final double kHoloKP = 2.0;
+  public static final double kHoloKI = 0.0;
+  public static final double kHoloKD = 0.0;
+
+  public static final double kRotKP = 8.0;
+  public static final double kRotKI = 0.0;
+  public static final double kRotKD = 0.0;
+
+  public static final int kPathServerPort = 5811;
+
+  // Member objects
   private final SwerveModuleFactory m_moduleFactory = new WCPSwerveModuleFactory();
   private final SwerveModule[] m_modules = m_moduleFactory.createModules();
   private final SwerveDriveKinematics m_kinematics =
@@ -41,14 +58,13 @@ public class DriveTrain extends SubsystemBase {
       new SwerveDrivePoseEstimator(
           m_kinematics, m_gyro.getRotation2d(), this.getModulePositions(), new Pose2d());
 
-  private final HolonomicDriveController m_holonomicController =
-      new HolonomicDriveController(
-          new PIDController(kHoloKP, kHoloKI, kHoloKD),
-          new PIDController(kHoloKP, kHoloKI, kHoloKD),
-          new ProfiledPIDController(
-              kRotKP, kRotKI, kRotKD, new Constraints(kMaxSpeedRot, kMaxAccRot)));
+  private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(kMaxAccTrans);
+  private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(kMaxAccTrans);
+  private final SlewRateLimiter m_zLimiter = new SlewRateLimiter(kMaxAccRot);
 
   private final Vision m_vision;
+
+  // Process variables
   private double m_lastVisionTimestamp = -1.0;
 
   /** Creates a new DriveTrain. */
@@ -71,7 +87,13 @@ public class DriveTrain extends SubsystemBase {
     // Add vision measurement if it's available
     VisionMeasurement visionMes = m_vision.getMeasurement();
     if (visionMes != null && visionMes.m_timestamp != m_lastVisionTimestamp) {
-      m_odometry.addVisionMeasurement(visionMes.m_pose, visionMes.m_timestamp);
+      if (m_lastVisionTimestamp < 0.0) {
+        // Reset odometry to vision measurement on first observation
+        m_odometry.resetPosition(
+            m_gyro.getRotation2d(), this.getModulePositions(), visionMes.m_pose);
+      } else {
+        m_odometry.addVisionMeasurement(visionMes.m_pose, visionMes.m_timestamp);
+      }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
   }
@@ -136,12 +158,18 @@ public class DriveTrain extends SubsystemBase {
    * Scales a joystick input to make it suitable as a velocity value
    *
    * @param valueSupplier Raw joystick value supplier (-1, 1)
+   * @param maxValue Maximum value in physical units
+   * @param rateLimiter Slew rate limiter to limit rate of change
    * @return Scaled joystick value (physical units)
    */
-  private static double scaleJoystickInput(DoubleSupplier valueSupplier, double maxValue) {
-    double value = valueSupplier.getAsDouble();
+  private static double scaleJoystickInput(
+      DoubleSupplier valueSupplier, double maxValue, SlewRateLimiter rateLimiter) {
 
-    return (value < kJoystickDeadband && value > -kJoystickDeadband) ? 0.0 : value * maxValue;
+    double rawValue = valueSupplier.getAsDouble();
+    double value =
+        Math.abs(rawValue) > kJoystickDeadband ? rawValue * rawValue * Math.signum(rawValue) : 0.0;
+
+    return rateLimiter.calculate(value);
   }
 
   /**
@@ -159,26 +187,28 @@ public class DriveTrain extends SubsystemBase {
       DoubleSupplier rotSpeed,
       boolean fieldRelative) {
 
-    return this.run(
-        () ->
-            this.drive(
-                DriveTrain.scaleJoystickInput(xSpeed, kMaxSpeedX),
-                DriveTrain.scaleJoystickInput(ySpeed, kMaxSpeedY),
-                DriveTrain.scaleJoystickInput(rotSpeed, kMaxSpeedRot),
-                fieldRelative));
+    return this.runOnce(
+            () -> {
+              this.m_xLimiter.reset(0.0);
+              this.m_yLimiter.reset(0.0);
+              this.m_zLimiter.reset(0.0);
+            })
+        .andThen(
+            this.run(
+                () ->
+                    this.drive(
+                        DriveTrain.scaleJoystickInput(xSpeed, kMaxSpeedX, m_xLimiter),
+                        DriveTrain.scaleJoystickInput(ySpeed, kMaxSpeedY, m_yLimiter),
+                        DriveTrain.scaleJoystickInput(rotSpeed, kMaxSpeedRot, m_zLimiter),
+                        fieldRelative)));
   }
 
   /**
-   * Command that follows a trajectory
+   * Command that drives along a trajectory
    *
-   * @param trajectory trajectory to follow
-   * @return schedulable command
+   * @param trajectory path planner generated trajectory
+   * @return blocking command
    */
-  public Command followCommand(Trajectory trajectory) {
-    return new SwerveControllerCommand(
-        trajectory, this::getPose, m_kinematics, m_holonomicController, this::drive, this);
-  }
-
   public Command followPathCommand(PathPlannerTrajectory trajectory) {
     return new PPSwerveControllerCommand(
         trajectory,
