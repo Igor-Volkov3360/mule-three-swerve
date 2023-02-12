@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Elevator extends SubsystemBase {
 
   // Subsystem parameters
-  public static final int kLeadId = 0;
-  public static final int kFollowId = 0;
+  public static final int kLeadId = 14;
+  public static final int kFollowId = 13;
 
   private static final double kNativeToMeter = 1.0 / 1024.0;
   private static final double kNominalVolt = 10.0;
