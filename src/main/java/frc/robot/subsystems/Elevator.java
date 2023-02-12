@@ -58,6 +58,7 @@ public class Elevator extends SubsystemBase {
     m_follow.configVoltageCompSaturation(kNominalVolt);
     m_follow.enableVoltageCompensation(true);
     m_follow.follow(m_lead);
+    m_follow.setInverted(true);
   }
 
   @Override
