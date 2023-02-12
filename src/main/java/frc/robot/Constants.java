@@ -23,36 +23,13 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
   }
 
-  public static class DriveTrain {
-    public static final double kMaxModuleSpeed = 2.0;
-
-    public static final double kMaxSpeedX = 1.0;
-    public static final double kMaxSpeedY = 1.0;
-    public static final double kMaxSpeedRot = 180.0;
-
-    public static final double kMaxAccTrans = 2.0;
-    public static final double kMaxAccRot = 90.0;
-
-    public static final double kJoystickDeadband = 0.15;
-
-    public static final double kHoloKP = 2.0;
-    public static final double kHoloKI = 0.0;
-    public static final double kHoloKD = 0.0;
-
-    public static final double kRotKP = 8.0;
-    public static final double kRotKI = 0.0;
-    public static final double kRotKD = 0.0;
-
-    public static final int kPathServerPort = 5811;
-  }
-
   public static class WCPSwerveModule {
 
     public static final WCPSwerveModuleConfig[] kConfigs = {
-      new WCPSwerveModuleConfig(2, 1, 0, InvertType.None, false),
-      new WCPSwerveModuleConfig(4, 3, 0, InvertType.None, false),
-      new WCPSwerveModuleConfig(6, 5, 0, InvertType.None, false),
-      new WCPSwerveModuleConfig(8, 7, 0, InvertType.None, false)
+      new WCPSwerveModuleConfig(2, 1, 3, 8430.0),
+      new WCPSwerveModuleConfig(4, 3, 4, 20756.0),
+      new WCPSwerveModuleConfig(6, 5, 5, 1072.0),
+      new WCPSwerveModuleConfig(8, 7, 6, 13555.0)
     };
     public static final Translation2d[] kLocations = {
       new Translation2d(0.3525, 0.275),

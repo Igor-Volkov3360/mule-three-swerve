@@ -31,4 +31,7 @@ public interface SwerveModule {
    * @param desiredState Desired module state
    */
   public void setDesiredState(SwerveModuleState desiredState);
+
+  /** This method will be called automatically every scheduler loop. */
+  public void periodic();
 }
