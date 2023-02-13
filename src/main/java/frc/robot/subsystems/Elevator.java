@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,7 +21,7 @@ public class Elevator extends SubsystemBase {
   private static final double kNominalVolt = 10.0;
 
   private static final double kNeutralMeter = 0.0;
-  private static final double kGravityPercent = 0.001;
+  private static final double kGravityPercent = 0.15;
 
   private static final double kTargetTolMeter = 0.1;
   private static final double kP = 0.1;
@@ -57,7 +58,6 @@ public class Elevator extends SubsystemBase {
     m_follow.configVoltageCompSaturation(kNominalVolt);
     m_follow.enableVoltageCompensation(true);
     m_follow.follow(m_lead);
-    // m_follow.setInverted(true);
   }
 
   @Override
@@ -70,14 +70,11 @@ public class Elevator extends SubsystemBase {
     }
 
     // Set reference in periodic to allow arbitrary feed-forward
-    /*m_lead.set(
-    ControlMode.MotionMagic,
-    m_targetMeter / kNativeToMeter,
-    DemandType.ArbitraryFeedForward,
-    kGravityPercent);
-
-    */
-
+    m_lead.set(
+        ControlMode.MotionMagic,
+        m_targetMeter / kNativeToMeter,
+        DemandType.ArbitraryFeedForward,
+        kGravityPercent);
   }
 
   /**
@@ -97,8 +94,7 @@ public class Elevator extends SubsystemBase {
    * @return blocking command
    */
   public Command extendTo(double meters) {
-    return this.run(() -> m_lead.set(ControlMode.PercentOutput, 0.5));
-    // return this.run(() -> m_targetMeter = meters).until(this::onTarget);
+    return this.run(() -> m_targetMeter = meters).until(this::onTarget);
   }
 
   public Command off() {
