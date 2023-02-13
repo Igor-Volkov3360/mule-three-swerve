@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Vision.Vision;
 
@@ -24,6 +25,7 @@ public class RobotContainer {
   private final Vision m_vision = new Vision();
   private final DriveTrain m_drive = new DriveTrain(m_vision);
   private final RGBControl m_rgbPanel = new RGBControl();
+  private final Elevator m_elevator = new Elevator();
   // private final Gripper m_gripper = new Gripper();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -61,10 +63,8 @@ public class RobotContainer {
 
     // m_driverController.a().onTrue(m_gripper.closeCommand());
     // m_driverController.b().onTrue(m_gripper.openCommand());
-    m_driverController.x().onTrue(m_rgbPanel.blueCommand());
-    m_driverController.a().onTrue(m_rgbPanel.greenCommand());
-    m_driverController.b().onTrue(m_rgbPanel.redCommand());
-    m_driverController.y().onTrue(m_rgbPanel.Command3360());
+    m_driverController.a().onTrue(m_elevator.extendTo(0.5));
+    m_driverController.b().onTrue(m_elevator.off());
   }
 
   /**
