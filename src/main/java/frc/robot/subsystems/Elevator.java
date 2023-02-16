@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
+import com.ctre.phoenix.motorcontrol.InvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,14 +18,14 @@ public class Elevator extends SubsystemBase {
   public static final int kLeadId = 14;
   public static final int kFollowId = 13;
 
-  private static final double kNativeToMeter = 1.0 / 1024.0;
+  private static final double kNativeToMeter = 1.51 / 10062;
   private static final double kNominalVolt = 10.0;
 
   private static final double kNeutralMeter = 0.0;
-  private static final double kGravityPercent = 0.15;
+  private static final double kGravityPercent = 0.12;
 
   private static final double kTargetTolMeter = 0.1;
-  private static final double kP = 0.1;
+  private static final double kP = 2.0;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
 
@@ -46,6 +47,8 @@ public class Elevator extends SubsystemBase {
     m_lead.enableVoltageCompensation(true);
 
     m_lead.setSelectedSensorPosition(kNeutralMeter / kNativeToMeter);
+    m_lead.setInverted(InvertType.InvertMotorOutput);
+    m_lead.setSensorPhase(true);
 
     m_lead.config_kP(0, kP);
     m_lead.config_kI(0, kI);
@@ -58,6 +61,7 @@ public class Elevator extends SubsystemBase {
     m_follow.configVoltageCompSaturation(kNominalVolt);
     m_follow.enableVoltageCompensation(true);
     m_follow.follow(m_lead);
+    m_follow.setInverted(InvertType.OpposeMaster);
   }
 
   @Override
