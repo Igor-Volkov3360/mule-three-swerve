@@ -76,7 +76,7 @@ public class Intake extends SubsystemBase {
     m_pivotFollow.burnFlash();
 
     // Stop intake by default
-    this.setDefaultCommand(this.stop());
+    // this.setDefaultCommand(this.stop());
   }
 
   @Override
