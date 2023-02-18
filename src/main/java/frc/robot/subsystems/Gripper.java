@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Gripper extends SubsystemBase {
 
   // Subsystem parameters
-  private static final int kGripperId = 0;
+  private static final int kGripperId = 15;
   private static final double kClosePercent = 0.2;
   private static final double kOpenPercent = 0.0;
   private static final double kTransitSeconds = 0.5;
