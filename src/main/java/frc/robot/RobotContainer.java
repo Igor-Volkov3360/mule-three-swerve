@@ -11,6 +11,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Vision.Vision;
 
@@ -26,6 +27,7 @@ public class RobotContainer {
   private final DriveTrain m_drive = new DriveTrain(m_vision);
   private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
+  private final Intake m_intake = new Intake();
   // private final Gripper m_gripper = new Gripper();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -65,6 +67,9 @@ public class RobotContainer {
     // m_driverController.b().onTrue(m_gripper.openCommand());
     m_driverController.a().onTrue(m_elevator.extendTo(0.5));
     m_driverController.b().onTrue(m_elevator.off());
+
+    m_driverController.povUp().onTrue(m_intake.retract());
+    m_driverController.povDown().onTrue(m_intake.extend().andThen(m_intake.spin()));
   }
 
   /**

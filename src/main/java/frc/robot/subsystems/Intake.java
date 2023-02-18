@@ -7,9 +7,11 @@ package frc.robot.subsystems;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.SparkMaxPIDController.ArbFFUnits;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.networktables.GenericEntry;
@@ -27,27 +29,28 @@ public class Intake extends SubsystemBase {
   private static final int kPivotRight = 10;
   private static final int kRollerId = 17;
 
-  private static final double kNativeToRad = Math.PI / 2.0 / 12.0;
+  private static final double kNativeToRad = 2.0 * Math.PI;
   private static final double kNominalVolt = 10.0;
 
-  private static final double kNeutralRad = 0.0;
-  private static final double kZeroOffsetLeft = 0.0;
-  private static final double kZeroOffsetRight = 0.0;
-  private static final double kHorizontalPercentLeft = 0.06;
-  private static final double kHorizontalPercentRight = 0.08;
+  private static final double kNeutralRad = Math.PI / 2.0;
+  private static final double kEncOff = 3.0 * Math.PI / 2.0;
+  private static final double kZeroOffsetLeft = 0.63 + kEncOff;
+  private static final double kZeroOffsetRight = 0.0 + kEncOff;
+  private static final double kHorizontalPercentLeft = 0.025;
+  private static final double kHorizontalPercentRight = 0.035;
 
   private static final double kTargetTolRad = Math.toRadians(5.0);
-  private static final double kP = 0.003; // have to continue tweaking
+  private static final double kP = 0.8; // have to continue tweaking
   private static final double kI = 0.0;
   private static final double kD = 0.000;
 
-  private static final double kAngVelRad = Math.toRadians(40.0);
-  private static final double kAngAccRed = Math.toRadians(20.0);
+  private static final double kAngVelRad = Math.toRadians(180.0);
+  private static final double kAngAccRed = Math.toRadians(60.0);
   private static final TrapezoidProfile.Constraints kProfileConstraints =
       new TrapezoidProfile.Constraints(kAngVelRad, kAngAccRed);
 
-  private static final double kRetractRad = Math.toRadians(40.0);
-  private static final double kExtendRad = Math.toRadians(0.0);
+  private static final double kRetractRad = Math.toRadians(90.0 + 72.0);
+  private static final double kExtendRad = Math.toRadians(90.0);
   private static final double kRollerPercent = 0.5;
 
   // Member objects
@@ -75,16 +78,21 @@ public class Intake extends SubsystemBase {
   public Intake() {
 
     m_roller.restoreFactoryDefaults();
+    m_roller.setInverted(true);
     m_roller.burnFlash();
 
     m_pivotLeft.restoreFactoryDefaults();
+    m_pivotLeft.setIdleMode(IdleMode.kBrake);
     m_pivotLeft.setInverted(true);
     m_pivotLeft.enableVoltageCompensation(kNominalVolt);
 
+    m_encoderLeft.setInverted(true);
     m_encoderLeft.setPositionConversionFactor(kNativeToRad);
+    m_encoderLeft.setVelocityConversionFactor(kNativeToRad);
     m_encoderLeft.setZeroOffset(kZeroOffsetLeft);
 
     m_pidLeft.setFeedbackDevice(m_encoderLeft);
+    m_pidLeft.setPositionPIDWrappingEnabled(true);
     m_pidLeft.setP(kP);
     m_pidLeft.setD(kD);
     m_pidLeft.setI(kI);
@@ -94,12 +102,15 @@ public class Intake extends SubsystemBase {
     m_pivotLeft.burnFlash();
 
     m_pivotRight.restoreFactoryDefaults();
+    m_pivotRight.setIdleMode(IdleMode.kBrake);
     m_pivotRight.enableVoltageCompensation(kNominalVolt);
 
     m_encoderRight.setPositionConversionFactor(kNativeToRad);
+    m_encoderRight.setVelocityConversionFactor(kNativeToRad);
     m_encoderRight.setZeroOffset(kZeroOffsetRight);
 
     m_pidRight.setFeedbackDevice(m_encoderRight);
+    m_pidRight.setPositionPIDWrappingEnabled(true);
     m_pidRight.setP(kP);
     m_pidRight.setD(kD);
     m_pidRight.setI(kI);
@@ -136,24 +147,28 @@ public class Intake extends SubsystemBase {
           profTarget.position,
           ControlType.kPosition,
           0,
-          this.computeFeedForward(profTarget.position, kHorizontalPercentLeft));
+          this.computeFeedForward(profTarget.position, kHorizontalPercentLeft),
+          ArbFFUnits.kPercentOut);
       m_pidRight.setReference(
           profTarget.position,
           ControlType.kPosition,
           0,
-          this.computeFeedForward(profTarget.position, kHorizontalPercentRight));
+          this.computeFeedForward(profTarget.position, kHorizontalPercentRight),
+          ArbFFUnits.kPercentOut);
     } else {
       // Pivot has reached its target thus holding its position
       m_pidLeft.setReference(
           m_targetRad,
           ControlType.kPosition,
           0,
-          this.computeFeedForward(m_targetRad, kHorizontalPercentLeft));
+          this.computeFeedForward(m_targetRad, kHorizontalPercentLeft),
+          ArbFFUnits.kPercentOut);
       m_pidRight.setReference(
           m_targetRad,
           ControlType.kPosition,
           0,
-          this.computeFeedForward(m_targetRad, kHorizontalPercentRight));
+          this.computeFeedForward(m_targetRad, kHorizontalPercentRight),
+          ArbFFUnits.kPercentOut);
     }
 
     m_angleEntry.setDouble(Math.toDegrees(m_encoderLeft.getPosition()));
@@ -163,7 +178,7 @@ public class Intake extends SubsystemBase {
         this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft));
 
     System.out.printf(
-        "Pos L %.2f    Pos R %.2f    Pos* %.0f    FF %.2f    Cmd %.2f\n",
+        "Pos L %.2f    Pos R %.2f    Pos* %.0f    FF %.3f    Cmd %.3f\n",
         Math.toDegrees(m_encoderLeft.getPosition()),
         Math.toDegrees(m_encoderRight.getPosition()),
         Math.toDegrees(m_targetRad),
@@ -177,7 +192,7 @@ public class Intake extends SubsystemBase {
    * @return feed-forward (percent)
    */
   private double computeFeedForward(double angle, double horizontalPercent) {
-    return horizontalPercent * Math.cos(angle);
+    return horizontalPercent * Math.cos(angle - Math.PI / 2.0);
   }
 
   /**
@@ -220,7 +235,7 @@ public class Intake extends SubsystemBase {
    * @param pivotRad angle above horizontal (rad)
    * @return blocking command
    */
-  private Command operate(double rollerPercent, double pivotRad) {
+  public Command operate(double rollerPercent, double pivotRad) {
     return this.runOnce(() -> this.generateProfile(pivotRad))
         .andThen(this.run(() -> m_roller.set(rollerPercent)).until(this::onTarget));
   }
@@ -250,6 +265,10 @@ public class Intake extends SubsystemBase {
    */
   public Command stop() {
     return this.run(() -> m_roller.set(0.0));
+  }
+
+  public Command spin() {
+    return this.run(() -> m_roller.set(kRollerPercent));
   }
 
   public Command changeTarget(double changeBy) {
