@@ -4,50 +4,72 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxAbsoluteEncoder.Type;
 import com.revrobotics.SparkMaxPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase {
 
   // Subsystem parameters
-  private static final int kPivotLeadId = 0;
-  private static final int kPivotFollowId = 0;
-  private static final int kRollerId = 0;
+  private static final int kPivotLeft = 9;
+  private static final int kPivotRight = 10;
+  private static final int kRollerId = 17;
 
-  private static final double kNativeToRad = 1.0;
+  private static final double kNativeToRad = Math.PI / 2.0 / 12.0;
   private static final double kNominalVolt = 10.0;
 
-  private static final double kNeutralRad = Math.toRadians(110.0);
-  private static final double kHorizontalPercent = 0.0;
+  private static final double kNeutralRad = 0.0;
+  private static final double kZeroOffsetLeft = 0.0;
+  private static final double kZeroOffsetRight = 0.0;
+  private static final double kHorizontalPercentLeft = 0.06;
+  private static final double kHorizontalPercentRight = 0.08;
 
   private static final double kTargetTolRad = Math.toRadians(5.0);
-  private static final double kP = 0.0;
+  private static final double kP = 0.003; // have to continue tweaking
   private static final double kI = 0.0;
-  private static final double kD = 0.0;
+  private static final double kD = 0.000;
 
-  private static final double kAngVelRad = Math.toRadians(90.0);
-  private static final double kAngAccRed = Math.toRadians(90.0);
+  private static final double kAngVelRad = Math.toRadians(40.0);
+  private static final double kAngAccRed = Math.toRadians(20.0);
+  private static final TrapezoidProfile.Constraints kProfileConstraints =
+      new TrapezoidProfile.Constraints(kAngVelRad, kAngAccRed);
 
-  private static final double kRetractRad = Math.toRadians(110.0);
-  private static final double kExtendRad = Math.toRadians(45.0);
+  private static final double kRetractRad = Math.toRadians(40.0);
+  private static final double kExtendRad = Math.toRadians(0.0);
   private static final double kRollerPercent = 0.5;
 
   // Member objects
-  private final CANSparkMax m_pivotLead = new CANSparkMax(kPivotLeadId, MotorType.kBrushless);
-  private final CANSparkMax m_pivotFollow = new CANSparkMax(kPivotFollowId, MotorType.kBrushless);
+  private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
+  private final CANSparkMax m_pivotRight = new CANSparkMax(kPivotRight, MotorType.kBrushless);
   private final CANSparkMax m_roller = new CANSparkMax(kRollerId, MotorType.kBrushless);
 
-  private final SparkMaxPIDController m_pid = m_pivotLead.getPIDController();
-  private final RelativeEncoder m_encoder = m_pivotLead.getEncoder();
+  private final SparkMaxPIDController m_pidLeft = m_pivotLeft.getPIDController();
+  private final AbsoluteEncoder m_encoderLeft = m_pivotLeft.getAbsoluteEncoder(Type.kDutyCycle);
+  private final SparkMaxPIDController m_pidRight = m_pivotRight.getPIDController();
+  private final AbsoluteEncoder m_encoderRight = m_pivotRight.getAbsoluteEncoder(Type.kDutyCycle);
+
+  private final ShuffleboardTab m_intakeTab = Shuffleboard.getTab("intake");
+  private final GenericEntry m_percentEntry = m_intakeTab.add("targetPercent", 0.0).getEntry();
+  private final GenericEntry m_angleEntry = m_intakeTab.add("currentAngle", 0.0).getEntry();
+  private final GenericEntry m_targetEntry = m_intakeTab.add("targetAngle", 0.0).getEntry();
+  private final GenericEntry m_pidEntry = m_intakeTab.add("feedForward", 0.0).getEntry();
 
   // Process variables
   private double m_targetRad = kNeutralRad;
+  private TrapezoidProfile m_profile = null;
+  private double m_profileStart = -1.0;
 
   /** Creates a new Intake. */
   public Intake() {
@@ -55,28 +77,39 @@ public class Intake extends SubsystemBase {
     m_roller.restoreFactoryDefaults();
     m_roller.burnFlash();
 
-    m_pivotLead.restoreFactoryDefaults();
-    m_pivotLead.enableVoltageCompensation(kNominalVolt);
+    m_pivotLeft.restoreFactoryDefaults();
+    m_pivotLeft.setInverted(true);
+    m_pivotLeft.enableVoltageCompensation(kNominalVolt);
 
-    m_encoder.setPositionConversionFactor(kNativeToRad);
-    m_encoder.setPosition(kNeutralRad);
+    m_encoderLeft.setPositionConversionFactor(kNativeToRad);
+    m_encoderLeft.setZeroOffset(kZeroOffsetLeft);
 
-    m_pid.setP(kP);
-    m_pid.setD(kD);
-    m_pid.setI(kI);
+    m_pidLeft.setFeedbackDevice(m_encoderLeft);
+    m_pidLeft.setP(kP);
+    m_pidLeft.setD(kD);
+    m_pidLeft.setI(kI);
+    m_pidLeft.setSmartMotionMaxVelocity(kAngVelRad, 0);
+    m_pidLeft.setSmartMotionMaxAccel(kAngAccRed, 0);
 
-    m_pid.setSmartMotionMaxVelocity(kAngVelRad, 0);
-    m_pid.setSmartMotionMaxAccel(kAngAccRed, 0);
+    m_pivotLeft.burnFlash();
 
-    m_pivotLead.burnFlash();
+    m_pivotRight.restoreFactoryDefaults();
+    m_pivotRight.enableVoltageCompensation(kNominalVolt);
 
-    m_pivotFollow.restoreFactoryDefaults();
-    m_pivotFollow.enableVoltageCompensation(kNominalVolt);
-    m_pivotFollow.follow(m_pivotLead);
-    m_pivotFollow.burnFlash();
+    m_encoderRight.setPositionConversionFactor(kNativeToRad);
+    m_encoderRight.setZeroOffset(kZeroOffsetRight);
+
+    m_pidRight.setFeedbackDevice(m_encoderRight);
+    m_pidRight.setP(kP);
+    m_pidRight.setD(kD);
+    m_pidRight.setI(kI);
+    m_pidRight.setSmartMotionMaxVelocity(kAngVelRad, 0);
+    m_pidRight.setSmartMotionMaxAccel(kAngAccRed, 0);
+
+    m_pivotRight.burnFlash();
 
     // Stop intake by default
-    // this.setDefaultCommand(this.stop());
+    this.setDefaultCommand(this.stop());
   }
 
   @Override
@@ -85,11 +118,57 @@ public class Intake extends SubsystemBase {
 
     // Set target to current when robot is disabled to prevent sudden motion on enable
     if (DriverStation.isDisabled()) {
-      m_targetRad = m_encoder.getPosition();
+      m_targetRad = m_encoderLeft.getPosition();
+    }
+
+    // Clear motion profile if target is reached
+    if (this.onTarget()) {
+      this.m_profile = null;
     }
 
     // Set reference in periodic to allow for arbitrary PID computation
-    m_pid.setReference(m_targetRad, ControlType.kSmartMotion, 0, this.computeFeedForward());
+    if (m_profile != null) {
+      // Pivot is tracking a velocity profile
+      final var profTime = Timer.getFPGATimestamp() - m_profileStart;
+      final var profTarget = m_profile.calculate(profTime);
+
+      m_pidLeft.setReference(
+          profTarget.position,
+          ControlType.kPosition,
+          0,
+          this.computeFeedForward(profTarget.position, kHorizontalPercentLeft));
+      m_pidRight.setReference(
+          profTarget.position,
+          ControlType.kPosition,
+          0,
+          this.computeFeedForward(profTarget.position, kHorizontalPercentRight));
+    } else {
+      // Pivot has reached its target thus holding its position
+      m_pidLeft.setReference(
+          m_targetRad,
+          ControlType.kPosition,
+          0,
+          this.computeFeedForward(m_targetRad, kHorizontalPercentLeft));
+      m_pidRight.setReference(
+          m_targetRad,
+          ControlType.kPosition,
+          0,
+          this.computeFeedForward(m_targetRad, kHorizontalPercentRight));
+    }
+
+    m_angleEntry.setDouble(Math.toDegrees(m_encoderLeft.getPosition()));
+    m_percentEntry.setDouble(m_pivotLeft.getAppliedOutput());
+    m_targetEntry.setDouble(Math.toDegrees(m_targetRad));
+    m_pidEntry.setDouble(
+        this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft));
+
+    System.out.printf(
+        "Pos L %.2f    Pos R %.2f    Pos* %.0f    FF %.2f    Cmd %.2f\n",
+        Math.toDegrees(m_encoderLeft.getPosition()),
+        Math.toDegrees(m_encoderRight.getPosition()),
+        Math.toDegrees(m_targetRad),
+        this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft),
+        m_pivotLeft.getAppliedOutput());
   }
 
   /**
@@ -97,8 +176,8 @@ public class Intake extends SubsystemBase {
    *
    * @return feed-forward (percent)
    */
-  private double computeFeedForward() {
-    return kHorizontalPercent * Math.cos(m_encoder.getPosition());
+  private double computeFeedForward(double angle, double horizontalPercent) {
+    return horizontalPercent * Math.cos(angle);
   }
 
   /**
@@ -107,7 +186,31 @@ public class Intake extends SubsystemBase {
    * @return intake is on target
    */
   private boolean onTarget() {
-    return Math.abs(m_encoder.getPosition() - m_targetRad) < kTargetTolRad;
+    return Math.abs(m_encoderLeft.getPosition() - m_targetRad) < kTargetTolRad
+        & Math.abs(m_encoderRight.getPosition() - m_targetRad) < kTargetTolRad;
+  }
+
+  /**
+   * Generate a trapezoidal motion profile to reach an angle from the current desired state
+   *
+   * @param targetRad target angle (rad)
+   */
+  private void generateProfile(double targetRad) {
+    final double startRad =
+        this.m_profile == null
+            ? m_targetRad
+            : this.m_profile.calculate(Timer.getFPGATimestamp() - m_profileStart).position;
+
+    final double startVel =
+        this.m_profile == null
+            ? 0.0
+            : this.m_profile.calculate(Timer.getFPGATimestamp() - m_profileStart).velocity;
+
+    m_profile =
+        new TrapezoidProfile(
+            kProfileConstraints, new State(targetRad, 0), new State(startRad, startVel));
+    m_profileStart = Timer.getFPGATimestamp();
+    m_targetRad = targetRad;
   }
 
   /**
@@ -118,8 +221,8 @@ public class Intake extends SubsystemBase {
    * @return blocking command
    */
   private Command operate(double rollerPercent, double pivotRad) {
-    return this.runOnce(() -> m_roller.set(rollerPercent))
-        .andThen(this.run(() -> m_targetRad = pivotRad).until(this::onTarget));
+    return this.runOnce(() -> this.generateProfile(pivotRad))
+        .andThen(this.run(() -> m_roller.set(rollerPercent)).until(this::onTarget));
   }
 
   /**
@@ -146,6 +249,10 @@ public class Intake extends SubsystemBase {
    * @return instant command
    */
   public Command stop() {
-    return this.runOnce(() -> m_roller.set(0.0));
+    return this.run(() -> m_roller.set(0.0));
+  }
+
+  public Command changeTarget(double changeBy) {
+    return this.runOnce(() -> m_targetRad += changeBy);
   }
 }

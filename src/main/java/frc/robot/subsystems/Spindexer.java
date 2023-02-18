@@ -15,10 +15,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Spindexer extends SubsystemBase {
 
   // Subsystem parameters
-  private static final int kTableId = 0;
-  private static final int kRollerId = 0;
+  private static final int kTableId = 11;
+  private static final int kRollerId = 12;
   private static final int kBladeChannel = 0;
-  private static final int kSwitchChannel = 0;
+  private static final int kSwitchChannel = 9;
 
   private static double kTablePercent = 0.5;
   private static double kRollerPercent = 0.5;
@@ -71,7 +71,7 @@ public class Spindexer extends SubsystemBase {
    * @return instant command
    */
   public Command spin() {
-    return this.runOnce(
+    return this.run(
         () -> {
           m_blade.setAngle(kUpDeg);
           m_roller.set(ControlMode.PercentOutput, kRollerPercent);
@@ -100,7 +100,7 @@ public class Spindexer extends SubsystemBase {
    * @return instant command
    */
   public Command stop() {
-    return this.runOnce(
+    return this.run(
         () -> {
           m_roller.set(ControlMode.PercentOutput, 0.0);
           m_table.set(TalonSRXControlMode.PercentOutput, 0.0);
