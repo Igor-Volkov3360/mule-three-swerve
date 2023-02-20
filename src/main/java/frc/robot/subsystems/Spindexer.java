@@ -4,9 +4,8 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,8 +27,8 @@ public class Spindexer extends SubsystemBase {
   private static boolean kIndexedBool = true;
 
   // Member objects
-  private final TalonSRX m_table = new TalonSRX(kTableId);
-  private final TalonSRX m_roller = new TalonSRX(kRollerId);
+  private final CANSparkMax m_table = new CANSparkMax(kTableId, MotorType.kBrushless);
+  private final CANSparkMax m_roller = new CANSparkMax(kRollerId, MotorType.kBrushless);
   private final Servo m_blade = new Servo(kBladeChannel);
   private final DigitalInput m_switch = new DigitalInput(kSwitchChannel);
 
@@ -41,8 +40,8 @@ public class Spindexer extends SubsystemBase {
   /** Creates a new Spindexer. */
   public Spindexer() {
 
-    m_roller.configFactoryDefault();
-    m_table.configFactoryDefault();
+    m_roller.restoreFactoryDefaults();
+    m_table.restoreFactoryDefaults();
 
     // Stop everything by default
     this.setDefaultCommand(this.stop());
@@ -51,8 +50,8 @@ public class Spindexer extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_roller.set(ControlMode.PercentOutput, m_rollerPercent);
-    m_table.set(ControlMode.PercentOutput, m_tablePercent);
+    m_roller.set(m_rollerPercent);
+    m_table.set(m_tablePercent);
     m_blade.setAngle(m_bladeDeg);
   }
 
@@ -74,8 +73,8 @@ public class Spindexer extends SubsystemBase {
     return this.run(
         () -> {
           m_blade.setAngle(kUpDeg);
-          m_roller.set(ControlMode.PercentOutput, kRollerPercent);
-          m_table.set(ControlMode.PercentOutput, kTablePercent);
+          m_roller.set(kRollerPercent);
+          m_table.set(kTablePercent);
         });
   }
 
@@ -88,8 +87,8 @@ public class Spindexer extends SubsystemBase {
     return this.run(
             () -> {
               m_blade.setAngle(kDownDeg);
-              m_roller.set(ControlMode.PercentOutput, 0.0);
-              m_table.set(ControlMode.PercentOutput, kTablePercent);
+              m_roller.set(0.0);
+              m_table.set(kTablePercent);
             })
         .until(this::atIndex);
   }
@@ -102,8 +101,8 @@ public class Spindexer extends SubsystemBase {
   public Command stop() {
     return this.run(
         () -> {
-          m_roller.set(ControlMode.PercentOutput, 0.0);
-          m_table.set(TalonSRXControlMode.PercentOutput, 0.0);
+          m_roller.set(0.0);
+          m_table.set(0.0);
         });
   }
 }
