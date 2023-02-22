@@ -18,7 +18,7 @@ public class Elevator extends SubsystemBase {
   public static final int kLeadId = 14;
   public static final int kFollowId = 13;
 
-  private static final double kNativeToMeter = 1.51 / 10062;
+  private static final double kNativeToMeter = 1.51 / 13200; // was 10062
   private static final double kNominalVolt = 10.0;
 
   private static final double kNeutralMeter = 0.0;
@@ -103,5 +103,9 @@ public class Elevator extends SubsystemBase {
 
   public Command off() {
     return this.run(() -> m_lead.set(ControlMode.PercentOutput, 0.0));
+  }
+
+  public Command down(double meters) {
+    return this.run(() -> m_targetMeter = 0.0).until(this::onTarget);
   }
 }

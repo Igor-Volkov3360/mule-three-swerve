@@ -65,11 +65,14 @@ public class RobotContainer {
 
     // m_driverController.a().onTrue(m_gripper.closeCommand());
     // m_driverController.b().onTrue(m_gripper.openCommand());
-    m_driverController.a().onTrue(m_elevator.extendTo(0.5));
-    m_driverController.b().onTrue(m_elevator.off());
+    m_driverController.a().onTrue(m_elevator.extendTo(0.65));
+    m_driverController.b().onTrue(m_elevator.extendTo(1.0)); // 1.46
+    m_driverController.y().onTrue(m_elevator.down(0.5));
+    m_driverController.x().onTrue(m_elevator.off());
 
     m_driverController.povUp().onTrue(m_intake.retract());
     m_driverController.povDown().onTrue(m_intake.extend().andThen(m_intake.spin()));
+    m_driverController.leftBumper().toggleOnTrue(m_intake.spin());
   }
 
   /**
