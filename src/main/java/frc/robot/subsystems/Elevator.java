@@ -101,11 +101,7 @@ public class Elevator extends SubsystemBase {
     return this.run(() -> m_targetMeter = meters).until(this::onTarget);
   }
 
-  public Command off() {
-    return this.run(() -> m_lead.set(ControlMode.PercentOutput, 0.0));
-  }
-
-  public Command down(double meters) {
+  public Command down() {
     return this.run(() -> m_targetMeter = 0.0).until(this::onTarget);
   }
 }
