@@ -200,7 +200,7 @@ public class Intake extends SubsystemBase {
    */
   private boolean onTarget() {
     return Math.abs(m_encoderLeft.getPosition() - m_targetRad) < kTargetTolRad
-        & Math.abs(m_encoderRight.getPosition() - m_targetRad) < kTargetTolRad;
+        && Math.abs(m_encoderRight.getPosition() - m_targetRad) < kTargetTolRad;
   }
 
   /**
