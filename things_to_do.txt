@@ -1,0 +1,38 @@
+intake: 
+    1- check the code😅
+
+    2- check if the encoders' 0 are actually 0
+        if they are not ajust the offsets
+
+    3- 
+    
+    
+elevator:
+    1- create a bunch of variable that are related to the height of all the stages
+    1.1- link the variables to the custom controller buttons
+
+    2- start a little sequence when we lift the elevator: 1) sligthly open the intake 2) elevate 3) retract elevator 4) retract intake
+
+gripper:
+    1- control it using the current drawn from the pdp to knwo when its closing on a game piece (opening and closing)
+    1.1- make sure that there's two values, one for the cones one for the cubes
+
+    2- control the angle of the gripper using the ecoders, maybe with a variable that is stored when the robot initially power up
+       and then it move from a pre-determined values 
+
+    3- 
+
+spindexer:
+    1- wait for the mechanic boys to change the gearing ratios because its a quick boi
+
+    2- 
+
+rgb panel: 
+    1- fix the broken connection
+
+    2- when we are not aligned its red, when we are aligned its green
+
+    3- map 2 buttons that are telling the human player if its a cone (yellow) or a cube (purple)
+
+drivetrain:
+    1- autonomous driving
