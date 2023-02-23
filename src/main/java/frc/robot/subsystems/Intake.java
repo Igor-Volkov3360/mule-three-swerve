@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
 
   private static final double kRetractRad = Math.toRadians(90.0 + 72.0);
   private static final double kExtendRad = Math.toRadians(90.0);
-  private static final double kRollerPercent = 0.5;
+  private static final double kRollerPercent = 0.7;
 
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
@@ -85,11 +85,12 @@ public class Intake extends SubsystemBase {
     m_pivotLeft.setIdleMode(IdleMode.kBrake);
     m_pivotLeft.setInverted(true);
     m_pivotLeft.enableVoltageCompensation(kNominalVolt);
+    m_pivotLeft.burnFlash();
 
     m_encoderLeft.setInverted(true);
     m_encoderLeft.setPositionConversionFactor(kNativeToRad);
     m_encoderLeft.setVelocityConversionFactor(kNativeToRad);
-    m_encoderLeft.setZeroOffset(kZeroOffsetLeft);
+    m_encoderLeft.setZeroOffset(kZeroOffsetLeft); // perhaps
 
     m_pidLeft.setFeedbackDevice(m_encoderLeft);
     m_pidLeft.setPositionPIDWrappingEnabled(true);
@@ -99,11 +100,10 @@ public class Intake extends SubsystemBase {
     m_pidLeft.setSmartMotionMaxVelocity(kAngVelRad, 0);
     m_pidLeft.setSmartMotionMaxAccel(kAngAccRed, 0);
 
-    m_pivotLeft.burnFlash();
-
     m_pivotRight.restoreFactoryDefaults();
     m_pivotRight.setIdleMode(IdleMode.kBrake);
     m_pivotRight.enableVoltageCompensation(kNominalVolt);
+    m_pivotRight.burnFlash();
 
     m_encoderRight.setPositionConversionFactor(kNativeToRad);
     m_encoderRight.setVelocityConversionFactor(kNativeToRad);
@@ -116,8 +116,6 @@ public class Intake extends SubsystemBase {
     m_pidRight.setI(kI);
     m_pidRight.setSmartMotionMaxVelocity(kAngVelRad, 0);
     m_pidRight.setSmartMotionMaxAccel(kAngAccRed, 0);
-
-    m_pivotRight.burnFlash();
 
     // Stop intake by default
     this.setDefaultCommand(this.stop());

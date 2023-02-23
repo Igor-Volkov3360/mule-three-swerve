@@ -14,15 +14,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Spindexer extends SubsystemBase {
 
   // Subsystem parameters
-  private static final int kTableId = 11;
-  private static final int kRollerId = 12;
+  private static final int kTableId = 12;
+  private static final int kRollerId = 11;
   private static final int kBladeChannel = 0;
   private static final int kSwitchChannel = 9;
 
-  private static double kTablePercent = 0.5;
+  private static double kTablePercent = 0.2;
   private static double kRollerPercent = 0.5;
   private static double kUpDeg = 90.0;
-  private static double kDownDeg = 0.0;
+  // private static double kDownDeg = 0.0;
 
   private static boolean kIndexedBool = true;
 
@@ -43,6 +43,8 @@ public class Spindexer extends SubsystemBase {
     m_roller.restoreFactoryDefaults();
     m_table.restoreFactoryDefaults();
 
+    m_roller.setInverted(true);
+
     // Stop everything by default
     this.setDefaultCommand(this.stop());
   }
@@ -53,6 +55,7 @@ public class Spindexer extends SubsystemBase {
     m_roller.set(m_rollerPercent);
     m_table.set(m_tablePercent);
     m_blade.setAngle(m_bladeDeg);
+    // System.out.println(m_table.getOutputCurrent());
   }
 
   /**
@@ -72,9 +75,9 @@ public class Spindexer extends SubsystemBase {
   public Command spin() {
     return this.run(
         () -> {
-          m_blade.setAngle(kUpDeg);
+          // m_blade.setAngle(kUpDeg);
           m_roller.set(kRollerPercent);
-          m_table.set(kTablePercent);
+          // m_table.set(-kTablePercent);
         });
   }
 
@@ -86,7 +89,7 @@ public class Spindexer extends SubsystemBase {
   public Command index() {
     return this.run(
             () -> {
-              m_blade.setAngle(kDownDeg);
+              // m_blade.setAngle(kDownDeg);
               m_roller.set(0.0);
               m_table.set(kTablePercent);
             })

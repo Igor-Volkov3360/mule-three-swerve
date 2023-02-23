@@ -11,8 +11,10 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.RGBControl;
+import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Vision.Vision;
 
 /**
@@ -28,7 +30,8 @@ public class RobotContainer {
   private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
-  // private final Gripper m_gripper = new Gripper();
+  private final Spindexer m_spindexer = new Spindexer();
+  private final Gripper m_gripper = new Gripper();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -63,15 +66,17 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    // m_driverController.a().onTrue(m_gripper.closeCommand());
-    // m_driverController.b().onTrue(m_gripper.openCommand());
-    m_driverController.a().onTrue(m_elevator.extendTo(0.65));
-    m_driverController.b().onTrue(m_elevator.extendTo(1.0));
+    m_driverController.a().onTrue(m_gripper.close());
+    m_driverController.b().onTrue(m_gripper.open());
+    // m_driverController.a().onTrue(m_elevator.extendTo(0.65));
+    // m_driverController.b().onTrue(m_elevator.extendTo(1.0));
     m_driverController.y().onTrue(m_elevator.down());
 
     m_driverController.povUp().onTrue(m_intake.retract());
-    m_driverController.povDown().onTrue(m_intake.extend().andThen(m_intake.spin()));
-    m_driverController.leftBumper().toggleOnTrue(m_intake.spin());
+    m_driverController.povDown().onTrue(m_intake.extend()); // .andThen(m_intake.spin()));
+
+    m_driverController.leftBumper().toggleOnTrue(m_intake.spin().alongWith(m_spindexer.spin()));
+    m_driverController.rightBumper().toggleOnTrue(m_spindexer.spin());
   }
 
   /**
