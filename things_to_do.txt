@@ -1,16 +1,19 @@
+for jay: tie wrap the connectors!
+
 intake: 
     1- check the code😅
 
-    2- check if the encoders' 0 are actually 0
+    2- check if the encoders' 0 are actually 0 in reference to the initial starting position
         if they are not ajust the offsets
 
     3- 
     
 elevator:
-    1- create a bunch of variable that are related to the height of all the stages
+    1- create a bunch of variable that are related to the height of all the stages (maybe we coudld use some inverse kinematics)
     1.1- link the variables to the custom controller buttons
 
-    2- start a little sequence when we lift the elevator: 1) sligthly open the intake 2) elevate 3) retract elevator 4) retract intake
+    2- start a little sequence when we lift the elevator: 
+                    1) sligthly open the intake 2) elevate 3) retract elevator 4) retract intake
 
     3-
 
