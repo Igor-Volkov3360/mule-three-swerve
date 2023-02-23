@@ -90,13 +90,13 @@ public class Intake extends SubsystemBase {
     m_encoderLeft.setInverted(true);
     m_encoderLeft.setPositionConversionFactor(kNativeToRad);
     m_encoderLeft.setVelocityConversionFactor(kNativeToRad);
-    m_encoderLeft.setZeroOffset(kZeroOffsetLeft); // perhaps
+    m_encoderLeft.setZeroOffset(kZeroOffsetLeft); // perhaps  <- why??
 
     m_pidLeft.setFeedbackDevice(m_encoderLeft);
     m_pidLeft.setPositionPIDWrappingEnabled(true);
     m_pidLeft.setP(kP);
-    m_pidLeft.setD(kD);
     m_pidLeft.setI(kI);
+    m_pidLeft.setD(kD);
     m_pidLeft.setSmartMotionMaxVelocity(kAngVelRad, 0);
     m_pidLeft.setSmartMotionMaxAccel(kAngAccRed, 0);
 
@@ -180,8 +180,7 @@ public class Intake extends SubsystemBase {
         Math.toDegrees(m_encoderLeft.getPosition()),
         Math.toDegrees(m_encoderRight.getPosition()),
         Math.toDegrees(m_targetRad),
-        this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft),
-        m_pivotLeft.getAppliedOutput());
+        this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft));
   }
 
   /**
