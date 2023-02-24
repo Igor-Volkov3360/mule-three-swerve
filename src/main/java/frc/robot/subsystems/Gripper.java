@@ -17,7 +17,7 @@ public class Gripper extends SubsystemBase {
   private static final double kOpenPercent = 0.0;
   private static final double kTransitSeconds = 0.5;
 
-  public static final double kCurrentThreshold = 5;
+  public static final double kCurrentThreshold = 5.0;
 
   // Member objects
   private final CANSparkMax m_gripper = new CANSparkMax(kGripperId, MotorType.kBrushless);
@@ -49,18 +49,21 @@ public class Gripper extends SubsystemBase {
    */
   public Command close() {
 
-    return this.run(() -> m_gripper.set(kClosePercent));
+    return this.run(
+        () -> {
+          if (!reachCurrent()) m_gripper.set(kClosePercent);
+        });
     // 1. function return boolean check if current too high
     // 2.close until previous is true
   }
 
-  private boolean reachCurrent() {
+  private Boolean reachCurrent() {
     return kCurrentThreshold < m_gripper.getAppliedOutput();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    System.out.println(m_gripper.getAppliedOutput());
+    // System.out.println(m_gripper.getAppliedOutput());
   }
 }

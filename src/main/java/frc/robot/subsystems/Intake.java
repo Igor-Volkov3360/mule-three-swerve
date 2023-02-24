@@ -128,6 +128,7 @@ public class Intake extends SubsystemBase {
     // Set target to current when robot is disabled to prevent sudden motion on enable
     if (DriverStation.isDisabled()) {
       m_targetRad = m_encoderLeft.getPosition();
+      m_targetRad = m_encoderRight.getPosition();
     }
 
     // Clear motion profile if target is reached
@@ -180,7 +181,8 @@ public class Intake extends SubsystemBase {
         Math.toDegrees(m_encoderLeft.getPosition()),
         Math.toDegrees(m_encoderRight.getPosition()),
         Math.toDegrees(m_targetRad),
-        this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft));
+        this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft),
+        m_pivotLeft.getAppliedOutput());
   }
 
   /**

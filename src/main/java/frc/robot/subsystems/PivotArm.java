@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class PivotArm extends SubsystemBase {
 
   // Subsystem parameters
-  private static final int kLeadId = 0;
+  private static final int kLeadId = 16;
   private static final double kNativeToRad = 1.0;
   private static final double kNominalVolt = 10.0;
 
@@ -24,12 +24,12 @@ public class PivotArm extends SubsystemBase {
   private static final double kHorizontalPercent = 0.0;
 
   private static final double kTargetTolRad = Math.toRadians(5.0);
-  private static final double kP = 0.0;
+  private static final double kP = 0.01;
   private static final double kI = 0.0;
   private static final double kD = 0.0;
 
-  private static final double kAngVelRad = Math.toRadians(90.0);
-  private static final double kAngAccRed = Math.toRadians(90.0);
+  private static final double kAngVelRad = Math.toRadians(45.0);
+  private static final double kAngAccRed = Math.toRadians(45.0);
 
   // Member objects
   private final CANSparkMax m_pivot = new CANSparkMax(kLeadId, MotorType.kBrushless);
@@ -70,6 +70,8 @@ public class PivotArm extends SubsystemBase {
 
     // Set reference in periodic to allow for arbitrary feed-forward computation
     m_pid.setReference(m_targetRad, ControlType.kSmartMotion, 0, this.computeFeedForward());
+
+    System.out.println(m_pivot.getAppliedOutput());
   }
 
   /**
