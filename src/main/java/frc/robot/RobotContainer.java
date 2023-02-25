@@ -11,7 +11,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.RGBControl;
@@ -32,7 +31,7 @@ public class RobotContainer {
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
   private final Spindexer m_spindexer = new Spindexer();
-  private final Gripper m_gripper = new Gripper();
+  // private final Gripper m_gripper = new Gripper();
   private final PivotArm m_pivotArm = new PivotArm();
 
   // variables

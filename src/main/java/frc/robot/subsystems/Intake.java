@@ -126,13 +126,14 @@ public class Intake extends SubsystemBase {
 
     m_pivotLeft.burnFlash();
     m_pivotRight.burnFlash();
-    // Stop intake by default
 
     m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
     m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
     m_dutyEncoderLeft.reset();
     m_dutyEncoderRight.reset();
+    setZero();
 
+    // Stop intake by default
     this.setDefaultCommand(this.stop());
   }
 
@@ -198,7 +199,8 @@ public class Intake extends SubsystemBase {
         this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft),
         m_pivotLeft.getAppliedOutput());
         */
-    System.out.println(getEncoderLeft() + "              " + getEncoderRight());
+    System.out.println(
+        m_encoderLeft.getPosition() + "              " + m_encoderRight.getPosition());
     System.out.println();
   }
 
@@ -222,8 +224,8 @@ public class Intake extends SubsystemBase {
   }
 
   private boolean newOnTarget() {
-    return Math.abs(rightEncoderToRad() - m_targetRad) < kTargetTolRad
-        && Math.abs(leftEncoderToRad() - m_targetRad) < kTargetTolRad;
+    return Math.abs(getRightEncoderToRad() - m_targetRad) < kTargetTolRad
+        && Math.abs(getLeftEncoderToRad() - m_targetRad) < kTargetTolRad;
   }
   /**
    * Generate a trapezoidal motion profile to reach an angle from the current desired state
@@ -257,7 +259,7 @@ public class Intake extends SubsystemBase {
    */
   public Command operate(double rollerPercent, double pivotRad) {
     return this.runOnce(() -> this.generateProfile(pivotRad))
-        .andThen(this.run(() -> m_roller.set(rollerPercent)).until(this::onTarget));
+        .andThen(this.run(() -> m_roller.set(rollerPercent)).until(this::newOnTarget));
   }
 
   /**
@@ -295,19 +297,45 @@ public class Intake extends SubsystemBase {
     return this.runOnce(() -> m_targetRad += changeBy);
   }
 
+  /**
+   * Gets the value of the left encoder
+   *
+   * @return A value of 0 when the intake is down
+   */
   private double getEncoderLeft() {
     return m_dutyEncoderLeft.getAbsolutePosition() - kOffsetLeft;
   }
 
+  /**
+   * Gets the value of the right encoder
+   *
+   * @return A value of 0 when the intake is down
+   */
   private double getEncoderRight() {
     return 1 - m_dutyEncoderRight.getAbsolutePosition() - kOffsetRight;
   }
 
-  private double leftEncoderToRad() {
-    return getEncoderLeft();
+  /**
+   * Converts the value of the angle in rad
+   *
+   * @return rad angle of the left encoder
+   */
+  private double getLeftEncoderToRad() {
+    return getEncoderLeft() / (Math.PI / 2);
   }
 
-  private double rightEncoderToRad() {
-    return getEncoderRight();
+  /**
+   * Converts the value of the angle in rad
+   *
+   * @return rad angle of the right encoder
+   */
+  private double getRightEncoderToRad() {
+    return getEncoderRight() / (Math.PI / 2);
+  }
+
+  /** Sets the zero of the relative encoders embeded in the neos */
+  private void setZero() {
+    m_encoderLeft.setZeroOffset(getEncoderLeft());
+    m_encoderRight.setZeroOffset(getEncoderRight());
   }
 }
