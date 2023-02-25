@@ -33,8 +33,8 @@ public class Intake extends SubsystemBase {
   private static final int kLeftEncoder = 8; // at CSM 10
   private static final int KRightEncoder = 7; // at CSM 9
   private static final double kTurnPerRotation = 0.25;
-  private static final double kOffsetLeft = 0.13;
-  private static final double kOffsetRight = 3.41;
+  private static final double kOffsetLeft = 0.17;
+  private static final double kOffsetRight = 0.28;
 
   private static final double kNativeToRad = 2.0 * Math.PI;
   private static final double kNominalVolt = 10.0;
@@ -130,6 +130,8 @@ public class Intake extends SubsystemBase {
 
     m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
     m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
+    m_dutyEncoderLeft.reset();
+    m_dutyEncoderRight.reset();
 
     this.setDefaultCommand(this.stop());
   }
@@ -187,7 +189,7 @@ public class Intake extends SubsystemBase {
     m_targetEntry.setDouble(Math.toDegrees(m_targetRad));
     m_pidEntry.setDouble(
         this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft));
-
+    /*
     System.out.printf(
         "Pos L %.2f    Pos R %.2f    Pos* %.0f    FF %.3f    Cmd %.3f\n",
         Math.toDegrees(getEncoderLeft()),
@@ -195,6 +197,9 @@ public class Intake extends SubsystemBase {
         Math.toDegrees(m_targetRad),
         this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft),
         m_pivotLeft.getAppliedOutput());
+        */
+    System.out.println(getEncoderLeft() + "              " + getEncoderRight());
+    System.out.println();
   }
 
   /**
@@ -291,11 +296,11 @@ public class Intake extends SubsystemBase {
   }
 
   private double getEncoderLeft() {
-    return m_dutyEncoderLeft.get();
+    return m_dutyEncoderLeft.getAbsolutePosition() - kOffsetLeft;
   }
 
   private double getEncoderRight() {
-    return -m_dutyEncoderRight.get();
+    return 1 - m_dutyEncoderRight.getAbsolutePosition() - kOffsetRight;
   }
 
   private double leftEncoderToRad() {
