@@ -70,23 +70,7 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
-
-    // m_driverController.a().onTrue(m_gripper.close());
-    // m_driverController.b().onTrue(m_gripper.open());
-    m_driverController.a().onTrue(m_elevator.extendTo(secondLvl));
-    m_driverController.b().onTrue(m_elevator.extendTo(thirdLvl));
-    m_driverController.y().onTrue(m_elevator.down());
-
-    // m_driverController.povUp().onTrue(m_intake.retract());
-    // m_driverController.povDown().onTrue(m_intake.extend()); // .andThen(m_intake.spin()));
-
-    m_driverController.leftBumper().toggleOnTrue(m_intake.spin().alongWith(m_spindexer.spin()));
-    m_driverController.rightBumper().toggleOnTrue(m_spindexer.spin());
-
-    m_driverController.povUp().onTrue(m_pivotArm.pivotTo(30));
-    // m_driverController.povDown().onTrue(m_pivotArm.pivotTo(-0.05));
-  }
+  private void configureBindings() {}
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
