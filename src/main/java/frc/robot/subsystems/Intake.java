@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -28,6 +29,12 @@ public class Intake extends SubsystemBase {
   private static final int kPivotLeft = 9;
   private static final int kPivotRight = 10;
   private static final int kRollerId = 17;
+
+  private static final int kLeftEncoder = 8; // at CSM 10
+  private static final int KRightEncoder = 7; // at CSM 9
+  private static final double kTurnPerRotation = 0.25;
+  private static final double kOffsetLeft = 0.13;
+  private static final double kOffsetRight = 3.41;
 
   private static final double kNativeToRad = 2.0 * Math.PI;
   private static final double kNominalVolt = 10.0;
@@ -62,6 +69,8 @@ public class Intake extends SubsystemBase {
   private final AbsoluteEncoder m_encoderLeft = m_pivotLeft.getAbsoluteEncoder(Type.kDutyCycle);
   private final SparkMaxPIDController m_pidRight = m_pivotRight.getPIDController();
   private final AbsoluteEncoder m_encoderRight = m_pivotRight.getAbsoluteEncoder(Type.kDutyCycle);
+  private final DutyCycleEncoder m_dutyEncoderLeft = new DutyCycleEncoder(kLeftEncoder);
+  private final DutyCycleEncoder m_dutyEncoderRight = new DutyCycleEncoder(KRightEncoder);
 
   private final ShuffleboardTab m_intakeTab = Shuffleboard.getTab("intake");
   private final GenericEntry m_percentEntry = m_intakeTab.add("targetPercent", 0.0).getEntry();
@@ -85,12 +94,11 @@ public class Intake extends SubsystemBase {
     m_pivotLeft.setIdleMode(IdleMode.kBrake);
     m_pivotLeft.setInverted(true);
     m_pivotLeft.enableVoltageCompensation(kNominalVolt);
-    m_pivotLeft.burnFlash();
 
     m_encoderLeft.setInverted(true);
     m_encoderLeft.setPositionConversionFactor(kNativeToRad);
     m_encoderLeft.setVelocityConversionFactor(kNativeToRad);
-    m_encoderLeft.setZeroOffset(kZeroOffsetLeft); // perhaps  <- why??
+    m_encoderLeft.setZeroOffset(kZeroOffsetLeft);
 
     m_pidLeft.setFeedbackDevice(m_encoderLeft);
     m_pidLeft.setPositionPIDWrappingEnabled(true);
@@ -103,7 +111,6 @@ public class Intake extends SubsystemBase {
     m_pivotRight.restoreFactoryDefaults();
     m_pivotRight.setIdleMode(IdleMode.kBrake);
     m_pivotRight.enableVoltageCompensation(kNominalVolt);
-    m_pivotRight.burnFlash();
 
     m_encoderRight.setPositionConversionFactor(kNativeToRad);
     m_encoderRight.setVelocityConversionFactor(kNativeToRad);
@@ -117,7 +124,13 @@ public class Intake extends SubsystemBase {
     m_pidRight.setSmartMotionMaxVelocity(kAngVelRad, 0);
     m_pidRight.setSmartMotionMaxAccel(kAngAccRed, 0);
 
+    m_pivotLeft.burnFlash();
+    m_pivotRight.burnFlash();
     // Stop intake by default
+
+    m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
+    m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
+
     this.setDefaultCommand(this.stop());
   }
 
@@ -128,7 +141,6 @@ public class Intake extends SubsystemBase {
     // Set target to current when robot is disabled to prevent sudden motion on enable
     if (DriverStation.isDisabled()) {
       m_targetRad = m_encoderLeft.getPosition();
-      m_targetRad = m_encoderRight.getPosition();
     }
 
     // Clear motion profile if target is reached
@@ -178,8 +190,8 @@ public class Intake extends SubsystemBase {
 
     System.out.printf(
         "Pos L %.2f    Pos R %.2f    Pos* %.0f    FF %.3f    Cmd %.3f\n",
-        Math.toDegrees(m_encoderLeft.getPosition()),
-        Math.toDegrees(m_encoderRight.getPosition()),
+        Math.toDegrees(getEncoderLeft()),
+        Math.toDegrees(getEncoderRight()),
         Math.toDegrees(m_targetRad),
         this.computeFeedForward(m_encoderLeft.getPosition(), kHorizontalPercentLeft),
         m_pivotLeft.getAppliedOutput());
@@ -204,6 +216,10 @@ public class Intake extends SubsystemBase {
         && Math.abs(m_encoderRight.getPosition() - m_targetRad) < kTargetTolRad;
   }
 
+  private boolean newOnTarget() {
+    return Math.abs(rightEncoderToRad() - m_targetRad) < kTargetTolRad
+        && Math.abs(leftEncoderToRad() - m_targetRad) < kTargetTolRad;
+  }
   /**
    * Generate a trapezoidal motion profile to reach an angle from the current desired state
    *
@@ -272,5 +288,21 @@ public class Intake extends SubsystemBase {
 
   public Command changeTarget(double changeBy) {
     return this.runOnce(() -> m_targetRad += changeBy);
+  }
+
+  private double getEncoderLeft() {
+    return m_dutyEncoderLeft.get();
+  }
+
+  private double getEncoderRight() {
+    return -m_dutyEncoderRight.get();
+  }
+
+  private double leftEncoderToRad() {
+    return getEncoderLeft();
+  }
+
+  private double rightEncoderToRad() {
+    return getEncoderRight();
   }
 }

@@ -71,7 +71,7 @@ public class PivotArm extends SubsystemBase {
     // Set reference in periodic to allow for arbitrary feed-forward computation
     m_pid.setReference(m_targetRad, ControlType.kSmartMotion, 0, this.computeFeedForward());
 
-    System.out.println(m_pivot.getAppliedOutput());
+    // System.out.println(m_pivot.getAppliedOutput());
   }
 
   /**
