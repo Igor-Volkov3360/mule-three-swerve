@@ -63,8 +63,10 @@ public class Gripper extends SubsystemBase {
   }
 
   private Boolean reachCurrent(String gamePiece) {
-    return kCurrentCube < m_gripper.getAppliedOutput();
-    // else if (gamePiece == "cone") return kCurrentCone < m_gripper.getAppliedOutput();
+    if (gamePiece == "cube") return kCurrentCube < m_gripper.getAppliedOutput();
+    else {
+      return kCurrentCone < m_gripper.getAppliedOutput();
+    }
   }
 
   @Override
