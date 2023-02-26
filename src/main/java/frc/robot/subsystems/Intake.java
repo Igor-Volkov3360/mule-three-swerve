@@ -42,7 +42,7 @@ public class Intake extends SubsystemBase {
   private double m_targetLeft = kUP;
   private double m_targetRight = kUP;
 
-  private static final double kRollerPercentCube = 0.8;
+  private static final double kRollerPercentCube = 0.7;
   private static final double kRollerPercentCone = 1;
 
   // Member objects

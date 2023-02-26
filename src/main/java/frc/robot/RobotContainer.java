@@ -11,6 +11,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.RGBControl;
@@ -31,7 +32,7 @@ public class RobotContainer {
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
   private final Spindexer m_spindexer = new Spindexer();
-  // private final Gripper m_gripper = new Gripper();
+  private final Gripper m_gripper = new Gripper();
   private final PivotArm m_pivotArm = new PivotArm();
 
   // variables
@@ -57,7 +58,7 @@ public class RobotContainer {
 
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
-    m_rgbPanel.setDefaultCommand(m_rgbPanel.Command3360());
+    m_gripper.setDefaultCommand(m_gripper.stop());
     configureBindings();
   }
 
@@ -71,14 +72,21 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.a().onTrue(IntakeOutSequence());
-
-    m_driverController.b().onTrue(IntakeInSequence());
-
+    m_driverController
+        .y()
+        .onTrue(
+            m_pivotArm
+                .setTarget("up")
+                .alongWith(m_intake.spin("cone"))
+                .alongWith(m_spindexer.spin()));
     m_driverController
         .x()
         .onTrue(
-            m_pivotArm.setTarget("down").alongWith(m_intake.stop()).alongWith(m_spindexer.stop()));
+            m_pivotArm
+                .setTarget("cube")
+                .alongWith(m_intake.spin("cube"))
+                .alongWith(m_spindexer.spin()));
+    m_driverController.b().onTrue(m_intake.stop());
   }
 
   /**

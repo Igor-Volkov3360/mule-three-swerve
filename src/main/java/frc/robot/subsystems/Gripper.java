@@ -14,15 +14,16 @@ public class Gripper extends SubsystemBase {
   // Subsystem parameters
   private static final int kGripperId = 15;
   private static final double kClosePercent = 0.2;
-  private static final double kOpenPercent = 0.0;
+  private static final double kOpenPercent = -0.15;
   private static final double kTransitSeconds = 0.5;
 
-  private static final double kCloseCurrentCone = 1;
-  private static final double kCloseCurrentCube = 1;
   private static final double kOpenPosition = 0;
   private static final double kClosePosition = 0;
 
-  public static final double kCurrentThreshold = 5.0;
+  private static final double kCurrentCube = 4.5;
+  private static final double kCurrentCone = 5.0;
+
+  private double m_target = kOpenPosition;
 
   // Member objects
   private final CANSparkMax m_gripper = new CANSparkMax(kGripperId, MotorType.kBrushless);
@@ -35,6 +36,7 @@ public class Gripper extends SubsystemBase {
 
     // Default to open as gripper will open when robot is disabled
     this.setDefaultCommand(this.open());
+    System.out.println(m_gripper.getEncoder().getPosition());
   }
 
   /**
@@ -56,19 +58,31 @@ public class Gripper extends SubsystemBase {
 
     return this.run(
         () -> {
-          if (!reachCurrent()) m_gripper.set(kClosePercent);
+          if (!reachCurrent("cube")) m_gripper.set(kClosePercent);
         });
-    // 1. function return boolean check if current too high
-    // 2.close until previous is true
   }
 
-  private Boolean reachCurrent() {
-    return kCurrentThreshold < m_gripper.getAppliedOutput();
+  private Boolean reachCurrent(String gamePiece) {
+    return kCurrentCube < m_gripper.getAppliedOutput();
+    // else if (gamePiece == "cone") return kCurrentCone < m_gripper.getAppliedOutput();
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
     // System.out.println(m_gripper.getAppliedOutput());
+  }
+
+  public Command stop() {
+    return this.run(() -> m_gripper.set(0));
+  }
+
+  private void setTarget(String position) {
+    if (position == "open") m_target = kOpenPosition;
+    else if (position == "close") m_target = kClosePosition;
+  }
+
+  private double motorSpeed() {
+    return m_target - m_gripper.getEncoder().getPosition();
   }
 }
