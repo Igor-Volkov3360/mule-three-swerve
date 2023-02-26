@@ -72,21 +72,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController
-        .y()
-        .onTrue(
-            m_pivotArm
-                .setTarget("up")
-                .alongWith(m_intake.spin("cone"))
-                .alongWith(m_spindexer.spin()));
-    m_driverController
-        .x()
-        .onTrue(
-            m_pivotArm
-                .setTarget("cube")
-                .alongWith(m_intake.spin("cube"))
-                .alongWith(m_spindexer.spin()));
-    m_driverController.b().onTrue(m_intake.stop());
+    m_driverController.x().onTrue(IntakeOutSequenceCube());
+    m_driverController.y().onTrue(IntakeOutSequenceCone());
+    m_driverController.b().onTrue(m_intake.stop().alongWith(m_spindexer.stop()));
   }
 
   /**
@@ -104,13 +92,27 @@ public class RobotContainer {
    *
    * @return the sequence that is used to intake game pieces
    */
-  public Command IntakeOutSequence() {
+  public Command IntakeOutSequenceCube() {
     return m_intake
         .setTarget("down")
         .andThen(
             m_intake
                 .spin("cube")
-                .alongWith(m_pivotArm.setTarget("down").alongWith(m_spindexer.spin())));
+                .alongWith(m_pivotArm.setTarget("cube").alongWith(m_spindexer.spin())));
+  }
+
+  /**
+   * This command is used ot intake cones
+   *
+   * @return the sequence that is used to intake game pieces
+   */
+  public Command IntakeOutSequenceCone() {
+    return m_intake
+        .setTarget("down")
+        .andThen(
+            m_intake
+                .spin("cone")
+                .alongWith(m_pivotArm.setTarget("up").alongWith(m_spindexer.spin())));
   }
 
   /**

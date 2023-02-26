@@ -17,11 +17,12 @@ public class PivotArm extends SubsystemBase {
   private static final double kNativeToRad = 1.0;
   private static final double kNominalVolt = 10.0;
 
-  private static final double kUp = 2.2; // when the gripper is PARRALLEL to the ground
+  private static final double kUp = 2.0; // when the gripper is PARRALLEL to the ground
   private static final double kDown = 0.1; // when the gripper is PERPENDICULAR to the ground
-  private static final double kCube = 1.25;
+  private static final double kCube = 0.8;
   private double m_target = kDown;
-  private static final double kMultiplier = 0.3;
+  private static final double kMultiplier = 0.25;
+  private static final double kCubeCounter = 0.05;
 
   // Member objects
   private final CANSparkMax m_pivot = new CANSparkMax(kPivotId, MotorType.kBrushless);
@@ -38,14 +39,7 @@ public class PivotArm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-
-    // Set target to current when robot is disabled to prevent sudden motion on enable
-    /*if (DriverStation.isDisabled()) {
-      m_target = m_encoder.getPosition();
-    }
-    */
-    m_pivot.set(motorSpeed() * kMultiplier);
+    if (motorSpeed() > 0.05) m_pivot.set((motorSpeed() * kMultiplier) - kCubeCounter);
   }
 
   /***
@@ -66,8 +60,13 @@ public class PivotArm extends SubsystemBase {
     return this.runOnce(
         () -> {
           if (position == "up") m_target = kUp;
-          else if (position == "inside") m_target = kDown;
+          else if (position == "down") m_target = kDown;
           else if (position == "cube") m_target = kCube;
         });
+  }
+  // mini neo = 110rpm at 100%
+  // neo 567 at 100%
+  public Command compensate(double position, double speed) {
+    return setTarget("down");
   }
 }

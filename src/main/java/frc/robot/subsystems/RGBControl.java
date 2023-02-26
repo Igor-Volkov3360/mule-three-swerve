@@ -8,6 +8,9 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -17,9 +20,12 @@ public class RGBControl extends SubsystemBase {
   private static DigitalOutput select1 = new DigitalOutput(0);
   private static DigitalOutput select2 = new DigitalOutput(1);
   private static DigitalOutput select3 = new DigitalOutput(2);
+  private static PowerDistribution pdp = new PowerDistribution(20, ModuleType.kRev);
 
   /** Creates a new RGBControl. */
-  public RGBControl() {}
+  public RGBControl() {
+    pdp.setSwitchableChannel(!DriverStation.isDisabled());
+  }
 
   @Override
   public void periodic() {
