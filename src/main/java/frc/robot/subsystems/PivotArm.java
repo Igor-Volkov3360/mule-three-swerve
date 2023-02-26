@@ -5,57 +5,33 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class PivotArm extends SubsystemBase {
 
   // Subsystem parameters
-  private static final int kLeadId = 16;
+  private static final int kPivotId = 16;
   private static final double kNativeToRad = 1.0;
   private static final double kNominalVolt = 10.0;
 
-  private static final double kNeutralRad = Math.toRadians(-90.0);
-  private static final double kHorizontalPercent = 0.0;
-
-  private static final double kTargetTolRad = Math.toRadians(5.0);
-  private static final double kP = 0.01;
-  private static final double kI = 0.0;
-  private static final double kD = 0.0;
-
-  private static final double kAngVelRad = Math.toRadians(45.0);
-  private static final double kAngAccRed = Math.toRadians(45.0);
+  private static final double kUp = 2; // when the gripper is PARRALLEL to the ground
+  private static final double kDown = 0.1; // when the gripper is PERPENDICULAR to the ground
+  private double m_target = kDown;
+  private static final double kMultiplier = 0.3;
 
   // Member objects
-  private final CANSparkMax m_pivot = new CANSparkMax(kLeadId, MotorType.kBrushless);
-  private final SparkMaxPIDController m_pid = m_pivot.getPIDController();
+  private final CANSparkMax m_pivot = new CANSparkMax(kPivotId, MotorType.kBrushless);
   private final RelativeEncoder m_encoder = m_pivot.getEncoder();
-
-  // Process variables
-  private double m_targetRad = kNeutralRad;
 
   /** Creates a new PivotArm. */
   public PivotArm() {
 
     m_pivot.restoreFactoryDefaults();
-
     m_pivot.enableVoltageCompensation(kNominalVolt);
-
     m_encoder.setPositionConversionFactor(kNativeToRad);
-    m_encoder.setPosition(kNeutralRad);
-
-    m_pid.setP(kP);
-    m_pid.setD(kD);
-    m_pid.setI(kI);
-
-    m_pid.setSmartMotionMaxVelocity(kAngVelRad, 0);
-    m_pid.setSmartMotionMaxAccel(kAngAccRed, 0);
-
     m_pivot.burnFlash();
   }
 
@@ -64,41 +40,37 @@ public class PivotArm extends SubsystemBase {
     // This method will be called once per scheduler run
 
     // Set target to current when robot is disabled to prevent sudden motion on enable
-    if (DriverStation.isDisabled()) {
-      m_targetRad = m_encoder.getPosition();
+    /*if (DriverStation.isDisabled()) {
+      m_target = m_encoder.getPosition();
     }
+    */
+    System.out.println(motorSpeed() * kMultiplier);
+    m_pivot.set(motorSpeed() * kMultiplier);
+  }
 
-    // Set reference in periodic to allow for arbitrary feed-forward computation
-    m_pid.setReference(m_targetRad, ControlType.kSmartMotion, 0, this.computeFeedForward());
-
-    // System.out.println(m_pivot.getAppliedOutput());
+  /***
+   * This function calculates the speed that the motor need to turn at
+   * @return the deseried target - the current position
+   */
+  private double motorSpeed() {
+    return (m_target - m_encoder.getPosition()) / 2;
   }
 
   /**
-   * Compute arbitrary feed-forward for current arm position
+   * This function sets the desired angle for the pivot arm
    *
-   * @return feed-forward (percent)
+   * @param upDown true is up, false is down
+   * @return Desired angle for the pivot arm
    */
-  private double computeFeedForward() {
-    return kHorizontalPercent * Math.cos(m_encoder.getPosition());
+  public Command setTarget(boolean upDown) {
+    return this.runOnce(
+        () -> {
+          if (upDown) m_target = kUp;
+          else m_target = kDown;
+        });
   }
 
-  /**
-   * Check if the arm has reached its target angle
-   *
-   * @return arm is on target
-   */
-  private boolean onTarget() {
-    return Math.abs(m_encoder.getPosition() - m_targetRad) < kTargetTolRad;
-  }
-
-  /**
-   * Pivot to a given angle above the horizontal
-   *
-   * @param degrees target angle (degrees)
-   * @return blocking command
-   */
-  public Command pivotTo(double degrees) {
-    return this.run(() -> m_targetRad = Math.toRadians(degrees)).until(this::onTarget);
+  private double ajustEncoder() {
+    return (1 - m_encoder.getPosition()) / 1.5;
   }
 }

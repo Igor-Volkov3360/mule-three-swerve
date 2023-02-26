@@ -19,10 +19,10 @@ public class Spindexer extends SubsystemBase {
   private static final int kBladeChannel = 0;
   private static final int kSwitchChannel = 9;
 
-  private static double kTablePercent = 0.2;
+  private static double kTablePercent = -0.5;
   private static double kRollerPercent = 0.5;
-  private static double kUpDeg = 90.0;
-  // private static double kDownDeg = 0.0;
+  private static double kOut = 0.6; // out is outside of the tub
+  private static double kIn = 0.25;
 
   private static boolean kIndexedBool = true;
 
@@ -31,11 +31,6 @@ public class Spindexer extends SubsystemBase {
   private final CANSparkMax m_roller = new CANSparkMax(kRollerId, MotorType.kBrushless);
   private final Servo m_blade = new Servo(kBladeChannel);
   private final DigitalInput m_switch = new DigitalInput(kSwitchChannel);
-
-  // Process variables
-  private double m_tablePercent = 0.0;
-  private double m_rollerPercent = 0.0;
-  private double m_bladeDeg = kUpDeg;
 
   /** Creates a new Spindexer. */
   public Spindexer() {
@@ -52,19 +47,6 @@ public class Spindexer extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    m_roller.set(m_rollerPercent);
-    m_table.set(m_tablePercent);
-    m_blade.setAngle(m_bladeDeg);
-    // System.out.println(m_table.getOutputCurrent());
-  }
-
-  /**
-   * Check if the game piece is indexed against the blade
-   *
-   * @return game piece is indexed
-   */
-  public boolean atIndex() {
-    return m_switch.get() == kIndexedBool;
   }
 
   /**
@@ -75,25 +57,8 @@ public class Spindexer extends SubsystemBase {
   public Command spin() {
     return this.run(
         () -> {
-          // m_blade.setAngle(kUpDeg);
-          m_roller.set(kRollerPercent);
-          // m_table.set(-kTablePercent);
+          m_table.set(-kTablePercent);
         });
-  }
-
-  /**
-   * Spin the table with the blade lowered until the game piece is indexed
-   *
-   * @return blocking command
-   */
-  public Command index() {
-    return this.run(
-            () -> {
-              // m_blade.setAngle(kDownDeg);
-              m_roller.set(0.0);
-              m_table.set(kTablePercent);
-            })
-        .until(this::atIndex);
   }
 
   /**
@@ -104,8 +69,21 @@ public class Spindexer extends SubsystemBase {
   public Command stop() {
     return this.run(
         () -> {
+          m_blade.set(kOut);
           m_roller.set(0.0);
           m_table.set(0.0);
         });
+  }
+
+  public Command index() {
+    return this.run(
+        () -> {
+          m_blade.set(kIn);
+          m_table.set(-kTablePercent);
+        });
+  }
+
+  public Command baldeOut() {
+    return this.run(() -> m_blade.set(kOut));
   }
 }

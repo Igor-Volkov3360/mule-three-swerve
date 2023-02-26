@@ -70,7 +70,15 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {}
+  private void configureBindings() {
+    m_driverController.a().onTrue(IntakeOutSequence());
+
+    m_driverController
+        .b()
+        .onTrue(m_intake.setTarget("up").andThen(m_intake.stop().alongWith(m_spindexer.index())));
+
+    m_driverController.x().onTrue(m_pivotArm.setTarget(true));
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -80,5 +88,9 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return Autonomous.followTestTraj(m_drive);
+  }
+
+  public Command IntakeOutSequence() {
+    return m_intake.setTarget("up").andThen(m_intake.stop().alongWith(m_spindexer.index()));
   }
 }

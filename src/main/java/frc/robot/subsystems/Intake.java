@@ -150,25 +150,19 @@ public class Intake extends SubsystemBase {
             m_targetRight = kUP;
           } else if (position == "down") {
             m_targetLeft = kDOWN;
-            m_targetRight = kUP;
+            m_targetRight = kDOWN;
           } else if (position == "mid") {
             m_targetLeft = kMID;
-            m_targetRight = kUP;
+            m_targetRight = kMID;
           }
         });
   }
 
   public double motorSpeedLeft() {
-    double temp = 0;
-
-    if (m_targetLeft == kUP) temp = m_targetLeft - getLeftEncoder() * kUPSpeedModifier;
-    return temp;
+    return m_targetLeft - getLeftEncoder();
   }
 
   public double motorSpeedRight() {
-    double temp = 0;
-
-    if (m_targetRight == kUP) temp = m_targetRight - getRightEncoder() * kUPSpeedModifier;
     return m_targetRight - getRightEncoder();
   }
 }
