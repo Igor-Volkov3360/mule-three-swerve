@@ -73,11 +73,12 @@ public class RobotContainer {
   private void configureBindings() {
     m_driverController.a().onTrue(IntakeOutSequence());
 
-    m_driverController
-        .b()
-        .onTrue(m_intake.setTarget("up").andThen(m_intake.stop().alongWith(m_spindexer.index())));
+    m_driverController.b().onTrue(IntakeInSequence());
 
-    m_driverController.x().onTrue(m_pivotArm.setTarget(true));
+    m_driverController
+        .x()
+        .onTrue(
+            m_pivotArm.setTarget("down").alongWith(m_intake.stop()).alongWith(m_spindexer.stop()));
   }
 
   /**
@@ -90,7 +91,29 @@ public class RobotContainer {
     return Autonomous.followTestTraj(m_drive);
   }
 
+  /**
+   * This command is used ot intake cubes
+   *
+   * @return the sequence that is used to intake game pieces
+   */
   public Command IntakeOutSequence() {
-    return m_intake.setTarget("up").andThen(m_intake.stop().alongWith(m_spindexer.index()));
+    return m_intake
+        .setTarget("down")
+        .andThen(
+            m_intake
+                .spin("cube")
+                .alongWith(m_pivotArm.setTarget("down").alongWith(m_spindexer.spin())));
+  }
+
+  /**
+   * This function retracts the intake
+   *
+   * @return the sequence that retracts the intake
+   */
+  public Command IntakeInSequence() {
+    return m_pivotArm
+        .setTarget("down")
+        .alongWith(
+            m_intake.setTarget("up").alongWith(m_spindexer.index()).andThen(m_intake.stop()));
   }
 }

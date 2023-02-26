@@ -42,7 +42,8 @@ public class Intake extends SubsystemBase {
   private double m_targetLeft = kUP;
   private double m_targetRight = kUP;
 
-  private static final double kRollerPercent = 0.7;
+  private static final double kRollerPercentCube = 0.8;
+  private static final double kRollerPercentCone = 1;
 
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
@@ -112,8 +113,12 @@ public class Intake extends SubsystemBase {
     return this.run(() -> m_roller.set(0.0));
   }
 
-  public Command spin() {
-    return this.run(() -> m_roller.set(kRollerPercent));
+  public Command spin(String gamePiece) {
+    return this.run(
+        () -> {
+          if (gamePiece == "cube") m_roller.set(kRollerPercentCube);
+          else m_roller.set(kRollerPercentCone);
+        });
   }
 
   /**

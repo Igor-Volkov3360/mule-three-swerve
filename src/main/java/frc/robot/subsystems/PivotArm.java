@@ -19,6 +19,7 @@ public class PivotArm extends SubsystemBase {
 
   private static final double kUp = 2; // when the gripper is PARRALLEL to the ground
   private static final double kDown = 0.1; // when the gripper is PERPENDICULAR to the ground
+  private static final double kCube = 0.15;
   private double m_target = kDown;
   private static final double kMultiplier = 0.3;
 
@@ -44,7 +45,6 @@ public class PivotArm extends SubsystemBase {
       m_target = m_encoder.getPosition();
     }
     */
-    System.out.println(motorSpeed() * kMultiplier);
     m_pivot.set(motorSpeed() * kMultiplier);
   }
 
@@ -62,15 +62,12 @@ public class PivotArm extends SubsystemBase {
    * @param upDown true is up, false is down
    * @return Desired angle for the pivot arm
    */
-  public Command setTarget(boolean upDown) {
+  public Command setTarget(String position) {
     return this.runOnce(
         () -> {
-          if (upDown) m_target = kUp;
-          else m_target = kDown;
+          if (position == "up") m_target = kUp;
+          else if (position == "inside") m_target = kDown;
+          else if (position == "cube") m_target = kCube;
         });
-  }
-
-  private double ajustEncoder() {
-    return (1 - m_encoder.getPosition()) / 1.5;
   }
 }

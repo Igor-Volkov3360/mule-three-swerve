@@ -17,6 +17,11 @@ public class Gripper extends SubsystemBase {
   private static final double kOpenPercent = 0.0;
   private static final double kTransitSeconds = 0.5;
 
+  private static final double kCloseCurrentCone = 1;
+  private static final double kCloseCurrentCube = 1;
+  private static final double kOpenPosition = 0;
+  private static final double kClosePosition = 0;
+
   public static final double kCurrentThreshold = 5.0;
 
   // Member objects
@@ -47,7 +52,7 @@ public class Gripper extends SubsystemBase {
    *
    * @return blocking command
    */
-  public Command close() {
+  public Command close(String gamePiece) {
 
     return this.run(
         () -> {
