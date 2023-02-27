@@ -17,8 +17,8 @@ public class PivotArm extends SubsystemBase {
   private static final double kNativeToRad = 1.0;
   private static final double kNominalVolt = 10.0;
 
-  private static final double kUp = 2.0; // when the gripper is PARRALLEL to the ground
-  private static final double kDown = 0.1; // when the gripper is PERPENDICULAR to the ground
+  public final double kUp = 1.8; // when the gripper is PARRALLEL to the ground
+  public final double kDown = 0.0; // when the gripper is PERPENDICULAR to the ground
   private static final double kCube = 0.8;
   private double m_target = kDown;
   private static final double kMultiplier = 0.25;
@@ -39,7 +39,9 @@ public class PivotArm extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (motorSpeed() > 0.05) m_pivot.set((motorSpeed() * kMultiplier) - kCubeCounter);
+    m_pivot.set(motorSpeed() * kMultiplier);
+    // System.out.println(motorSpeed());
+    System.out.println(m_target);
   }
 
   /***
@@ -68,5 +70,9 @@ public class PivotArm extends SubsystemBase {
   // neo 567 at 100%
   public Command compensate(double position, double speed) {
     return setTarget("down");
+  }
+
+  public double getTarget() {
+    return m_target;
   }
 }

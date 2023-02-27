@@ -32,8 +32,8 @@ public class RobotContainer {
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
   private final Spindexer m_spindexer = new Spindexer();
-  private final Gripper m_gripper = new Gripper();
   private final PivotArm m_pivotArm = new PivotArm();
+  private final Gripper m_gripper = new Gripper(m_pivotArm);
 
   // variables
 
@@ -58,7 +58,7 @@ public class RobotContainer {
 
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
-    m_gripper.setDefaultCommand(m_gripper.stop());
+    m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
     configureBindings();
   }
 
@@ -75,6 +75,14 @@ public class RobotContainer {
     m_driverController.x().onTrue(IntakeOutSequenceCube());
     m_driverController.y().onTrue(IntakeOutSequenceCone());
     m_driverController.b().onTrue(m_intake.stop().alongWith(m_spindexer.stop()));
+
+    m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
+    m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
+    m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
+    m_driverController.povRight().onTrue(m_gripper.setTarget("cube"));
+
+    // m_driverController.povUp().onTrue(m_intake.setTarget("mid"));
+    // m_driverController.povDown().onTrue(m_intake.setTarget("down"));
   }
 
   /**

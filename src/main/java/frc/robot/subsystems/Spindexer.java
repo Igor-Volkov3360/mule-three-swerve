@@ -18,7 +18,7 @@ public class Spindexer extends SubsystemBase {
   private static final int kBladeChannel = 0;
 
   private static double kTablePercent = -0.5;
-  private static double kRollerPercent = 0.5;
+  private static double kRollerPercent = 0.6;
   private static double kOut = 0.6; // out is outside of the tub
   private static double kIn = 0.25;
 

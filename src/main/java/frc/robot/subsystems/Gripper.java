@@ -17,8 +17,11 @@ public class Gripper extends SubsystemBase {
   private static final double kOpenPercent = 0.15;
   private static final double kTransitSeconds = 0.5;
 
-  private static final double kOpenPosition = 0;
-  private static final double kClosePosition = 10;
+  private static final double kOpenPosition = 20;
+  private static final double kClosePositionCube = -15;
+  private static final double kClosePositionCone = -40;
+  private static final double kCloseUpPositionCube = -30;
+  private static final double kCloseUpPositionCone = -69;
 
   private static final double kMultiplier = 0.1;
 
@@ -26,12 +29,14 @@ public class Gripper extends SubsystemBase {
 
   // Member objects
   private final CANSparkMax m_gripper = new CANSparkMax(kGripperId, MotorType.kBrushless);
+  private PivotArm m_pivot;
 
   /** Creates a new Gripper. */
-  public Gripper() {
+  public Gripper(PivotArm pivot) {
 
     m_gripper.restoreFactoryDefaults();
     m_gripper.burnFlash();
+    m_pivot = pivot;
 
     // Default to open as gripper will open when robot is disabled
   }
@@ -40,6 +45,9 @@ public class Gripper extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     m_gripper.set(motorSpeed() * kMultiplier);
+
+    // System.out.println(m_gripper.getEncoder().getPosition());
+    // System.out.println(m_target);
   }
 
   public Command stop() {
@@ -50,7 +58,11 @@ public class Gripper extends SubsystemBase {
     return this.run(
         () -> {
           if (position == "open") m_target = kOpenPosition;
-          else if (position == "close") m_target = kClosePosition;
+          else if (m_pivot.getTarget() == m_pivot.kDown && position == "cube")
+            m_target = kClosePositionCube;
+          else if (m_pivot.getTarget() == m_pivot.kUp && position == "cube")
+            m_target = kCloseUpPositionCube;
+          else if (position == "cone") m_target = kClosePositionCone;
         });
   }
 

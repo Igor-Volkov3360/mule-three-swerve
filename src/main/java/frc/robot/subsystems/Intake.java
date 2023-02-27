@@ -38,12 +38,13 @@ public class Intake extends SubsystemBase {
 
   private static final double kUP = 0.18;
   private static final double kDOWN = 0.01;
-  private static final double kMID = 0.1;
+  private static final double kConeIntake = 0.06;
   private double m_targetLeft = kUP;
   private double m_targetRight = kUP;
 
   private static final double kRollerPercentCube = 0.7;
   private static final double kRollerPercentCone = 1;
+  private static final double kCurrentThreshold = 10;
 
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
@@ -88,6 +89,7 @@ public class Intake extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    coneLift();
 
     // Set target to current when robot is disabled to prevent sudden motion on enable
     if (DriverStation.isDisabled()) {
@@ -102,6 +104,8 @@ public class Intake extends SubsystemBase {
       m_pivotLeft.set(motorSpeedLeft() * kSlowBoiLeft);
       m_pivotRight.set(motorSpeedRight() * kSlowBoiRight);
     }
+
+    // System.out.println(m_roller.getOutputCurrent());
   }
 
   /**
@@ -156,9 +160,9 @@ public class Intake extends SubsystemBase {
           } else if (position == "down") {
             m_targetLeft = kDOWN;
             m_targetRight = kDOWN;
-          } else if (position == "mid") {
-            m_targetLeft = kMID;
-            m_targetRight = kMID;
+          } else if (position == "cone") {
+            m_targetLeft = kConeIntake;
+            m_targetRight = kConeIntake;
           }
         });
   }
@@ -169,5 +173,9 @@ public class Intake extends SubsystemBase {
 
   public double motorSpeedRight() {
     return m_targetRight - getRightEncoder();
+  }
+
+  public void coneLift() {
+    if (m_roller.getOutputCurrent() > kCurrentThreshold) setTarget("cone");
   }
 }
