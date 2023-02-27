@@ -72,17 +72,11 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.x().onTrue(IntakeOutSequenceCube());
-    m_driverController.y().onTrue(IntakeOutSequenceCone());
-    m_driverController.b().onTrue(m_intake.stop().alongWith(m_spindexer.stop()));
+    m_driverController.a().onTrue(secondStageSequence());
+    m_driverController.b().onTrue(m_elevator.down());
+    m_driverController.x().onTrue(m_pivotArm.setTarget("down"));
 
-    m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
-    m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
-    m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
-    m_driverController.povRight().onTrue(m_gripper.setTarget("cube"));
-
-    // m_driverController.povUp().onTrue(m_intake.setTarget("mid"));
-    // m_driverController.povDown().onTrue(m_intake.setTarget("down"));
+    m_driverController.y().onTrue(m_elevator.extendTo(thirdLvl));
   }
 
   /**
@@ -106,7 +100,8 @@ public class RobotContainer {
         .andThen(
             m_intake
                 .spin("cube")
-                .alongWith(m_pivotArm.setTarget("cube").alongWith(m_spindexer.spin())));
+                .alongWith(m_pivotArm.setTarget("cube").alongWith(m_spindexer.spin()))
+                .alongWith(m_gripper.setTarget("cube")));
   }
 
   /**
@@ -133,5 +128,35 @@ public class RobotContainer {
         .setTarget("down")
         .alongWith(
             m_intake.setTarget("up").alongWith(m_spindexer.index()).andThen(m_intake.stop()));
+  }
+
+  public Command secondStageSequence() {
+    return m_gripper
+        .setTarget("cube")
+        .withTimeout(0.25)
+        .andThen(
+            m_pivotArm
+                .setTarget("up")
+                .andThen(m_elevator.extendTo(secondLvl))
+                .alongWith(m_gripper.setTarget("cube"))
+                .withTimeout(1)
+                .andThen(m_gripper.setTarget("open"))
+                .withTimeout(2)
+                .andThen(m_elevator.down()));
+  }
+
+  public Command thirdStageSequence() {
+    return m_gripper
+        .setTarget("cube")
+        .withTimeout(0.25)
+        .andThen(
+            m_pivotArm
+                .setTarget("up")
+                .andThen(m_elevator.extendTo(thirdLvl))
+                .alongWith(m_gripper.setTarget("cube"))
+                .withTimeout(3)
+                .andThen(m_gripper.setTarget("open"))
+                .withTimeout(2)
+                .andThen(m_elevator.down()));
   }
 }

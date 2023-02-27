@@ -8,7 +8,6 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -20,16 +19,18 @@ public class RGBControl extends SubsystemBase {
   private static DigitalOutput select1 = new DigitalOutput(0);
   private static DigitalOutput select2 = new DigitalOutput(1);
   private static DigitalOutput select3 = new DigitalOutput(2);
-  private static PowerDistribution pdp = new PowerDistribution(20, ModuleType.kRev);
+  private static PowerDistribution m_pdp = new PowerDistribution(20, ModuleType.kRev);
+  private boolean m_state = false;
 
   /** Creates a new RGBControl. */
   public RGBControl() {
-    pdp.setSwitchableChannel(!DriverStation.isDisabled());
+    m_pdp.setSwitchableChannel(false);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    m_pdp.setSwitchableChannel(m_state);
   }
 
   public Command Command3360() {
@@ -93,5 +94,9 @@ public class RGBControl extends SubsystemBase {
           select2.set(false);
           select3.set(false);
         });
+  }
+
+  public Command onPdp() {
+    return this.runOnce(() -> m_state = !m_state);
   }
 }

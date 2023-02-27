@@ -40,8 +40,6 @@ public class PivotArm extends SubsystemBase {
   @Override
   public void periodic() {
     m_pivot.set(motorSpeed() * kMultiplier);
-    // System.out.println(motorSpeed());
-    System.out.println(m_target);
   }
 
   /***

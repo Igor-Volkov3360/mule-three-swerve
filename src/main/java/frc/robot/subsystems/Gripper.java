@@ -17,10 +17,10 @@ public class Gripper extends SubsystemBase {
   private static final double kOpenPercent = 0.15;
   private static final double kTransitSeconds = 0.5;
 
-  private static final double kOpenPosition = 20;
-  private static final double kClosePositionCube = -15;
-  private static final double kClosePositionCone = -40;
-  private static final double kCloseUpPositionCube = -30;
+  private static final double kOpenPosition = 0;
+  private static final double kClosePositionCube = -30;
+  private static final double kClosePositionCone = -45;
+  private static final double kCloseUpPositionCube = -60;
   private static final double kCloseUpPositionCone = -69;
 
   private static final double kMultiplier = 0.1;
@@ -45,15 +45,18 @@ public class Gripper extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     m_gripper.set(motorSpeed() * kMultiplier);
-
-    // System.out.println(m_gripper.getEncoder().getPosition());
-    // System.out.println(m_target);
   }
 
   public Command stop() {
     return this.run(() -> m_gripper.set(0));
   }
 
+  /**
+   * This function is used to se the grab of the gripper
+   *
+   * @param position This parameter is used to dictate the opening
+   * @return the command
+   */
   public Command setTarget(String position) {
     return this.run(
         () -> {
@@ -68,5 +71,9 @@ public class Gripper extends SubsystemBase {
 
   private double motorSpeed() {
     return (m_target - m_gripper.getEncoder().getPosition()) / 2;
+  }
+
+  public Command manualWind() {
+    return this.run(() -> m_gripper.set(-0.1));
   }
 }
