@@ -29,8 +29,8 @@ public class Elevator extends SubsystemBase {
 
   /** Creates a new Elevator. */
   public Elevator() {
-    m_lead.setIdleMode(IdleMode.kCoast);
-    m_follow.setIdleMode(IdleMode.kCoast);
+    m_lead.setIdleMode(IdleMode.kBrake);
+    m_follow.setIdleMode(IdleMode.kBrake);
   }
 
   @Override

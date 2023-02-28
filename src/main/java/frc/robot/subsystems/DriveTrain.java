@@ -26,14 +26,14 @@ import java.util.function.DoubleSupplier;
 public class DriveTrain extends SubsystemBase {
 
   // Subsystem parameters
-  public static final double kMaxModuleSpeed = 2.0;
+  public static final double kMaxModuleSpeed = 4.0;
 
-  public static final double kMaxSpeedX = 1.0;
-  public static final double kMaxSpeedY = 1.0;
-  public static final double kMaxSpeedRot = 180.0;
+  public static final double kMaxSpeedX = 4.0;
+  public static final double kMaxSpeedY = 4.0;
+  public static final double kMaxSpeedRot = 360.0;
 
-  public static final double kMaxAccTrans = 2.0;
-  public static final double kMaxAccRot = 360.0;
+  public static final double kMaxAccTrans = 2.0 * kMaxModuleSpeed;
+  public static final double kMaxAccRot = 4.0 * kMaxSpeedRot;
 
   public static final double kJoystickDeadband = 0.15;
 

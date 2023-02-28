@@ -46,14 +46,14 @@ public final class Constants {
 
     public static final double kMeterPerSToTick = 1.0 / kTickToMeterPerS;
 
-    public static final double kTurnKp = 0.21;
+    public static final double kTurnKp = 0.15;
     public static final double kTurnKi = 0.0;
     public static final double kTurnKd = 0.05;
     public static final double kTurnIZone = 0.0;
 
-    public static final double kDriveKp = 0.025;
+    public static final double kDriveKp = 0.02;
     public static final double kDriveKi = 0.0;
-    public static final double kDriveKd = 2.0;
+    public static final double kDriveKd = 0.08;
     public static final double kDriveKf = 0.04625;
     public static final double kDriveIZone = 0.0;
   }
