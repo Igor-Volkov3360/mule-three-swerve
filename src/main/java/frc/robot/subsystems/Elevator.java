@@ -77,7 +77,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command down() {
-    return this.run(() -> m_targetMeter = 0.0);
+    return this.runOnce(() -> m_targetMeter = 0.0);
   }
 
   private double motorSpeed() {

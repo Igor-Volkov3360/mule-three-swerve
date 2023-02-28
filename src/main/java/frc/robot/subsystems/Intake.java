@@ -35,6 +35,7 @@ public class Intake extends SubsystemBase {
   private static final double kQuickBoiLeft = 2.5;
   private static final double kSlowBoiLeft = 2;
   private static final double kUPSpeedModifier = 1.5;
+  private static final double kDownSpeedModifier = 0.75;
 
   private static final double kUP = 0.18;
   private static final double kDOWN = 0.01;
@@ -44,7 +45,7 @@ public class Intake extends SubsystemBase {
 
   private static final double kRollerPercentCube = 0.7;
   private static final double kRollerPercentCone = 1;
-  private static final double kCurrentThreshold = 10;
+  private static final double kCurrentThreshold = 15;
 
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
@@ -105,7 +106,7 @@ public class Intake extends SubsystemBase {
       m_pivotRight.set(motorSpeedRight() * kSlowBoiRight);
     }
 
-    // System.out.println(m_roller.getOutputCurrent());
+    System.out.println(m_roller.getOutputCurrent());
   }
 
   /**
@@ -175,7 +176,7 @@ public class Intake extends SubsystemBase {
     return m_targetRight - getRightEncoder();
   }
 
-  public void coneLift() {
+  private void coneLift() {
     if (m_roller.getOutputCurrent() > kCurrentThreshold) setTarget("cone");
   }
 }
