@@ -62,9 +62,6 @@ public class PivotArm extends SubsystemBase {
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
-
-    System.out.printf(
-        "pivot target = %.2f\tpivot out = %.3f\n", m_target, m_pivot.getAppliedOutput());
   }
 
   /**
