@@ -74,6 +74,10 @@ public class RobotContainer {
   private void configureBindings() {
     m_driverController.a().onTrue(m_elevator.extendTo(0.25));
     m_driverController.b().onTrue(m_elevator.down());
+
+    m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
+    m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
+    m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
   }
 
   /**
