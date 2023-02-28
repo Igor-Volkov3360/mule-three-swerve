@@ -14,7 +14,7 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
-import frc.robot.subsystems.RGBControl;
+// import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Vision.Vision;
 
@@ -28,7 +28,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Vision m_vision = new Vision();
   private final DriveTrain m_drive = new DriveTrain(m_vision);
-  private final RGBControl m_rgbPanel = new RGBControl();
+  // private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
   private final Spindexer m_spindexer = new Spindexer();

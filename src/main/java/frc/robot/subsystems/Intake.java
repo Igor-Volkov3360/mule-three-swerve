@@ -7,11 +7,8 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -34,8 +31,6 @@ public class Intake extends SubsystemBase {
   private static final double kSlowBoiRight = 2;
   private static final double kQuickBoiLeft = 2.5;
   private static final double kSlowBoiLeft = 2;
-  private static final double kUPSpeedModifier = 1.5;
-  private static final double kDownSpeedModifier = 0.75;
 
   private static final double kUP = 0.18;
   private static final double kDOWN = 0.01;
@@ -54,12 +49,6 @@ public class Intake extends SubsystemBase {
 
   private final DutyCycleEncoder m_dutyEncoderLeft = new DutyCycleEncoder(kLeftEncoder);
   private final DutyCycleEncoder m_dutyEncoderRight = new DutyCycleEncoder(KRightEncoder);
-
-  private final ShuffleboardTab m_intakeTab = Shuffleboard.getTab("intake");
-  private final GenericEntry m_percentEntry = m_intakeTab.add("targetPercent", 0.0).getEntry();
-  private final GenericEntry m_angleEntry = m_intakeTab.add("currentAngle", 0.0).getEntry();
-  private final GenericEntry m_targetEntry = m_intakeTab.add("targetAngle", 0.0).getEntry();
-  private final GenericEntry m_pidEntry = m_intakeTab.add("feedForward", 0.0).getEntry();
 
   /** Creates a new Intake. */
   public Intake() {

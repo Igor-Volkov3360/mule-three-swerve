@@ -22,7 +22,6 @@ public class PivotArm extends SubsystemBase {
   private static final double kCube = 0.8;
   private double m_target = kDown;
   private static final double kMultiplier = 0.25;
-  private static final double kCubeCounter = 0.05;
 
   // Member objects
   private final CANSparkMax m_pivot = new CANSparkMax(kPivotId, MotorType.kBrushless);

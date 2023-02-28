@@ -17,19 +17,8 @@ public class Elevator extends SubsystemBase {
   public static final int kLeadId = 14;
   public static final int kFollowId = 13;
 
-  private static final double kNativeToMeter = 1.51 / 13200; // was 10062
-  private static final double kNominalVolt = 10.0;
-
+  private static final double kNativeToMeter = 1.51 / 13200;
   private static final double kNeutralMeter = 0.0;
-  private static final double kGravityPercent = 0.12;
-
-  private static final double kTargetTolMeter = 0.1;
-  private static final double kP = 2.0;
-  private static final double kI = 0.0;
-  private static final double kD = 0.0;
-
-  private static final double kVelMeter = 1.0;
-  private static final double kAccMeter = 2.0;
 
   // Member objects
   private final CANSparkMax m_lead = new CANSparkMax(kLeadId, MotorType.kBrushless);
@@ -55,15 +44,6 @@ public class Elevator extends SubsystemBase {
 
     m_lead.set(normalizeValue());
     m_follow.set(normalizeValue());
-  }
-
-  /**
-   * Check wether the elevator reached its target extension
-   *
-   * @return elevator is at target
-   */
-  private boolean onTarget() {
-    return Math.abs(getEncoder() * kNativeToMeter - m_targetMeter) < kTargetTolMeter;
   }
 
   /**

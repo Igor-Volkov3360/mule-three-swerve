@@ -13,9 +13,6 @@ public class Gripper extends SubsystemBase {
 
   // Subsystem parameters
   private static final int kGripperId = 15;
-  private static final double kClosePercent = -0.2;
-  private static final double kOpenPercent = 0.15;
-  private static final double kTransitSeconds = 0.5;
 
   private static final double kOpenPosition = 0;
   private static final double kClosePositionCube = -30;
@@ -65,7 +62,10 @@ public class Gripper extends SubsystemBase {
             m_target = kClosePositionCube;
           else if (m_pivot.getTarget() == m_pivot.kUp && position == "cube")
             m_target = kCloseUpPositionCube;
-          else if (position == "cone") m_target = kClosePositionCone;
+          else if (m_pivot.getTarget() == m_pivot.kDown && position == "cone")
+            m_target = kClosePositionCone;
+          else if (m_pivot.getTarget() == m_pivot.kUp && position == "cone")
+            m_target = kCloseUpPositionCone;
         });
   }
 
