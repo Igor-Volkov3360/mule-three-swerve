@@ -4,10 +4,9 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.DemandType;
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -33,35 +32,16 @@ public class Elevator extends SubsystemBase {
   private static final double kAccMeter = 2.0;
 
   // Member objects
-  private final TalonSRX m_lead = new TalonSRX(kLeadId);
-  private final TalonSRX m_follow = new TalonSRX(kFollowId);
+  private final CANSparkMax m_lead = new CANSparkMax(kLeadId, MotorType.kBrushless);
+  private final CANSparkMax m_follow = new CANSparkMax(kFollowId, MotorType.kBrushless);
 
   // Process variables
   private double m_targetMeter = kNeutralMeter;
 
   /** Creates a new Elevator. */
   public Elevator() {
-
-    m_lead.configFactoryDefault();
-    m_lead.configVoltageCompSaturation(kNominalVolt);
-    m_lead.enableVoltageCompensation(true);
-
-    m_lead.setSelectedSensorPosition(kNeutralMeter / kNativeToMeter);
-    m_lead.setInverted(InvertType.InvertMotorOutput);
-    m_lead.setSensorPhase(true);
-
-    m_lead.config_kP(0, kP);
-    m_lead.config_kI(0, kI);
-    m_lead.config_kD(0, kD);
-
-    m_lead.configMotionCruiseVelocity(kVelMeter / kNativeToMeter / 10.0);
-    m_lead.configMotionAcceleration(kAccMeter / kNativeToMeter / 10.0);
-
-    m_follow.configFactoryDefault();
-    m_follow.configVoltageCompSaturation(kNominalVolt);
-    m_follow.enableVoltageCompensation(true);
-    m_follow.follow(m_lead);
-    m_follow.setInverted(InvertType.OpposeMaster);
+    m_lead.setIdleMode(IdleMode.kCoast);
+    m_follow.setIdleMode(IdleMode.kCoast);
   }
 
   @Override
@@ -70,15 +50,11 @@ public class Elevator extends SubsystemBase {
 
     // Set target to current when robot is disabled to preven sudden motion on enable
     if (DriverStation.isDisabled()) {
-      m_targetMeter = m_lead.getSelectedSensorPosition() * kNativeToMeter;
+      m_targetMeter = getEncoder() * kNativeToMeter;
     }
 
-    // Set reference in periodic to allow arbitrary feed-forward
-    m_lead.set(
-        ControlMode.MotionMagic,
-        m_targetMeter / kNativeToMeter,
-        DemandType.ArbitraryFeedForward,
-        kGravityPercent);
+    m_lead.set(normalizeValue());
+    m_follow.set(normalizeValue());
   }
 
   /**
@@ -87,8 +63,7 @@ public class Elevator extends SubsystemBase {
    * @return elevator is at target
    */
   private boolean onTarget() {
-    return Math.abs(m_lead.getSelectedSensorPosition() * kNativeToMeter - m_targetMeter)
-        < kTargetTolMeter;
+    return Math.abs(getEncoder() * kNativeToMeter - m_targetMeter) < kTargetTolMeter;
   }
 
   /**
@@ -98,10 +73,22 @@ public class Elevator extends SubsystemBase {
    * @return blocking command
    */
   public Command extendTo(double meters) {
-    return this.run(() -> m_targetMeter = meters).until(this::onTarget);
+    return this.runOnce(() -> m_targetMeter = meters);
   }
 
   public Command down() {
-    return this.run(() -> m_targetMeter = 0.0).until(this::onTarget);
+    return this.run(() -> m_targetMeter = 0.0);
+  }
+
+  private double motorSpeed() {
+    return getEncoder() * kNativeToMeter - m_targetMeter;
+  }
+
+  private double getEncoder() {
+    return m_lead.getAlternateEncoder(4096).getPosition();
+  }
+
+  private double normalizeValue() {
+    return -((motorSpeed() - 0) / (1 - 0));
   }
 }

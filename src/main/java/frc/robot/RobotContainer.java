@@ -35,10 +35,10 @@ public class RobotContainer {
   private final PivotArm m_pivotArm = new PivotArm();
   private final Gripper m_gripper = new Gripper(m_pivotArm);
 
-  // variables
-
   private final double thirdLvl = 0.95;
   private final double secondLvl = 0.62;
+
+  // variables
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -74,9 +74,8 @@ public class RobotContainer {
   private void configureBindings() {
     m_driverController.a().onTrue(secondStageSequence());
     m_driverController.b().onTrue(m_elevator.down());
+    m_driverController.y().onTrue(m_elevator.extendTo(secondLvl));
     m_driverController.x().onTrue(m_pivotArm.setTarget("down"));
-
-    m_driverController.y().onTrue(m_elevator.extendTo(thirdLvl));
   }
 
   /**
