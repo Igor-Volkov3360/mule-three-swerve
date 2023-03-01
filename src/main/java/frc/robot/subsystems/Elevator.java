@@ -66,7 +66,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private double getEncoder() {
-    return m_lead.getAlternateEncoder(8192).getPosition();
+    return m_lead.getAlternateEncoder(4096).getPosition();
     // countsPerRev was 4096 (aka for CTRE SRX)
   }
 
