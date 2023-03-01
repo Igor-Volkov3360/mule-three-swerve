@@ -11,11 +11,15 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
+<<<<<<< HEAD
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
 // import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Spindexer;
+=======
+import frc.robot.subsystems.RGBControl;
+>>>>>>> parent of e7eecbb (completed intake subsystem)
 import frc.robot.subsystems.Vision.Vision;
 
 /**
@@ -32,6 +36,7 @@ public class RobotContainer {
 
   // private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
+<<<<<<< HEAD
   private final Intake m_intake = new Intake();
   private final Spindexer m_spindexer = new Spindexer();
   private final PivotArm m_pivotArm = new PivotArm();
@@ -39,6 +44,9 @@ public class RobotContainer {
 
   private final double thirdLvl = 0.62;
   private final double secondLvl = 0.42;
+=======
+  // private final Gripper m_gripper = new Gripper();
+>>>>>>> parent of e7eecbb (completed intake subsystem)
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -77,9 +85,16 @@ public class RobotContainer {
     m_driverController.a().onTrue(m_elevator.extendTo(0.05));
     m_driverController.b().onTrue(m_elevator.down());
 
+<<<<<<< HEAD
     m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
     m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
     m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
+=======
+    // m_driverController.a().onTrue(m_gripper.closeCommand());
+    // m_driverController.b().onTrue(m_gripper.openCommand());
+    m_driverController.a().onTrue(m_elevator.extendTo(0.5));
+    m_driverController.b().onTrue(m_elevator.off());
+>>>>>>> parent of e7eecbb (completed intake subsystem)
   }
 
   /**
