@@ -9,6 +9,8 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -17,7 +19,6 @@ public class Intake extends SubsystemBase {
   // Subsystem parameters
   private static final int kPivotLeft = 9;
   private static final int kPivotRight = 10;
-  private static final int kRollerId = 17;
 
   private static final int kLeftEncoder = 7;
   private static final int KRightEncoder = 8;
@@ -37,25 +38,18 @@ public class Intake extends SubsystemBase {
   private static final double kConeIntake = 0.06;
   private double m_targetLeft = kUP;
   private double m_targetRight = kUP;
-
-  private static final double kRollerPercentCube = 0.7;
-  private static final double kRollerPercentCone = 1;
   private static final double kCurrentThreshold = 15;
 
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
   private final CANSparkMax m_pivotRight = new CANSparkMax(kPivotRight, MotorType.kBrushless);
-  private final CANSparkMax m_roller = new CANSparkMax(kRollerId, MotorType.kBrushless);
-
   private final DutyCycleEncoder m_dutyEncoderLeft = new DutyCycleEncoder(kLeftEncoder);
   private final DutyCycleEncoder m_dutyEncoderRight = new DutyCycleEncoder(KRightEncoder);
 
+  private static PowerDistribution m_pdp = new PowerDistribution(20, ModuleType.kRev);
+
   /** Creates a new Intake. */
   public Intake() {
-
-    m_roller.restoreFactoryDefaults();
-    m_roller.setInverted(true);
-    m_roller.burnFlash();
 
     m_pivotLeft.restoreFactoryDefaults();
     m_pivotLeft.setIdleMode(IdleMode.kBrake);
@@ -71,9 +65,6 @@ public class Intake extends SubsystemBase {
 
     m_pivotLeft.burnFlash();
     m_pivotRight.burnFlash();
-
-    // Stop intake by default
-    this.setDefaultCommand(this.stop());
   }
 
   @Override
@@ -95,24 +86,7 @@ public class Intake extends SubsystemBase {
       m_pivotRight.set(motorSpeedRight() * kSlowBoiRight);
     }
 
-    System.out.println(m_roller.getOutputCurrent());
-  }
-
-  /**
-   * Stop the roller
-   *
-   * @return instant command
-   */
-  public Command stop() {
-    return this.run(() -> m_roller.set(0.0));
-  }
-
-  public Command spin(String gamePiece) {
-    return this.run(
-        () -> {
-          if (gamePiece == "cube") m_roller.set(kRollerPercentCube);
-          else m_roller.set(kRollerPercentCone);
-        });
+    System.out.println(m_pdp.getCurrent(7));
   }
 
   /**
@@ -166,6 +140,6 @@ public class Intake extends SubsystemBase {
   }
 
   private void coneLift() {
-    if (m_roller.getOutputCurrent() > kCurrentThreshold) setTarget("cone");
+    if (m_pdp.getCurrent(7) < kCurrentThreshold) setTarget("cone");
   }
 }
