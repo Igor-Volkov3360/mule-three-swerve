@@ -38,6 +38,7 @@ public class Elevator extends SubsystemBase {
     // This method will be called once per scheduler run
 
     // Set target to current when robot is disabled to preven sudden motion on enable
+
     if (DriverStation.isDisabled()) {
       m_targetMeter = getEncoder() * kNativeToMeter;
     }

@@ -34,13 +34,12 @@ public class Gripper extends SubsystemBase {
     m_gripper.restoreFactoryDefaults();
     m_gripper.burnFlash();
     m_pivot = pivot;
-
-    // Default to open as gripper will open when robot is disabled
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
     m_gripper.set(motorSpeed() * kMultiplier);
   }
 

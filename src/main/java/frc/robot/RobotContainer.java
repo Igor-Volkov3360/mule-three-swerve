@@ -25,9 +25,11 @@ import frc.robot.subsystems.Vision.Vision;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
   // The robot's subsystems and commands are defined here...
   private final Vision m_vision = new Vision();
   private final DriveTrain m_drive = new DriveTrain(m_vision);
+
   // private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
@@ -38,8 +40,6 @@ public class RobotContainer {
   private final double thirdLvl = 0.62;
   private final double secondLvl = 0.42;
 
-  // variables
-
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -49,6 +49,7 @@ public class RobotContainer {
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
+
     m_drive.setDefaultCommand(
         m_drive.driveCommand(
             () -> -m_driverController.getLeftY(),
@@ -58,6 +59,7 @@ public class RobotContainer {
 
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
+
     m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
     configureBindings();
   }
