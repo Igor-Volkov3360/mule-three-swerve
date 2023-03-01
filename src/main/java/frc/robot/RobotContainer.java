@@ -74,7 +74,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.a().onTrue(m_elevator.extendTo(0.25));
+    m_driverController.a().onTrue(m_elevator.extendTo(0.05));
     m_driverController.b().onTrue(m_elevator.down());
 
     m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
