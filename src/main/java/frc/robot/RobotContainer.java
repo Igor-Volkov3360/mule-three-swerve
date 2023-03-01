@@ -14,7 +14,6 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
-import frc.robot.subsystems.Roller;
 // import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Vision.Vision;
@@ -37,7 +36,6 @@ public class RobotContainer {
   private final Spindexer m_spindexer = new Spindexer();
   private final PivotArm m_pivotArm = new PivotArm();
   private final Gripper m_gripper = new Gripper(m_pivotArm);
-  private final Roller m_roller = new Roller();
 
   private final double thirdLvl = 0.62;
   private final double secondLvl = 0.42;
@@ -76,20 +74,12 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // m_driverController.a().onTrue(m_elevator.extendTo(0.05));
-    // m_driverController.b().onTrue(m_elevator.down());
+    m_driverController.a().onTrue(m_elevator.extendTo(0.05));
+    m_driverController.b().onTrue(m_elevator.down());
 
     m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
     m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
     m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
-
-    m_driverController.a().onTrue(m_roller.spin("cone"));
-    m_driverController.b().onTrue(m_roller.stop());
-
-    m_driverController.leftBumper().onTrue(m_intake.setTarget("cone"));
-    m_driverController
-        .rightBumper()
-        .onTrue(m_roller.spin("cone").alongWith(m_intake.setTarget("cone")));
   }
 
   /**
@@ -111,7 +101,7 @@ public class RobotContainer {
     return m_intake
         .setTarget("down")
         .andThen(
-            m_roller
+            m_intake
                 .spin("cube")
                 .alongWith(m_pivotArm.setTarget("cube").alongWith(m_spindexer.spin()))
                 .alongWith(m_gripper.setTarget("cube")));
@@ -126,7 +116,7 @@ public class RobotContainer {
     return m_intake
         .setTarget("down")
         .andThen(
-            m_roller
+            m_intake
                 .spin("cone")
                 .alongWith(m_pivotArm.setTarget("up").alongWith(m_spindexer.spin())));
   }
@@ -140,7 +130,7 @@ public class RobotContainer {
     return m_pivotArm
         .setTarget("down")
         .alongWith(
-            m_intake.setTarget("up").alongWith(m_spindexer.index()).andThen(m_roller.stop()));
+            m_intake.setTarget("up").alongWith(m_spindexer.index()).andThen(m_intake.stop()));
   }
 
   public Command secondStageSequence() {

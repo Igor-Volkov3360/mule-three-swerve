@@ -17,7 +17,7 @@ public class Elevator extends SubsystemBase {
   public static final int kLeadId = 14;
   public static final int kFollowId = 13;
 
-  private static final double kNativeToMeter = 1.51 / 10062; // 13200
+  private static final double kNativeToMeter = 1.51 / 13200;
   private static final double kNeutralMeter = 0.0;
 
   // Member objects
@@ -67,6 +67,7 @@ public class Elevator extends SubsystemBase {
 
   private double getEncoder() {
     return m_lead.getAlternateEncoder(4096).getPosition();
+    // countsPerRev was 4096 (aka for CTRE SRX)
   }
 
   private double normalizeValue() {
