@@ -32,6 +32,7 @@ public class Elevator extends SubsystemBase {
   public Elevator() {
     m_lead.setIdleMode(IdleMode.kCoast);
     m_follow.setIdleMode(IdleMode.kCoast);
+    this.setDefaultCommand(this.down());
   }
 
   @Override
@@ -46,6 +47,7 @@ public class Elevator extends SubsystemBase {
 
     m_lead.set(normalizeValue());
     m_follow.set(normalizeValue());
+    System.out.println(isOnTarget() + "     " + getEncoder());
   }
 
   /**
@@ -55,11 +57,11 @@ public class Elevator extends SubsystemBase {
    * @return blocking command
    */
   public Command extendTo(double meters) {
-    return this.runOnce(() -> m_targetMeter = meters);
+    return this.run(() -> m_targetMeter = meters);
   }
 
   public Command down() {
-    return this.runOnce(() -> m_targetMeter = 0.0);
+    return this.run(() -> m_targetMeter = 0.0);
   }
 
   private double motorSpeed() {

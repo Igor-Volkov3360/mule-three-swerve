@@ -68,7 +68,7 @@ public class PivotArm extends SubsystemBase {
   /**
    * This function sets the desired angle for the pivot arm
    *
-   * @param upDown true is up, false is down
+   * @param position The desired position for the pivot arm, "up", "down", "cube"
    * @return Desired angle for the pivot arm
    */
   public Command setTarget(String position) {

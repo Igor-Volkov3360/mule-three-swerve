@@ -14,8 +14,8 @@ import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
+import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Roller;
-// import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Vision.Vision;
 
@@ -38,6 +38,7 @@ public class RobotContainer {
   private final Spindexer m_spindexer = new Spindexer();
   private final PivotArm m_pivotArm = new PivotArm();
   private final Gripper m_gripper = new Gripper(m_pivotArm);
+  private final RGBControl m_rgbPanel = new RGBControl();
 
   private final double thirdLvl = 0.62;
   private final double secondLvl = 0.42;
@@ -63,6 +64,7 @@ public class RobotContainer {
     // Configure the trigger bindings
 
     m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
+    m_rgbPanel.setDefaultCommand(m_rgbPanel.onPdp(false));
     configureBindings();
   }
 
@@ -76,17 +78,17 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // m_driverController.a().onTrue(secondStageSequence());
-    // m_driverController.b().onTrue(m_elevator.down());
+    // m_driverController.a().onTrue(m_elevator.extendTo(0.5).until(m_elevator::isOnTarget));
+    // m_driverController.b().onTrue(m_elevator.down().until(m_elevator::isOnTarget));
 
-    m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
-    m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
+    m_driverController.povUp().onTrue(m_intake.setTarget("up"));
+    m_driverController.povDown().onTrue(m_intake.setTarget("down"));
     m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
 
-    m_driverController.a().onTrue(m_pivotArm.setTarget("up").until(m_pivotArm::isOnTarget));
-    m_driverController.b().onTrue(m_pivotArm.setTarget("down").until(m_pivotArm::isOnTarget));
+    // m_driverController.a().onTrue(m_pivotArm.setTarget("up").until(m_pivotArm::isOnTarget));
+    // m_driverController.b().onTrue(m_pivotArm.setTarget("down").until(m_pivotArm::isOnTarget));
 
     /*m_driverController
         .a()

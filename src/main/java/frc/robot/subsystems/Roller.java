@@ -38,7 +38,7 @@ public class Roller extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    System.out.println("   roller current " + m_roller.getOutputCurrent());
+    // System.out.println("   roller current " + m_roller.getOutputCurrent());
     if (DriverStation.isDisabled()) {
       m_currentFilter.reset();
     }

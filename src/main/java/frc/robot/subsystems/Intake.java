@@ -77,7 +77,7 @@ public class Intake extends SubsystemBase {
       m_pivotRight.set(motorSpeedRight() * kSlowBoiRight);
     }
 
-    System.out.print("target " + m_targetLeft);
+    // System.out.print("target " + m_targetLeft);
   }
   /**
    * Gets the value of the left encoder between 0 and 0.18
@@ -121,6 +121,12 @@ public class Intake extends SubsystemBase {
         });
   }
 
+  /**
+   * This function holds an intake position
+   *
+   * @param position either "up", "down", "cone"
+   * @return blocking command that holds a position
+   */
   public Command holdTarget(String position) {
     return this.run(
         () -> {

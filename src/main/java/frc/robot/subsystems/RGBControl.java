@@ -23,9 +23,7 @@ public class RGBControl extends SubsystemBase {
   private boolean m_state = false;
 
   /** Creates a new RGBControl. */
-  public RGBControl() {
-    m_pdp.setSwitchableChannel(false);
-  }
+  public RGBControl() {}
 
   @Override
   public void periodic() {
@@ -97,7 +95,7 @@ public class RGBControl extends SubsystemBase {
         });
   }
 
-  public Command onPdp() {
-    return this.runOnce(() -> m_state = !m_state);
+  public Command onPdp(boolean isOn) {
+    return this.runOnce(() -> m_state = isOn);
   }
 }
