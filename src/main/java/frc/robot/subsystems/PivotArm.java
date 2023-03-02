@@ -30,6 +30,7 @@ public class PivotArm extends SubsystemBase {
   private static final double kP = 0.15;
   private static final double kMaxVel = 1.8;
   private static final double kMaxAcc = 0.5 * kMaxVel;
+  private static final double deadzone = 0.01;
 
   // Member objects
   private final CANSparkMax m_pivot = new CANSparkMax(kPivotId, MotorType.kBrushless);
@@ -86,5 +87,10 @@ public class PivotArm extends SubsystemBase {
 
   public double getTarget() {
     return m_target;
+  }
+
+  public boolean isOnTarget() {
+    return m_encoder.getPosition() > deadzone + m_target
+        && m_encoder.getPosition() < m_target - deadzone;
   }
 }

@@ -19,6 +19,7 @@ public class Elevator extends SubsystemBase {
 
   private static final double kNativeToMeter = 1.51 / 10062; // 13200
   private static final double kNeutralMeter = 0.0;
+  private static final double deadzone = 0.05;
 
   // Member objects
   private final CANSparkMax m_lead = new CANSparkMax(kLeadId, MotorType.kBrushless);
@@ -71,5 +72,9 @@ public class Elevator extends SubsystemBase {
 
   private double normalizeValue() {
     return -((motorSpeed() - 0) / (1 - 0));
+  }
+
+  public boolean isOnTarget() {
+    return getEncoder() > deadzone + m_targetMeter && getEncoder() < m_targetMeter - deadzone;
   }
 }

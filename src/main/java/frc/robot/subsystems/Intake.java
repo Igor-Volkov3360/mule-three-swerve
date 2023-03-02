@@ -17,8 +17,6 @@ public class Intake extends SubsystemBase {
   // Subsystem parameters
   private static final int kPivotLeft = 9;
   private static final int kPivotRight = 10;
-  private static final int kRollerId = 17;
-
   private static final int kLeftEncoder = 7;
   private static final int KRightEncoder = 8;
   private static final double kTurnPerRotation = 0.25;
@@ -37,25 +35,14 @@ public class Intake extends SubsystemBase {
   private static final double kConeIntake = 0.06;
   private double m_targetLeft = kUP;
   private double m_targetRight = kUP;
-
-  private static final double kRollerPercentCube = 0.7;
-  private static final double kRollerPercentCone = 1;
-  private static final double kCurrentThreshold = 15;
-
+  private static double deadzone = 0.01;
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
   private final CANSparkMax m_pivotRight = new CANSparkMax(kPivotRight, MotorType.kBrushless);
-  private final CANSparkMax m_roller = new CANSparkMax(kRollerId, MotorType.kBrushless);
-
   private final DutyCycleEncoder m_dutyEncoderLeft = new DutyCycleEncoder(kLeftEncoder);
   private final DutyCycleEncoder m_dutyEncoderRight = new DutyCycleEncoder(KRightEncoder);
-
   /** Creates a new Intake. */
   public Intake() {
-
-    m_roller.restoreFactoryDefaults();
-    m_roller.setInverted(true);
-    m_roller.burnFlash();
 
     m_pivotLeft.restoreFactoryDefaults();
     m_pivotLeft.setIdleMode(IdleMode.kBrake);
@@ -71,15 +58,10 @@ public class Intake extends SubsystemBase {
 
     m_pivotLeft.burnFlash();
     m_pivotRight.burnFlash();
-
-    // Stop intake by default
-    this.setDefaultCommand(this.stop());
   }
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
-    coneLift();
 
     // Set target to current when robot is disabled to prevent sudden motion on enable
     if (DriverStation.isDisabled()) {
@@ -95,26 +77,8 @@ public class Intake extends SubsystemBase {
       m_pivotRight.set(motorSpeedRight() * kSlowBoiRight);
     }
 
-    System.out.println(m_roller.getOutputCurrent());
+    System.out.print("target " + m_targetLeft);
   }
-
-  /**
-   * Stop the roller
-   *
-   * @return instant command
-   */
-  public Command stop() {
-    return this.run(() -> m_roller.set(0.0));
-  }
-
-  public Command spin(String gamePiece) {
-    return this.run(
-        () -> {
-          if (gamePiece == "cube") m_roller.set(kRollerPercentCube);
-          else m_roller.set(kRollerPercentCone);
-        });
-  }
-
   /**
    * Gets the value of the left encoder between 0 and 0.18
    *
@@ -157,15 +121,40 @@ public class Intake extends SubsystemBase {
         });
   }
 
+  public Command holdTarget(String position) {
+    return this.run(
+        () -> {
+          if (position == "up") {
+            m_targetLeft = kUP;
+            m_targetRight = kUP;
+          } else if (position == "down") {
+            m_targetLeft = kDOWN;
+            m_targetRight = kDOWN;
+          } else if (position == "cone") {
+            m_targetLeft = kConeIntake;
+            m_targetRight = kConeIntake;
+          }
+        });
+  }
+
   public double motorSpeedLeft() {
-    return m_targetLeft - getLeftEncoder();
+    if (m_targetLeft == kConeIntake && !isOnTargetLeft()) return 0.06;
+    else return m_targetLeft - getLeftEncoder();
   }
 
   public double motorSpeedRight() {
-    return m_targetRight - getRightEncoder();
+    if (m_targetRight == kConeIntake && !isOnTargetRight()) return 0.06;
+    else return m_targetRight - getRightEncoder();
   }
 
-  private void coneLift() {
-    if (m_roller.getOutputCurrent() > kCurrentThreshold) setTarget("cone");
+  private boolean isOnTargetLeft() {
+
+    return (getLeftEncoder() < deadzone + kConeIntake && getLeftEncoder() > kConeIntake - deadzone);
+  }
+
+  private boolean isOnTargetRight() {
+
+    return (getRightEncoder() < deadzone + kConeIntake
+        && getRightEncoder() > kConeIntake - deadzone);
   }
 }
