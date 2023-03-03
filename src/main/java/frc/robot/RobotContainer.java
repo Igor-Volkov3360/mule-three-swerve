@@ -78,12 +78,13 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // m_driverController.a().onTrue(m_elevator.extendTo(0.5).until(m_elevator::isOnTarget));
-    // m_driverController.b().onTrue(m_elevator.down().until(m_elevator::isOnTarget));
+    m_driverController.a().onTrue(m_elevator.extendTo(secondLvl));
+    m_driverController.b().onTrue(m_elevator.down());
+    // .until(m_elevator::limitSwitch).andThen(m_elevator.stop()));
 
-    m_driverController.povUp().onTrue(m_intake.setTarget("up"));
-    m_driverController.povDown().onTrue(m_intake.setTarget("down"));
-    m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
+    // m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
+    // m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
+    // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
 

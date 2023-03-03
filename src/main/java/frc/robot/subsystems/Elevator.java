@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,13 +18,14 @@ public class Elevator extends SubsystemBase {
   public static final int kLeadId = 14;
   public static final int kFollowId = 13;
 
-  private static final double kNativeToMeter = 1.51 / 10062; // 13200
+  private static final double kNativeToMeter = 1.46 / 109.97; // 13200
   private static final double kNeutralMeter = 0.0;
   private static final double deadzone = 0.05;
 
   // Member objects
   private final CANSparkMax m_lead = new CANSparkMax(kLeadId, MotorType.kBrushless);
   private final CANSparkMax m_follow = new CANSparkMax(kFollowId, MotorType.kBrushless);
+  private final DigitalInput m_limitSwitch = new DigitalInput(9);
 
   // Process variables
   private double m_targetMeter = kNeutralMeter;
@@ -39,6 +41,10 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
+    limitSwitch();
+
+    if (limitSwitch() == false) m_lead.getEncoder().setPosition(0);
+
     // Set target to current when robot is disabled to preven sudden motion on enable
 
     if (DriverStation.isDisabled()) {
@@ -47,7 +53,8 @@ public class Elevator extends SubsystemBase {
 
     m_lead.set(normalizeValue());
     m_follow.set(normalizeValue());
-    System.out.println(isOnTarget() + "     " + getEncoder());
+
+    System.out.println(getEncoder());
   }
 
   /**
@@ -61,7 +68,11 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command down() {
-    return this.run(() -> m_targetMeter = 0.0);
+    return this.runOnce(() -> m_targetMeter = -0.8);
+  }
+
+  public Command stop() {
+    return this.runOnce(() -> m_targetMeter = 0);
   }
 
   private double motorSpeed() {
@@ -69,7 +80,7 @@ public class Elevator extends SubsystemBase {
   }
 
   private double getEncoder() {
-    return m_lead.getAlternateEncoder(4096).getPosition();
+    return m_lead.getEncoder().getPosition();
   }
 
   private double normalizeValue() {
@@ -78,5 +89,9 @@ public class Elevator extends SubsystemBase {
 
   public boolean isOnTarget() {
     return getEncoder() > deadzone + m_targetMeter && getEncoder() < m_targetMeter - deadzone;
+  }
+
+  public boolean limitSwitch() {
+    return m_limitSwitch.get();
   }
 }
