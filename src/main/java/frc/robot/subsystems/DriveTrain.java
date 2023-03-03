@@ -83,6 +83,9 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     // Call module periodic
+
+    inDeadband();
+
     for (final var module : m_modules) {
       module.periodic();
     }
@@ -228,5 +231,9 @@ public class DriveTrain extends SubsystemBase {
         this::drive,
         false,
         this);
+  }
+
+  private boolean inDeadband() {
+    return m_gyro.getAngle() < 0.2 && m_gyro.getAngle() > -0.2;
   }
 }

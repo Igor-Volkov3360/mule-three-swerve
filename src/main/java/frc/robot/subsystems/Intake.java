@@ -22,13 +22,13 @@ public class Intake extends SubsystemBase {
   private static final double kTurnPerRotation = 0.25;
   private static final double kOffsetLeft = 0.28;
   private static final double kOffsetRight = 0.17;
-  private static final double kUpperSoftLimit = 0.15;
+  /* private static final double kUpperSoftLimit = 0.15;
   private static final double kLowwerSoftLimit = 0.03;
 
-  private static final double kQuickBoiRight = 2.5;
+   private static final double kQuickBoiRight = 2.5;
   private static final double kSlowBoiRight = 2;
   private static final double kQuickBoiLeft = 2.5;
-  private static final double kSlowBoiLeft = 2;
+  private static final double kSlowBoiLeft = 2; */
 
   private static final double kUP = 0.18;
   private static final double kDOWN = 0.01;
@@ -98,13 +98,13 @@ public class Intake extends SubsystemBase {
     return m_dutyEncoderRight.getAbsolutePosition() - kOffsetRight;
   }
 
-  private boolean isLeftInFastRange() {
+  /* private boolean isLeftInFastRange() {
     return getLeftEncoder() > kLowwerSoftLimit && getLeftEncoder() < kUpperSoftLimit;
   }
 
   private boolean isRightInFastRange() {
     return getRightEncoder() > kLowwerSoftLimit && getRightEncoder() < kUpperSoftLimit;
-  }
+  } */
 
   public Command setTarget(String position) {
     return this.runOnce(
