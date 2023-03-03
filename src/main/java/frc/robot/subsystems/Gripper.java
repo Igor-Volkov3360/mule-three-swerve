@@ -16,7 +16,7 @@ public class Gripper extends SubsystemBase {
 
   private static final double kOpenPosition = 0;
   private static final double kClosePositionCube = -30;
-  private static final double kClosePositionCone = -45;
+  private static final double kClosePositionCone = -50;
   private static final double kCloseUpPositionCube = -60;
   private static final double kCloseUpPositionCone = -69;
 

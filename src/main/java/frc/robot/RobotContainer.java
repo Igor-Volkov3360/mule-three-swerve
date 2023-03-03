@@ -40,8 +40,8 @@ public class RobotContainer {
   private final Gripper m_gripper = new Gripper(m_pivotArm);
   private final RGBControl m_rgbPanel = new RGBControl();
 
-  private final double thirdLvl = 0.62;
-  private final double secondLvl = 0.42;
+  private final double thirdLvl = 1.0;
+  private final double secondLvl = 0.80;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -65,6 +65,7 @@ public class RobotContainer {
 
     m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
     m_rgbPanel.setDefaultCommand(m_rgbPanel.onPdp(false));
+    // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
     configureBindings();
   }
 
@@ -78,12 +79,14 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.a().onTrue(m_elevator.extendTo(secondLvl));
+    m_driverController.a().onTrue(m_elevator.extendTo(thirdLvl));
     m_driverController.b().onTrue(m_elevator.down());
-    // .until(m_elevator::limitSwitch).andThen(m_elevator.stop()));
 
-    // m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
-    // m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
+    m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
+    m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
+
+    m_driverController.povRight().onTrue(m_gripper.setTarget("cone"));
+    m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
     // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
@@ -92,15 +95,16 @@ public class RobotContainer {
     // m_driverController.b().onTrue(m_pivotArm.setTarget("down").until(m_pivotArm::isOnTarget));
 
     /*m_driverController
-        .a()
-        .onTrue(
-            new ParallelCommandGroup(
-                m_roller.spin("cone"),
-                m_spindexer.spin(),
-                m_gripper.setTarget("up"),
-                raiseForCone()));
+    .a()
+    .onTrue(
+        new ParallelCommandGroup(
+            m_roller.spin("cone"),
+            m_spindexer.spin(),
+            m_gripper.setTarget("up"),
+            raiseForCone())); */
 
-    m_driverController.b().onTrue(m_roller.stop()); */
+    // m_driverController.x().onTrue(m_roller.stop());
+    // m_driverController.y().onTrue(m_roller.spin("cone").alongWith(m_spindexer.spin()));
   }
 
   /**

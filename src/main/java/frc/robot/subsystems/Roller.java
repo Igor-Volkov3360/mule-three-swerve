@@ -52,7 +52,8 @@ public class Roller extends SubsystemBase {
     return this.run(
         () -> {
           if (gamePiece == "cube") m_roller.set(kRollerPercentCube);
-          else m_roller.set(kRollerPercentCone);
+          else if (gamePiece == "cone") m_roller.set(kRollerPercentCone);
+          else if (gamePiece == "reverse") m_roller.set(-kRollerPercentCone);
         });
   }
 

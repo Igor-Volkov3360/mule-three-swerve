@@ -43,7 +43,7 @@ public class Elevator extends SubsystemBase {
 
     limitSwitch();
 
-    if (limitSwitch() == false) m_lead.getEncoder().setPosition(0);
+    if (limitSwitch()) m_lead.getEncoder().setPosition(0);
 
     // Set target to current when robot is disabled to preven sudden motion on enable
 
@@ -54,7 +54,7 @@ public class Elevator extends SubsystemBase {
     m_lead.set(normalizeValue());
     m_follow.set(normalizeValue());
 
-    System.out.println(getEncoder());
+    // System.out.println(limitSwitch());
   }
 
   /**
@@ -68,7 +68,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command down() {
-    return this.runOnce(() -> m_targetMeter = -0.8);
+    return this.runOnce(() -> m_targetMeter = -0.03).until(this::limitSwitch).andThen(stop());
   }
 
   public Command stop() {
@@ -92,6 +92,6 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean limitSwitch() {
-    return m_limitSwitch.get();
+    return !m_limitSwitch.get();
   }
 }

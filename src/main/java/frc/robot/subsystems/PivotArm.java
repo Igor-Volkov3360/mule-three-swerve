@@ -23,7 +23,7 @@ public class PivotArm extends SubsystemBase {
   private static final double kHorizontalPercent = 0.02;
   private static final double kNeutralRad = 0.0;
 
-  public final double kUp = 1.9; // when the gripper is PARRALLEL to the ground
+  public final double kUp = 2; // when the gripper is PARRALLEL to the ground
   public final double kDown = 0.0; // when the gripper is PERPENDICULAR to the ground
   private static final double kCube = 0.8;
   private double m_target = kNeutralRad;
@@ -31,6 +31,8 @@ public class PivotArm extends SubsystemBase {
   private static final double kMaxVel = 1.8;
   private static final double kMaxAcc = 0.5 * kMaxVel;
   private static final double deadzone = 0.01;
+  private static final double maxResistance = 15;
+  private boolean hasSetZero = false;
 
   // Member objects
   private final CANSparkMax m_pivot = new CANSparkMax(kPivotId, MotorType.kBrushless);
@@ -63,6 +65,9 @@ public class PivotArm extends SubsystemBase {
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
+
+    // System.out.println(m_pivot.getOutputCurrent() + "       " + m_encoder.getPosition());
+    // System.out.println(hasSetZero);
   }
 
   /**
@@ -92,5 +97,23 @@ public class PivotArm extends SubsystemBase {
   public boolean isOnTarget() {
     return m_encoder.getPosition() > deadzone + m_target
         && m_encoder.getPosition() < m_target - deadzone;
+  }
+
+  public boolean maxResReached() {
+    return m_pivot.getOutputCurrent() > maxResistance;
+  }
+
+  public Command setZero() {
+    return this.runOnce(
+        () -> {
+          if (hasSetZero == false) {
+            setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
+            hasSetZero = true;
+          }
+        });
+  }
+
+  private Command setSpeed(double speed) {
+    return this.run(() -> m_pivot.set(speed));
   }
 }
