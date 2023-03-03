@@ -68,7 +68,7 @@ public class Intake extends SubsystemBase {
       m_targetLeft = (getLeftEncoder() + getRightEncoder()) / 2;
       m_targetRight = (getLeftEncoder() + getRightEncoder()) / 2;
     }
-
+    /*
     if (isLeftInFastRange() && isRightInFastRange()) {
       m_pivotLeft.set(motorSpeedLeft() * kQuickBoiLeft);
       m_pivotRight.set(motorSpeedRight() * kQuickBoiRight);
@@ -76,6 +76,7 @@ public class Intake extends SubsystemBase {
       m_pivotLeft.set(motorSpeedLeft() * kSlowBoiLeft);
       m_pivotRight.set(motorSpeedRight() * kSlowBoiRight);
     }
+    */
 
     // System.out.print("target " + m_targetLeft);
   }

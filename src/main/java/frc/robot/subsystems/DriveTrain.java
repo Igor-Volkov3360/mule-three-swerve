@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Vision.Vision;
@@ -53,7 +54,7 @@ public class DriveTrain extends SubsystemBase {
   private final SwerveDriveKinematics m_kinematics =
       new SwerveDriveKinematics(m_moduleFactory.getLocations());
 
-  private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro();
+  private final ADXRS450_Gyro m_gyro = new ADXRS450_Gyro(Port.kOnboardCS0);
   private final SwerveDrivePoseEstimator m_odometry =
       new SwerveDrivePoseEstimator(
           m_kinematics, m_gyro.getRotation2d(), this.getModulePositions(), new Pose2d());
@@ -73,8 +74,8 @@ public class DriveTrain extends SubsystemBase {
     m_vision = vision;
 
     // Reset gyro on code startup (Required as odometry starts at 0)
+    m_gyro.calibrate();
     m_gyro.reset();
-
     // Run path planning server
     PathPlannerServer.startServer(kPathServerPort);
   }
@@ -101,6 +102,8 @@ public class DriveTrain extends SubsystemBase {
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
+
+    System.out.println(m_gyro.getAngle() + "        " + m_gyro.getRate());
   }
 
   /**

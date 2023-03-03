@@ -64,8 +64,7 @@ public class RobotContainer {
     // Configure the trigger bindings
 
     m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
-    m_rgbPanel.setDefaultCommand(m_rgbPanel.onPdp(false));
-    m_intake.setDefaultCommand(m_intake.holdTarget("up"));
+    m_rgbPanel.setDefaultCommand(m_rgbPanel.blueCommand());
     // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
     configureBindings();
   }

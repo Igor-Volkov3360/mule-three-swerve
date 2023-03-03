@@ -15,8 +15,8 @@ public class Autonomous {
   /** Follow a simple path from the robot start location */
   public static Command followTestTraj(DriveTrain driveTrain) {
 
-    final var constraint = new PathConstraints(2.0, 1.0);
-    final var traj = PathPlanner.loadPath("Test Path", constraint);
+    final var constraint = new PathConstraints(1.0, 1.0);
+    final var traj = PathPlanner.loadPath("path 1", constraint);
 
     return driveTrain.followPathCommand(traj);
   }
