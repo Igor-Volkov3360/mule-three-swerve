@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -220,17 +221,33 @@ public class DriveTrain extends SubsystemBase {
    * @param trajectory path planner generated trajectory
    * @return blocking command
    */
-  public Command followPathCommand(PathPlannerTrajectory trajectory) {
-    return new PPSwerveControllerCommand(
-        trajectory,
-        this::getPose,
-        this.m_kinematics,
-        new PIDController(kHoloKP, kHoloKI, kHoloKD),
-        new PIDController(kHoloKP, kHoloKI, kHoloKD),
-        new PIDController(kRotKP, kRotKI, kRotKD),
-        this::drive,
-        false,
-        this);
+  public Command followPathCommand(PathPlannerTrajectory trajectory, boolean resetOdometry) {
+
+    return this.runOnce(() -> this.resetOdometryToTrajectoryStart(trajectory))
+        .unless(() -> !resetOdometry)
+        .andThen(
+            new PPSwerveControllerCommand(
+                trajectory,
+                this::getPose,
+                this.m_kinematics,
+                new PIDController(kHoloKP, kHoloKI, kHoloKD),
+                new PIDController(kHoloKP, kHoloKI, kHoloKD),
+                new PIDController(kRotKP, kRotKI, kRotKD),
+                this::drive,
+                true,
+                this));
+  }
+
+  /**
+   * Reset the odometry current position to the trajectory initial state
+   *
+   * @param trajectory trajectory to reset odometry to
+   */
+  public void resetOdometryToTrajectoryStart(PathPlannerTrajectory trajectory) {
+    final var start =
+        PathPlannerTrajectory.transformStateForAlliance(
+            trajectory.getInitialState(), DriverStation.getAlliance());
+    m_odometry.resetPosition(m_gyro.getRotation2d(), this.getModulePositions(), start.poseMeters);
   }
 
   private boolean inDeadband() {

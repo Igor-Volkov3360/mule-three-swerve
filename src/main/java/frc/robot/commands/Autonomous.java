@@ -18,6 +18,6 @@ public class Autonomous {
     final var constraint = new PathConstraints(1.0, 1.0);
     final var traj = PathPlanner.loadPath("path 1", constraint);
 
-    return driveTrain.followPathCommand(traj);
+    return driveTrain.followPathCommand(traj, true);
   }
 }
