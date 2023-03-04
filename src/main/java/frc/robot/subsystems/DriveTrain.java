@@ -97,17 +97,20 @@ public class DriveTrain extends SubsystemBase {
     // Add vision measurement if it's available
     VisionMeasurement visionMes = m_vision.getMeasurement();
     if (visionMes != null && visionMes.m_timestamp != m_lastVisionTimestamp) {
+      var visionPose =
+          new Pose2d(
+              visionMes.m_pose.getTranslation(), m_odometry.getEstimatedPosition().getRotation());
+
       if (m_lastVisionTimestamp < 0.0) {
         // Reset odometry to vision measurement on first observation
-        m_odometry.resetPosition(
-            m_gyro.getRotation2d(), this.getModulePositions(), visionMes.m_pose);
+        m_odometry.resetPosition(m_gyro.getRotation2d(), this.getModulePositions(), visionPose);
       } else {
-        m_odometry.addVisionMeasurement(visionMes.m_pose, visionMes.m_timestamp);
+        m_odometry.addVisionMeasurement(visionPose, visionMes.m_timestamp);
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    System.out.println(m_gyro.getAngle() + "        " + m_gyro.getRate());
+    System.out.println(m_odometry.getEstimatedPosition());
   }
 
   /**
