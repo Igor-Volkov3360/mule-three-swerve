@@ -11,11 +11,10 @@ gripper:
 spindexer:
 
 rgb panel: 
-    1- fix the broken connection (jay)
 
-    2- when we are not aligned its red, when we are aligned its green( to the april tags)
+    1- when we are not aligned its red, when we are aligned its green( to the april tags)
 
-    3- map 2 buttons that are telling the human player if its a cone (yellow) or a cube (purple)
+    2- map 2 buttons that are telling the human player if its a cone (yellow) or a cube (purple)
 
 drivetrain:
     1- ask PL what should be the differents autonomous modes
@@ -24,3 +23,13 @@ drivetrain:
     1.3- create a selector in the shuffleboard to choose which autonomous mode the they want to run
 
     2- automatically align the robot using the apriltags and reset the odometry at the same time so the robot doesnt suffer from drift
+
+start script for april tags:
+
+    1- ssh hyperion@10.33.60.65
+
+    1.2- password: robot
+
+    2- cd dev/2023-vision/april_tags
+
+    3- python3 detect_april_tags_camera.py 0 -i 10.33.60.02
