@@ -84,8 +84,6 @@ public class DriveTrain extends SubsystemBase {
   public void periodic() {
     // Call module periodic
 
-    inDeadband();
-
     for (final var module : m_modules) {
       module.periodic();
     }
@@ -229,11 +227,7 @@ public class DriveTrain extends SubsystemBase {
         new PIDController(kHoloKP, kHoloKI, kHoloKD),
         new PIDController(kRotKP, kRotKI, kRotKD),
         this::drive,
-        false,
+        true,
         this);
-  }
-
-  private boolean inDeadband() {
-    return m_gyro.getAngle() < 0.2 && m_gyro.getAngle() > -0.2;
   }
 }
