@@ -104,7 +104,8 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    System.out.println(m_gyro.getAngle() + "        " + m_gyro.getRate());
+    // System.out.println(m_gyro.getAngle() + "        " + m_gyro.getRate());
+    System.out.println(m_odometry.getEstimatedPosition()); // <- might help fixing autonomous modes
   }
 
   /**
