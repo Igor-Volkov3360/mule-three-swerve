@@ -16,8 +16,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Vision.Vision;
@@ -59,6 +61,8 @@ public class DriveTrain extends SubsystemBase {
   private final SwerveDrivePoseEstimator m_odometry =
       new SwerveDrivePoseEstimator(
           m_kinematics, m_gyro.getRotation2d(), this.getModulePositions(), new Pose2d());
+
+  Accelerometer m_accelerometer = new BuiltInAccelerometer();
 
   private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(kMaxAccTrans);
   private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(kMaxAccTrans);
@@ -109,6 +113,8 @@ public class DriveTrain extends SubsystemBase {
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
+
+    System.out.println(m_accelerometer.getX() + "         " + m_accelerometer.getZ());
   }
 
   /**
@@ -253,5 +259,9 @@ public class DriveTrain extends SubsystemBase {
 
   private boolean inDeadband() {
     return m_gyro.getAngle() < 0.2 && m_gyro.getAngle() > -0.2;
+  }
+
+  public Command balance() {
+    return this.run(() -> drive(-m_accelerometer.getX(), 0, 0, true));
   }
 }

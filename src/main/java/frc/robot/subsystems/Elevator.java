@@ -59,7 +59,7 @@ public class Elevator extends SubsystemBase {
 
     if (isOnTarget()) m_lead.set(0);
 
-    System.out.println(isOnTarget() + "         " + getEncoder());
+    // System.out.println(isOnTarget() + "         " + getEncoder());
   }
 
   /**

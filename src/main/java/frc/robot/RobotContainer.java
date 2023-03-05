@@ -97,6 +97,8 @@ public class RobotContainer {
 
     m_driverController.povRight().onTrue(m_gripper.setTarget("cone"));
     m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
+
+    m_driverController.start().onTrue(m_drive.balance());
     // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));

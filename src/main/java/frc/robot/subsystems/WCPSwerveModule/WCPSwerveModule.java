@@ -8,6 +8,7 @@ import static frc.robot.Constants.WCPSwerveModule.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.InvertType;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -47,6 +48,7 @@ public class WCPSwerveModule implements SwerveModule {
 
     m_driveMotor = new TalonFX(config.m_driveMotorId);
     m_driveMotor.configFactoryDefault();
+    m_driveMotor.setNeutralMode(NeutralMode.Coast);
 
     m_driveMotor.config_kP(0, kDriveKp);
     m_driveMotor.config_kI(0, kDriveKi);
