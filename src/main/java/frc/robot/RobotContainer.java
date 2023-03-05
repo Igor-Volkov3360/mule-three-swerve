@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -18,6 +22,7 @@ import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Roller;
 import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Vision.Vision;
+import java.util.HashMap;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -43,6 +48,12 @@ public class RobotContainer {
   private final double thirdLvl = 1.0;
   private final double secondLvl = 0.80;
 
+  private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
+
+  public static final PathPlannerTrajectory path = PathPlanner.loadPath("marker", constraints);
+
+  public static HashMap<String, Command> eventMap = new HashMap<>();
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -64,7 +75,7 @@ public class RobotContainer {
     // Configure the trigger bindings
 
     m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
-    m_rgbPanel.setDefaultCommand(m_rgbPanel.blueCommand());
+    m_rgbPanel.setDefaultCommand(m_rgbPanel.purpleCommand());
     // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
     configureBindings();
   }
@@ -114,7 +125,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autonomous.followTestTraj(m_drive);
+    return this.runAuto();
   }
 
   /**
@@ -196,5 +207,17 @@ public class RobotContainer {
         .holdTarget("down")
         .until(m_roller::isJammed)
         .andThen(m_intake.setTarget("cone"));
+  }
+
+  public Command runAuto() {
+
+    eventMap.put("yez", m_pivotArm.setTarget("up"));
+
+    // eventMap.put("lift", m_elevator.extendTo(0.8));
+
+    Command auto =
+        new FollowPathWithEvents(Autonomous.followTestTraj(m_drive), path.getMarkers(), eventMap);
+
+    return auto;
   }
 }

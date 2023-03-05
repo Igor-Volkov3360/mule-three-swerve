@@ -109,8 +109,6 @@ public class DriveTrain extends SubsystemBase {
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
-
-    System.out.println(m_odometry.getEstimatedPosition());
   }
 
   /**
@@ -224,10 +222,10 @@ public class DriveTrain extends SubsystemBase {
    * @param trajectory path planner generated trajectory
    * @return blocking command
    */
-  public Command followPathCommand(PathPlannerTrajectory trajectory, boolean resetOdometry) {
+  public Command followPathCommand(PathPlannerTrajectory trajectory, boolean b) {
 
     return this.runOnce(() -> this.resetOdometryToTrajectoryStart(trajectory))
-        .unless(() -> !resetOdometry)
+        .unless(() -> !b)
         .andThen(
             new PPSwerveControllerCommand(
                 trajectory,
