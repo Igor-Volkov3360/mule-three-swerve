@@ -189,7 +189,7 @@ public class Intake extends SubsystemBase {
    * This function yeets the cubes
    *
    * @param level the desirerd level
-   * @return the yeeting of a cone (handles the angle)
+   * @return the yeeting of a cube (handles the angle)
    */
   public Command yeet(String level) {
     return this.run(
