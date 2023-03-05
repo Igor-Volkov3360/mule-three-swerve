@@ -49,6 +49,9 @@ public class DriveTrain extends SubsystemBase {
   public static final double kRotKI = 0.0;
   public static final double kRotKD = 0.0;
 
+  public static final double[] minPose = {1.5, 2, 0.8};
+  public static final double[] maxPose = {2.5, 3, 0.9};
+
   public static final int kPathServerPort = 5811;
 
   // Member objects
@@ -63,6 +66,7 @@ public class DriveTrain extends SubsystemBase {
           m_kinematics, m_gyro.getRotation2d(), this.getModulePositions(), new Pose2d());
 
   Accelerometer m_accelerometer = new BuiltInAccelerometer();
+  private static final double acceptedAngle = 5;
 
   private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(kMaxAccTrans);
   private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(kMaxAccTrans);
@@ -114,7 +118,7 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    System.out.println(m_accelerometer.getX() + "         " + m_accelerometer.getZ());
+    System.out.println(m_accelerometer.getZ());
   }
 
   /**
@@ -261,7 +265,26 @@ public class DriveTrain extends SubsystemBase {
     return m_gyro.getAngle() < 0.2 && m_gyro.getAngle() > -0.2;
   }
 
-  public Command balance() {
+  /*public Command balance() {
     return this.run(() -> drive(-m_accelerometer.getX(), 0, 0, true));
+  } */
+
+  public Command balance() {
+
+    /*if (m_vision.getMeasurement().m_pose.getY() < maxPose[1]
+    /*&& m_vision.getMeasurement().m_pose.getY() > minPose[1]) {*/
+    return this.run(() -> drive(-0.4, 0, 0, true)).until(this::um);
+    /* .andThen(this.run(() -> drive(-0.2, 0, 0, true)))
+    .until(this::umm)
+    .andThen(this.runOnce(() -> drive(0, 0, 0, true)));*/
+    // } else return null;
+  }
+
+  public boolean um() {
+    return m_accelerometer.getX() < 0.4;
+  }
+
+  public boolean umm() {
+    return m_accelerometer.getX() < 0.007;
   }
 }
