@@ -22,6 +22,8 @@ public class Elevator extends SubsystemBase {
   private static final double kNeutralMeter = 0.0;
   private static final double deadzone = 0.05;
 
+  private static final double kMultiplier = 1.5;
+
   // Member objects
   private final CANSparkMax m_lead = new CANSparkMax(kLeadId, MotorType.kBrushless);
   private final CANSparkMax m_follow = new CANSparkMax(kFollowId, MotorType.kBrushless);
@@ -51,8 +53,8 @@ public class Elevator extends SubsystemBase {
       m_targetMeter = getEncoder() * kNativeToMeter;
     }
 
-    m_lead.set(normalizeValue());
-    m_follow.set(normalizeValue());
+    m_lead.set(normalizeValue() * kMultiplier);
+    m_follow.set(normalizeValue() * kMultiplier);
 
     // System.out.println(limitSwitch());
   }
