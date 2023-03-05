@@ -18,7 +18,7 @@ public class Elevator extends SubsystemBase {
   public static final int kLeadId = 14;
   public static final int kFollowId = 13;
 
-  private static final double kNativeToMeter = 1.46 / 109.97; // 13200
+  private static final double kNativeToMeter = 1.46 / 109.97;
   private static final double kNeutralMeter = 0.0;
   private static final double deadzone = 0.05;
   private static final double kDown = -0.01;

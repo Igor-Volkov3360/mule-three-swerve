@@ -17,8 +17,8 @@ public class Intake extends SubsystemBase {
   // Subsystem parameters
   private static final int kPivotLeft = 9;
   private static final int kPivotRight = 10;
-  private static final int kWheelsLeft = 0;
-  private static final int kWheelsRight = 0;
+  // private static final int kWheelsLeft = 11;
+  // private static final int kWheelsRight = 12;
 
   private static final int kLeftEncoder = 7;
   private static final int KRightEncoder = 8;
@@ -46,8 +46,8 @@ public class Intake extends SubsystemBase {
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
   private final CANSparkMax m_pivotRight = new CANSparkMax(kPivotRight, MotorType.kBrushless);
-  private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
-  private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
+  // private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
+  // private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
   private final DutyCycleEncoder m_dutyEncoderLeft = new DutyCycleEncoder(kLeftEncoder);
   private final DutyCycleEncoder m_dutyEncoderRight = new DutyCycleEncoder(KRightEncoder);
 
@@ -63,10 +63,10 @@ public class Intake extends SubsystemBase {
     m_pivotRight.restoreFactoryDefaults();
     m_pivotRight.setIdleMode(IdleMode.kBrake);
 
-    m_wheelsLeft.setIdleMode(IdleMode.kCoast);
+    // m_wheelsLeft.setIdleMode(IdleMode.kCoast);
 
-    m_wheelsRight.setIdleMode(IdleMode.kCoast);
-    m_wheelsRight.setInverted(true);
+    //  m_wheelsRight.setIdleMode(IdleMode.kCoast);
+    //  m_wheelsRight.setInverted(true);
 
     m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
     m_dutyEncoderRight.setDistancePerRotation(kTurnPerRotation);
@@ -75,8 +75,8 @@ public class Intake extends SubsystemBase {
 
     m_pivotLeft.burnFlash();
     m_pivotRight.burnFlash();
-    m_wheelsLeft.burnFlash();
-    m_wheelsRight.burnFlash();
+    // m_wheelsLeft.burnFlash();
+    // m_wheelsRight.burnFlash();
   }
 
   @Override
@@ -99,8 +99,8 @@ public class Intake extends SubsystemBase {
 
     // System.out.print("target " + m_targetLeft);
 
-    m_wheelsLeft.set(m_wheelSpeed);
-    m_wheelsRight.set(m_wheelSpeed);
+    // m_wheelsLeft.set(m_wheelSpeed);
+    // m_wheelsRight.set(m_wheelSpeed);
   }
   /**
    * Gets the value of the left encoder between 0 and 0.18
