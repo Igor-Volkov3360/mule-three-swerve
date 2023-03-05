@@ -21,8 +21,9 @@ public class Elevator extends SubsystemBase {
   private static final double kNativeToMeter = 1.46 / 109.97; // 13200
   private static final double kNeutralMeter = 0.0;
   private static final double deadzone = 0.05;
+  private static final double kDown = -0.01;
 
-  private static final double kMultiplier = 1.5;
+  private static final double kMultiplier = 2.5;
 
   // Member objects
   private final CANSparkMax m_lead = new CANSparkMax(kLeadId, MotorType.kBrushless);
@@ -56,7 +57,9 @@ public class Elevator extends SubsystemBase {
     m_lead.set(normalizeValue() * kMultiplier);
     m_follow.set(normalizeValue() * kMultiplier);
 
-    // System.out.println(limitSwitch());
+    if (isOnTarget()) m_lead.set(0);
+
+    System.out.println(isOnTarget() + "         " + getEncoder());
   }
 
   /**
@@ -70,11 +73,15 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command down() {
-    return this.runOnce(() -> m_targetMeter = -0.03).until(this::limitSwitch).andThen(stop());
+    return this.runOnce(() -> m_targetMeter = kDown).until(this::limitSwitch).andThen(stop());
   }
 
   public Command stop() {
-    return this.runOnce(() -> m_targetMeter = 0);
+    return this.runOnce(
+        () -> {
+          m_lead.set(0);
+          m_follow.set(0);
+        });
   }
 
   private double motorSpeed() {
@@ -90,7 +97,7 @@ public class Elevator extends SubsystemBase {
   }
 
   public boolean isOnTarget() {
-    return getEncoder() > deadzone + m_targetMeter && getEncoder() < m_targetMeter - deadzone;
+    return getEncoder() < deadzone && getEncoder() > -deadzone;
   }
 
   public boolean limitSwitch() {

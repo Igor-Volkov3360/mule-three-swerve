@@ -19,7 +19,6 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.RGBControl;
-import frc.robot.subsystems.Roller;
 import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Vision.Vision;
 import java.util.HashMap;
@@ -38,15 +37,15 @@ public class RobotContainer {
 
   // private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
-  private final Roller m_roller = new Roller();
   private final Intake m_intake = new Intake();
   private final Spindexer m_spindexer = new Spindexer();
   private final PivotArm m_pivotArm = new PivotArm();
   private final Gripper m_gripper = new Gripper(m_pivotArm);
   private final RGBControl m_rgbPanel = new RGBControl();
 
-  private final double thirdLvl = 1.0;
-  private final double secondLvl = 0.80;
+  private final double thirdLvlCone = 1.35;
+  private final double secondLvlCone = 1.0;
+  private final double feederStation = 1.1;
 
   private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
 
@@ -75,7 +74,7 @@ public class RobotContainer {
     // Configure the trigger bindings
 
     m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
-    m_rgbPanel.setDefaultCommand(m_rgbPanel.purpleCommand());
+    m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCOmmand());
     // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
     configureBindings();
   }
@@ -90,7 +89,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.a().onTrue(m_elevator.extendTo(thirdLvl));
+    m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
     m_driverController.b().onTrue(m_elevator.down());
 
     m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
@@ -137,9 +136,9 @@ public class RobotContainer {
     return m_intake
         .setTarget("down")
         .andThen(
-            m_roller
-                .spin("cube")
-                .alongWith(m_pivotArm.setTarget("cube").alongWith(m_spindexer.spin()))
+            m_pivotArm
+                .setTarget("cube")
+                .alongWith(m_spindexer.spin())
                 .alongWith(m_gripper.setTarget("cube")));
   }
 
@@ -151,10 +150,7 @@ public class RobotContainer {
   public Command IntakeOutSequenceCone() {
     return m_intake
         .setTarget("down")
-        .andThen(
-            m_roller
-                .spin("cone")
-                .alongWith(m_pivotArm.setTarget("up").alongWith(m_spindexer.spin())));
+        .andThen(m_pivotArm.setTarget("up").alongWith(m_spindexer.spin()));
   }
 
   /**
@@ -165,8 +161,7 @@ public class RobotContainer {
   public Command IntakeInSequence() {
     return m_pivotArm
         .setTarget("down")
-        .alongWith(
-            m_intake.setTarget("up").alongWith(m_spindexer.index()).andThen(m_roller.stop()));
+        .alongWith(m_intake.setTarget("up").alongWith(m_spindexer.index()));
   }
 
   public Command secondStageSequence() {
@@ -177,7 +172,7 @@ public class RobotContainer {
             m_pivotArm
                 .setTarget("up")
                 .until(m_pivotArm::isOnTarget)
-                .andThen(m_elevator.extendTo(secondLvl))
+                .andThen(m_elevator.extendTo(secondLvlCone))
                 .until(m_elevator::isOnTarget)
                 .alongWith(m_gripper.setTarget("cube"))
                 .withTimeout(1)
@@ -194,19 +189,12 @@ public class RobotContainer {
         .andThen(
             m_pivotArm
                 .setTarget("up")
-                .andThen(m_elevator.extendTo(thirdLvl))
+                .andThen(m_elevator.extendTo(thirdLvlCone))
                 .alongWith(m_gripper.setTarget("cube"))
                 .withTimeout(3)
                 .andThen(m_gripper.setTarget("open"))
                 .withTimeout(2)
                 .andThen(m_elevator.down()));
-  }
-
-  public Command raiseForCone() {
-    return m_intake
-        .holdTarget("down")
-        .until(m_roller::isJammed)
-        .andThen(m_intake.setTarget("cone"));
   }
 
   public Command runAuto() {

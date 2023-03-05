@@ -17,6 +17,9 @@ public class Intake extends SubsystemBase {
   // Subsystem parameters
   private static final int kPivotLeft = 9;
   private static final int kPivotRight = 10;
+  private static final int kWheelsLeft = 0;
+  private static final int kWheelsRight = 0;
+
   private static final int kLeftEncoder = 7;
   private static final int KRightEncoder = 8;
   private static final double kTurnPerRotation = 0.25;
@@ -33,14 +36,23 @@ public class Intake extends SubsystemBase {
   private static final double kUP = 0.18;
   private static final double kDOWN = 0.01;
   private static final double kConeIntake = 0.06;
+  private static final double kWheelSpeed2nd = 0.5;
+  private static final double kWheelSpeed3rd = 1.0;
   private double m_targetLeft = kUP;
   private double m_targetRight = kUP;
+  private double m_wheelSpeed = 0;
   private static double deadzone = 0.01;
+
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
   private final CANSparkMax m_pivotRight = new CANSparkMax(kPivotRight, MotorType.kBrushless);
+  private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
+  private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
   private final DutyCycleEncoder m_dutyEncoderLeft = new DutyCycleEncoder(kLeftEncoder);
   private final DutyCycleEncoder m_dutyEncoderRight = new DutyCycleEncoder(KRightEncoder);
+
+  // Subsystem parameters
+
   /** Creates a new Intake. */
   public Intake() {
 
@@ -51,6 +63,11 @@ public class Intake extends SubsystemBase {
     m_pivotRight.restoreFactoryDefaults();
     m_pivotRight.setIdleMode(IdleMode.kBrake);
 
+    m_wheelsLeft.setIdleMode(IdleMode.kCoast);
+
+    m_wheelsRight.setIdleMode(IdleMode.kCoast);
+    m_wheelsRight.setInverted(true);
+
     m_dutyEncoderLeft.setDistancePerRotation(kTurnPerRotation);
     m_dutyEncoderRight.setDistancePerRotation(kTurnPerRotation);
     m_dutyEncoderLeft.reset();
@@ -58,6 +75,8 @@ public class Intake extends SubsystemBase {
 
     m_pivotLeft.burnFlash();
     m_pivotRight.burnFlash();
+    m_wheelsLeft.burnFlash();
+    m_wheelsRight.burnFlash();
   }
 
   @Override
@@ -79,6 +98,9 @@ public class Intake extends SubsystemBase {
     */
 
     // System.out.print("target " + m_targetLeft);
+
+    m_wheelsLeft.set(m_wheelSpeed);
+    m_wheelsRight.set(m_wheelSpeed);
   }
   /**
    * Gets the value of the left encoder between 0 and 0.18
@@ -98,14 +120,12 @@ public class Intake extends SubsystemBase {
     return m_dutyEncoderRight.getAbsolutePosition() - kOffsetRight;
   }
 
-  /* private boolean isLeftInFastRange() {
-    return getLeftEncoder() > kLowwerSoftLimit && getLeftEncoder() < kUpperSoftLimit;
-  }
-
-  private boolean isRightInFastRange() {
-    return getRightEncoder() > kLowwerSoftLimit && getRightEncoder() < kUpperSoftLimit;
-  } */
-
+  /**
+   * This function sets the position of the intake
+   *
+   * @param position The position to shoot at
+   * @return The intake in the right position
+   */
   public Command setTarget(String position) {
     return this.runOnce(
         () -> {
@@ -163,5 +183,27 @@ public class Intake extends SubsystemBase {
 
     return (getRightEncoder() < deadzone + kConeIntake
         && getRightEncoder() > kConeIntake - deadzone);
+  }
+
+  /**
+   * This function yeets the cubes
+   *
+   * @param level the desirerd level
+   * @return the yeeting of a cone (handles the angle)
+   */
+  public Command yeet(String level) {
+    return this.run(
+        () -> {
+          if (level == "second") {
+            m_wheelSpeed = kWheelSpeed2nd;
+            setTarget("second");
+          } else if (level == "third") {
+            m_wheelSpeed = kWheelSpeed3rd;
+            setTarget("third");
+          } else if (level == "stop") {
+            m_wheelSpeed = 0;
+            // setTarget("whatever");
+          }
+        });
   }
 }
