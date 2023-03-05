@@ -42,6 +42,8 @@ public class Intake extends SubsystemBase {
   private double m_targetRight = kUP;
   private double m_wheelSpeed = 0;
   private static double deadzone = 0.01;
+  private static double angle = 70;
+  private static double kNativeToAngle = 90 / 2048;
 
   // Member objects
   private final CANSparkMax m_pivotLeft = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
