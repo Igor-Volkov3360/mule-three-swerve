@@ -19,7 +19,6 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.RGBControl;
-import frc.robot.subsystems.Spindexer;
 import frc.robot.subsystems.Vision.Vision;
 import java.util.HashMap;
 
@@ -38,7 +37,6 @@ public class RobotContainer {
   // private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
-  private final Spindexer m_spindexer = new Spindexer();
   private final PivotArm m_pivotArm = new PivotArm();
   private final Gripper m_gripper = new Gripper(m_pivotArm);
   private final RGBControl m_rgbPanel = new RGBControl();
@@ -140,11 +138,7 @@ public class RobotContainer {
   public Command IntakeOutSequenceCube() {
     return m_intake
         .setTarget("down")
-        .andThen(
-            m_pivotArm
-                .setTarget("cube")
-                .alongWith(m_spindexer.spin())
-                .alongWith(m_gripper.setTarget("cube")));
+        .andThen(m_pivotArm.setTarget("cube").alongWith(m_gripper.setTarget("cube")));
   }
 
   /**
@@ -153,9 +147,7 @@ public class RobotContainer {
    * @return the sequence that is used to intake game pieces
    */
   public Command IntakeOutSequenceCone() {
-    return m_intake
-        .setTarget("down")
-        .andThen(m_pivotArm.setTarget("up").alongWith(m_spindexer.spin()));
+    return m_intake.setTarget("down").andThen(m_pivotArm.setTarget("up"));
   }
 
   /**
@@ -164,9 +156,7 @@ public class RobotContainer {
    * @return the sequence that retracts the intake
    */
   public Command IntakeInSequence() {
-    return m_pivotArm
-        .setTarget("down")
-        .alongWith(m_intake.setTarget("up").alongWith(m_spindexer.index()));
+    return m_pivotArm.setTarget("down").alongWith(m_intake.setTarget("up"));
   }
 
   public Command secondStageSequence() {

@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
 
   // Subsystem parameters
-  private static final int kPivotLeft = 9;
+  private static final int kPivot = 12;
   private static final int kWheelsLeft = 17;
   private static final int kWheelsRight = 18;
 
@@ -43,7 +43,7 @@ public class Intake extends SubsystemBase {
   private static double kNativeToAngle = 90 / 2048;
 
   // Member objects
-  private final CANSparkMax m_pivot = new CANSparkMax(kPivotLeft, MotorType.kBrushless);
+  private final CANSparkMax m_pivot = new CANSparkMax(kPivot, MotorType.kBrushless);
   private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
   private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
   private final DutyCycleEncoder m_dutyEncoder = new DutyCycleEncoder(kEncoder);
