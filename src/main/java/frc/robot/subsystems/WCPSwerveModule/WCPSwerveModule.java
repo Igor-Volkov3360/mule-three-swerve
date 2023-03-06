@@ -48,7 +48,7 @@ public class WCPSwerveModule implements SwerveModule {
 
     m_driveMotor = new TalonFX(config.m_driveMotorId);
     m_driveMotor.configFactoryDefault();
-    m_driveMotor.setNeutralMode(NeutralMode.Brake);
+    m_driveMotor.setNeutralMode(NeutralMode.Coast);
 
     m_driveMotor.config_kP(0, kDriveKp);
     m_driveMotor.config_kI(0, kDriveKi);

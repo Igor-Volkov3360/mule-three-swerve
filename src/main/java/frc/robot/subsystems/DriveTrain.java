@@ -50,9 +50,6 @@ public class DriveTrain extends SubsystemBase {
   public static final double kRotKI = 0.0;
   public static final double kRotKD = 0.0;
 
-  public static final double[] minPose = {1.5, 2, 0.8};
-  public static final double[] maxPose = {2.5, 3, 0.9};
-
   public double filteredX = 0;
 
   public static final int kPathServerPort = 5811;
@@ -122,9 +119,7 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    filteredX = m_xAccel.calculate(m_accelerometer.getX());
-
-    System.out.println(m_accelerometer.getX());
+    System.out.println(m_accelerometer.getX() + "         " + m_accelerometer.getZ());
   }
 
   /**
@@ -271,27 +266,19 @@ public class DriveTrain extends SubsystemBase {
     return m_gyro.getAngle() < 0.2 && m_gyro.getAngle() > -0.2;
   }
 
-  /*public Command balance() {
-    return this.run(() -> drive(-m_accelerometer.getX(), 0, 0, true));
-  } */
-
   public Command balance() {
-
-    // if (m_vision.getMeasurement().m_pose.getY() < maxPose[1]
-    //     && m_vision.getMeasurement().m_pose.getY() > minPose[1]) {
     return this.run(() -> drive(-0.4, 0, 0, true))
         .until(this::inAngle)
         .andThen(this.run(() -> drive(-0.2, 0, 0, true)))
-        .until(this::parellel)
+        .until(this::parallel)
         .andThen(this.runOnce(() -> drive(0, 0, 0, true)));
-    // } else return null;
   }
 
   public boolean inAngle() {
     return filteredX > 0.1;
   }
 
-  public boolean parellel() {
+  public boolean parallel() {
     return filteredX < 0.1;
   }
 }
