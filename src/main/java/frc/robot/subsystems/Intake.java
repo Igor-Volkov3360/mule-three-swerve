@@ -187,4 +187,8 @@ public class Intake extends SubsystemBase {
   public Command stop() {
     return this.runOnce(() -> m_wheelSpeed = 0);
   }
+
+  public Command in() {
+    return this.run(() -> spinnyBoi()).until(this::limitSwitch);
+  }
 }

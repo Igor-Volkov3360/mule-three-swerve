@@ -100,8 +100,8 @@ public class RobotContainer {
 
     m_driverController.start().onTrue(m_drive.balance()); */
 
-    m_driverController.a().onTrue(m_intake.spinnyBoi());
-    m_driverController.b().onTrue(m_intake.stop());
+    m_driverController.a().onTrue(m_intake.in());
+    m_driverController.b().onTrue(m_intake.yeet("third"));
     // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
