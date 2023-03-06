@@ -9,6 +9,7 @@ import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import com.pathplanner.lib.server.PathPlannerServer;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -52,6 +53,8 @@ public class DriveTrain extends SubsystemBase {
   public static final double[] minPose = {1.5, 2, 0.8};
   public static final double[] maxPose = {2.5, 3, 0.9};
 
+  public double filteredX = 0;
+
   public static final int kPathServerPort = 5811;
 
   // Member objects
@@ -66,13 +69,14 @@ public class DriveTrain extends SubsystemBase {
           m_kinematics, m_gyro.getRotation2d(), this.getModulePositions(), new Pose2d());
 
   Accelerometer m_accelerometer = new BuiltInAccelerometer();
-  private static final double acceptedAngle = 5;
 
   private final SlewRateLimiter m_xLimiter = new SlewRateLimiter(kMaxAccTrans);
   private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(kMaxAccTrans);
   private final SlewRateLimiter m_zLimiter = new SlewRateLimiter(kMaxAccRot);
 
   private final Vision m_vision;
+
+  LinearFilter m_xAccel = LinearFilter.movingAverage(10);
 
   // Process variables
   private double m_lastVisionTimestamp = -1.0;
@@ -118,7 +122,9 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    System.out.println(m_accelerometer.getZ());
+    filteredX = m_xAccel.calculate(m_accelerometer.getX());
+
+    System.out.println(m_accelerometer.getX());
   }
 
   /**
@@ -271,20 +277,21 @@ public class DriveTrain extends SubsystemBase {
 
   public Command balance() {
 
-    /*if (m_vision.getMeasurement().m_pose.getY() < maxPose[1]
-    /*&& m_vision.getMeasurement().m_pose.getY() > minPose[1]) {*/
-    return this.run(() -> drive(-0.4, 0, 0, true)).until(this::um);
-    /* .andThen(this.run(() -> drive(-0.2, 0, 0, true)))
-    .until(this::umm)
-    .andThen(this.runOnce(() -> drive(0, 0, 0, true)));*/
+    // if (m_vision.getMeasurement().m_pose.getY() < maxPose[1]
+    //     && m_vision.getMeasurement().m_pose.getY() > minPose[1]) {
+    return this.run(() -> drive(-0.4, 0, 0, true))
+        .until(this::inAngle)
+        .andThen(this.run(() -> drive(-0.2, 0, 0, true)))
+        .until(this::parellel)
+        .andThen(this.runOnce(() -> drive(0, 0, 0, true)));
     // } else return null;
   }
 
-  public boolean um() {
-    return m_accelerometer.getX() < 0.4;
+  public boolean inAngle() {
+    return filteredX > 0.1;
   }
 
-  public boolean umm() {
-    return m_accelerometer.getX() < 0.007;
+  public boolean parellel() {
+    return filteredX < 0.1;
   }
 }

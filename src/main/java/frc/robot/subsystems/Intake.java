@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -52,6 +53,7 @@ public class Intake extends SubsystemBase {
   // private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
   private final DutyCycleEncoder m_dutyEncoderLeft = new DutyCycleEncoder(kLeftEncoder);
   private final DutyCycleEncoder m_dutyEncoderRight = new DutyCycleEncoder(KRightEncoder);
+  private final DigitalInput m_limitSwitch = new DigitalInput(9);
 
   // Subsystem parameters
 
@@ -89,6 +91,8 @@ public class Intake extends SubsystemBase {
       m_targetLeft = (getLeftEncoder() + getRightEncoder()) / 2;
       m_targetRight = (getLeftEncoder() + getRightEncoder()) / 2;
     }
+
+    System.out.println("hello");
     /*
     if (isLeftInFastRange() && isRightInFastRange()) {
       m_pivotLeft.set(motorSpeedLeft() * kQuickBoiLeft);

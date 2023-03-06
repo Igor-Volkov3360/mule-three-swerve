@@ -24,7 +24,7 @@ public class Gripper extends SubsystemBase {
 
   private double m_target = kOpenPosition;
 
-  private double[] atRightPose = {0.0, 0.0, 0.0};
+  // private double[] atRightPose = {0.0, 0.0, 0.0};
 
   // Member objects
   private final CANSparkMax m_gripper = new CANSparkMax(kGripperId, MotorType.kBrushless);
