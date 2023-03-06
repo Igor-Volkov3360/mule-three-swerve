@@ -17,6 +17,7 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.Position;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Vision.Vision;
@@ -98,8 +99,8 @@ public class RobotContainer {
 
     m_driverController.start().onTrue(m_drive.balance()); */
 
-    m_driverController.a().onTrue(m_intake.in());
-    m_driverController.b().onTrue(m_intake.yeet("third"));
+    m_driverController.a().onTrue(m_intake.pickup());
+    m_driverController.b().onTrue(m_intake.launchToLevel(Intake.Level.Third));
     // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
@@ -137,7 +138,7 @@ public class RobotContainer {
    */
   public Command IntakeOutSequenceCube() {
     return m_intake
-        .setTarget("down")
+        .setAngle(Position.Pickup)
         .andThen(m_pivotArm.setTarget("cube").alongWith(m_gripper.setTarget("cube")));
   }
 
@@ -147,7 +148,7 @@ public class RobotContainer {
    * @return the sequence that is used to intake game pieces
    */
   public Command IntakeOutSequenceCone() {
-    return m_intake.setTarget("down").andThen(m_pivotArm.setTarget("up"));
+    return m_intake.setAngle(Position.Pickup).andThen(m_pivotArm.setTarget("up"));
   }
 
   /**
@@ -156,7 +157,7 @@ public class RobotContainer {
    * @return the sequence that retracts the intake
    */
   public Command IntakeInSequence() {
-    return m_pivotArm.setTarget("down").alongWith(m_intake.setTarget("up"));
+    return m_pivotArm.setTarget("down").alongWith(m_intake.setAngle(Position.Retracted));
   }
 
   public Command secondStageSequence() {
