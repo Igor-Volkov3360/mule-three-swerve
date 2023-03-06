@@ -89,7 +89,7 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
+    /* m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
     m_driverController.b().onTrue(m_elevator.down());
 
     m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
@@ -98,7 +98,10 @@ public class RobotContainer {
     m_driverController.povRight().onTrue(m_gripper.setTarget("cone"));
     m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
 
-    m_driverController.start().onTrue(m_drive.balance());
+    m_driverController.start().onTrue(m_drive.balance()); */
+
+    m_driverController.a().onTrue(m_intake.spinnyBoi());
+    m_driverController.b().onTrue(m_intake.stop());
     // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
