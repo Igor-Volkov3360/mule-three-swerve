@@ -85,13 +85,13 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    m_driverController.povDown().onTrue(m_elevator.extendTo(Level.Down));
-    m_driverController.povRight().onTrue(m_elevator.extendTo(Level.Second));
-    m_driverController.povUp().onTrue(m_elevator.extendTo(Level.Third));
-    m_driverController.povLeft().onTrue(m_elevator.extendTo(Level.Feeder));
+    // m_driverController.povDown().onTrue(m_elevator.extendTo(Level.Down));
+    // m_driverController.povRight().onTrue(m_elevator.extendTo(Level.Second));
+    // m_driverController.povUp().onTrue(m_elevator.extendTo(Level.Third));
+    // m_driverController.povLeft().onTrue(m_elevator.extendTo(Level.Feeder));
 
-    /* m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
-    m_driverController.b().onTrue(m_elevator.down());
+    // m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
+    // m_driverController.b().onTrue(m_elevator.down());
 
     m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
     m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
@@ -99,10 +99,10 @@ public class RobotContainer {
     m_driverController.povRight().onTrue(m_gripper.setTarget("cone"));
     m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
 
-    m_driverController.start().onTrue(m_drive.balance()); */
+    // m_driverController.start().onTrue(m_drive.balance());
 
-    m_driverController.a().onTrue(m_intake.pickup());
-    m_driverController.b().onTrue(m_intake.launchToLevel(Intake.Level.Third));
+    // m_driverController.a().onTrue(m_intake.pickup());
+    // m_driverController.b().onTrue(m_intake.launchToLevel(Intake.Level.Third));
     // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));

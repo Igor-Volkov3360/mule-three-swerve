@@ -95,10 +95,10 @@ public class Intake extends SubsystemBase {
     }
 
     // uncomment for pivot operation
-    // m_pivot.set(computePivotPercent());
+    m_pivot.set(computePivotPercent());
 
-    // m_wheelsLeft.set(m_wheelSpeed);
-    // m_wheelsRight.set(m_wheelSpeed);
+    m_wheelsLeft.set(m_wheelSpeed);
+    m_wheelsRight.set(m_wheelSpeed);
 
     // System.out.printf(
     //     "Intake: target = %4.2f\tcurrent = %4.2f\t cube = %s\n",
