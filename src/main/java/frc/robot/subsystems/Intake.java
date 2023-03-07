@@ -75,11 +75,11 @@ public class Intake extends SubsystemBase {
     m_dutyEncoder.reset();
 
     m_wheelsLeft.restoreFactoryDefaults();
-    m_wheelsLeft.setIdleMode(IdleMode.kCoast);
+    m_wheelsLeft.setIdleMode(IdleMode.kBrake);
     m_wheelsLeft.setInverted(true);
 
     m_wheelsRight.restoreFactoryDefaults();
-    m_wheelsRight.setIdleMode(IdleMode.kCoast);
+    m_wheelsRight.setIdleMode(IdleMode.kBrake);
 
     m_pivot.burnFlash();
     m_wheelsLeft.burnFlash();
