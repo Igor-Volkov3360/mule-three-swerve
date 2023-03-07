@@ -89,9 +89,12 @@ public class Elevator extends SubsystemBase {
     }
     m_lead.set(motorSpeed());
 
+    /*
     System.out.printf(
         "Elevator height = %4.2f m\t target = %4.2f\t percent = %4.2f\n",
         m_encoder.getPosition(), m_pid.getSetpoint().position, m_lead.getAppliedOutput());
+
+    */
   }
 
   /**

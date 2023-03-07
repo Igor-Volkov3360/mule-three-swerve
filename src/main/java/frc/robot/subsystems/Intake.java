@@ -40,8 +40,8 @@ public class Intake extends SubsystemBase {
   private static final double kOffset = 0.28;
   private static final double kP = 1.0;
 
-  private static final double kUpRad = 0.18;
-  private static final double kDownRad = 0.01;
+  private static final double kInsideRad = 0.45;
+  private static final double kOutside = 0.01;
   private static final double kLaunchRad = 0.06;
 
   private static final double kWheelSpeedPreload = -0.25;
@@ -61,7 +61,7 @@ public class Intake extends SubsystemBase {
   private final DigitalInput m_limitSwitch = new DigitalInput(8);
 
   // Process variables
-  private double m_targetRad = kUpRad;
+  private double m_targetRad = kInsideRad;
   private double m_wheelSpeed = 0;
 
   /** Creates a new Intake. */
@@ -88,8 +88,8 @@ public class Intake extends SubsystemBase {
     // uncomment for pivot operation
     // m_pivot.set(computePivotPercent());
 
-    m_wheelsLeft.set(m_wheelSpeed);
-    m_wheelsRight.set(m_wheelSpeed);
+    // m_wheelsLeft.set(m_wheelSpeed);
+    // m_wheelsRight.set(m_wheelSpeed);
 
     // System.out.printf(
     //     "Intake: target = %4.2f\tcurrent = %4.2f\t cube = %s\n",
@@ -123,10 +123,10 @@ public class Intake extends SubsystemBase {
   private void setAngleFor(Position position) {
     switch (position) {
       case Retracted:
-        m_targetRad = kUpRad;
+        m_targetRad = kInsideRad;
         break;
       case Pickup:
-        m_targetRad = kDownRad;
+        m_targetRad = kOutside;
         break;
       case Launch:
         m_targetRad = kLaunchRad;
