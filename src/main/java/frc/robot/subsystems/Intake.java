@@ -41,7 +41,7 @@ public class Intake extends SubsystemBase {
   private static final double kP = 1.0;
 
   private static final double kInsideRad = 0.45;
-  private static final double kOutside = 0.01;
+  private static final double kOutsideRad = 0.01;
   private static final double kLaunchRad = 0.06;
 
   private static final double kWheelSpeedPreload = -0.25;
@@ -126,7 +126,7 @@ public class Intake extends SubsystemBase {
         m_targetRad = kInsideRad;
         break;
       case Pickup:
-        m_targetRad = kOutside;
+        m_targetRad = kOutsideRad;
         break;
       case Launch:
         m_targetRad = kLaunchRad;
