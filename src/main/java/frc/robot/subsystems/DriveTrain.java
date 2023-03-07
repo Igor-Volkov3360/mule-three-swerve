@@ -119,7 +119,7 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    System.out.println(m_accelerometer.getX() + "         " + m_accelerometer.getZ());
+    // System.out.println(m_accelerometer.getX() + "         " + m_accelerometer.getZ());
   }
 
   /**

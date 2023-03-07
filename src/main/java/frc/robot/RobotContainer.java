@@ -15,6 +15,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Position;
@@ -42,12 +43,7 @@ public class RobotContainer {
   private final Gripper m_gripper = new Gripper(m_pivotArm);
   private final RGBControl m_rgbPanel = new RGBControl();
 
-  private final double thirdLvlCone = 1.35;
-  private final double secondLvlCone = 1.0;
-  private final double feederStation = 1.1;
-
   private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
-
   public static final PathPlannerTrajectory path = PathPlanner.loadPath("marker", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
@@ -88,6 +84,12 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+
+    m_driverController.povDown().onTrue(m_elevator.extendTo(Level.Down));
+    m_driverController.povRight().onTrue(m_elevator.extendTo(Level.Second));
+    m_driverController.povUp().onTrue(m_elevator.extendTo(Level.Third));
+    m_driverController.povLeft().onTrue(m_elevator.extendTo(Level.Feeder));
+
     /* m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
     m_driverController.b().onTrue(m_elevator.down());
 
@@ -168,14 +170,14 @@ public class RobotContainer {
             m_pivotArm
                 .setTarget("up")
                 .until(m_pivotArm::isOnTarget)
-                .andThen(m_elevator.extendTo(secondLvlCone))
-                .until(m_elevator::isOnTarget)
+                .andThen(m_elevator.extendTo(Level.Second))
+                .until(m_elevator::onTarget)
                 .alongWith(m_gripper.setTarget("cube"))
                 .withTimeout(1)
                 .andThen(m_gripper.setTarget("open"))
                 .withTimeout(2)
-                .andThen(m_elevator.down())
-                .until(m_elevator::isOnTarget));
+                .andThen(m_elevator.extendTo(Level.Down))
+                .until(m_elevator::onTarget));
   }
 
   public Command thirdStageSequence() {
@@ -185,12 +187,12 @@ public class RobotContainer {
         .andThen(
             m_pivotArm
                 .setTarget("up")
-                .andThen(m_elevator.extendTo(thirdLvlCone))
+                .andThen(m_elevator.extendTo(Level.Third))
                 .alongWith(m_gripper.setTarget("cube"))
                 .withTimeout(3)
                 .andThen(m_gripper.setTarget("open"))
                 .withTimeout(2)
-                .andThen(m_elevator.down()));
+                .andThen(m_elevator.extendTo(Level.Down)));
   }
 
   public Command runAuto() {

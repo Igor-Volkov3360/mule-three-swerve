@@ -91,9 +91,9 @@ public class Intake extends SubsystemBase {
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
 
-    System.out.printf(
-        "Intake: target = %4.2f\tcurrent = %4.2f\t cube = %d\n",
-        m_targetRad, this.getAngleRad(), this.hasCube());
+    // System.out.printf(
+    //     "Intake: target = %4.2f\tcurrent = %4.2f\t cube = %s\n",
+    //     m_targetRad, this.getAngleRad(), this.hasCube() ? "true" : "false");
   }
 
   /**
