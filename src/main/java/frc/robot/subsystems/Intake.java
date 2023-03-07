@@ -97,7 +97,7 @@ public class Intake extends SubsystemBase {
   }
 
   /**
-   * Gets the value of the left encoder between 0 and 0.18
+   * Gets the value of the left encoder between 0 and 0.45
    *
    * @return A value of 0 when the intake is down
    */
