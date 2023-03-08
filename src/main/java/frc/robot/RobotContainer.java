@@ -15,7 +15,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
-import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Position;
@@ -93,17 +92,19 @@ public class RobotContainer {
     // m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
     // m_driverController.b().onTrue(m_elevator.down());
 
-    m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
-    m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
+    // m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
+    // m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
 
-    m_driverController.povRight().onTrue(m_gripper.setTarget("cone"));
-    m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
+    // m_driverController.povRight().onTrue(m_gripper.setTarget("cone"));
+    // m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
 
     // m_driverController.start().onTrue(m_drive.balance());
 
-    // m_driverController.a().onTrue(m_intake.pickup());
-    // m_driverController.b().onTrue(m_intake.launchToLevel(Intake.Level.Third));
-    // m_driverController.povRight().onTrue(m_pivotArm.setTarget("cube"));
+    m_driverController.a().onTrue(m_intake.pickup());
+    m_driverController.y().onTrue(m_intake.launch());
+
+    m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted));
+    m_driverController.x().onTrue(m_intake.setAngle(Position.Launch));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
 
@@ -170,13 +171,13 @@ public class RobotContainer {
             m_pivotArm
                 .setTarget("up")
                 .until(m_pivotArm::isOnTarget)
-                .andThen(m_elevator.extendTo(Level.Second))
+                .andThen(m_elevator.extendTo(Elevator.Level.Second))
                 .until(m_elevator::onTarget)
                 .alongWith(m_gripper.setTarget("cube"))
                 .withTimeout(1)
                 .andThen(m_gripper.setTarget("open"))
                 .withTimeout(2)
-                .andThen(m_elevator.extendTo(Level.Down))
+                .andThen(m_elevator.extendTo(Elevator.Level.Down))
                 .until(m_elevator::onTarget));
   }
 
@@ -187,12 +188,12 @@ public class RobotContainer {
         .andThen(
             m_pivotArm
                 .setTarget("up")
-                .andThen(m_elevator.extendTo(Level.Third))
+                .andThen(m_elevator.extendTo(Elevator.Level.Third))
                 .alongWith(m_gripper.setTarget("cube"))
                 .withTimeout(3)
                 .andThen(m_gripper.setTarget("open"))
                 .withTimeout(2)
-                .andThen(m_elevator.extendTo(Level.Down)));
+                .andThen(m_elevator.extendTo(Elevator.Level.Down)));
   }
 
   public Command runAuto() {

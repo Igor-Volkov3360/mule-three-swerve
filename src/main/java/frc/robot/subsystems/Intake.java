@@ -42,14 +42,16 @@ public class Intake extends SubsystemBase {
 
   private static final double kInsideRad = 0.45;
   private static final double kOutsideRad = 0.01;
-  private static final double kLaunchRad = 0.06;
+  private static final double kLaunchRad = 0.2;
 
   private static final double kWheelSpeedPreload = -0.25;
   private static final double kWheelSpeed2nd = 0.5;
   private static final double kWheelSpeed3rd = 1.0;
-  private static final double kWheelSpeedPickup = -1.0;
+  private static final double kWheelSpeedPickup = -0.3;
   private static final double kWheelPreloadSec = 0.5;
-  private static final double kWheelLaunchSec = 2.0;
+  private static final double kWheelLaunchSec = 1.0;
+
+  private static final double kMultiplyer = 0;
 
   private static double kDeadzoneRad = 0.01;
 
@@ -76,10 +78,11 @@ public class Intake extends SubsystemBase {
 
     m_wheelsLeft.restoreFactoryDefaults();
     m_wheelsLeft.setIdleMode(IdleMode.kBrake);
-    m_wheelsLeft.setInverted(true);
+    m_wheelsLeft.setInverted(false);
 
     m_wheelsRight.restoreFactoryDefaults();
     m_wheelsRight.setIdleMode(IdleMode.kBrake);
+    m_wheelsRight.setInverted(true);
 
     m_pivot.burnFlash();
     m_wheelsLeft.burnFlash();
@@ -99,6 +102,8 @@ public class Intake extends SubsystemBase {
 
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
+
+    System.out.println(getAngleRad());
 
     // System.out.printf(
     //     "Intake: target = %4.2f\tcurrent = %4.2f\t cube = %s\n",
@@ -121,7 +126,7 @@ public class Intake extends SubsystemBase {
    */
   private double computePivotPercent() {
     final double errRad = m_targetRad - this.getAngleRad();
-    return m_targetRad == kLaunchRad && !this.onTarget() ? 0.06 * Math.signum(errRad) : kP * errRad;
+    return kP * errRad;
   }
 
   /**
@@ -175,7 +180,7 @@ public class Intake extends SubsystemBase {
    * @return blocking command
    */
   public Command setAngle(Position position) {
-    return this.run(() -> this.setAngleFor(position)).until(this::onTarget);
+    return this.runOnce(() -> this.setAngleFor(position)).until(this::onTarget);
   }
 
   /**
@@ -215,10 +220,10 @@ public class Intake extends SubsystemBase {
    * @return the yeeting of a cube (handles the angle)
    */
   public Command launchToLevel(Level level) {
-    return new SequentialCommandGroup(
-        this.setAngle(Position.Launch),
-        this.holdSpeed(Level.Preload).withTimeout(kWheelPreloadSec),
-        this.holdSpeed(level).withTimeout(kWheelLaunchSec));
+    return this.setAngle(Position.Launch)
+        .until(this::onTarget)
+        .andThen(holdSpeed(Level.Preload).withTimeout(kWheelPreloadSec))
+        .andThen(this.holdSpeed(level).withTimeout(kWheelLaunchSec).andThen(this::stop));
   }
 
   /**
@@ -249,5 +254,13 @@ public class Intake extends SubsystemBase {
         this.setAngle(Position.Pickup),
         this.holdSpeed(Level.Pickup).until(this::hasCube),
         this.stop());
+  }
+
+  public Command launch() {
+    return this.run(() -> setAngle(Position.Launch));
+    // .andThen(holdSpeed(Level.Preload))
+    // .withTimeout(kWheelPreloadSec)
+    // .andThen(holdSpeed(Level.Third))
+    // .withTimeout(kWheelLaunchSec));
   }
 }
