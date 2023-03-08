@@ -257,11 +257,17 @@ public class Intake extends SubsystemBase {
         this.stop());
   }
 
+  /**
+   * This command launches a cube by raising the intake, preloding, and launching then stopping
+   *
+   * @return launch of a cube
+   */
   public Command launch() {
     return new SequentialCommandGroup(
         this.setAngle(Position.Launch),
         new WaitCommand(3.5),
-        this.holdSpeed(Level.Preload).withTimeout(0.2),
+        this.holdSpeed(Level.Preload),
+        new WaitCommand(kWheelPreloadSec),
         this.holdSpeed(Level.Second),
         new WaitCommand(2),
         this.stop());
