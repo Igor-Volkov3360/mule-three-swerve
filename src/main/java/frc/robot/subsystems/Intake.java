@@ -43,7 +43,7 @@ public class Intake extends SubsystemBase {
 
   private static final double kInsideRad = 0.45;
   private static final double kOutsideRad = 0.01;
-  private static final double kLaunchRad = 0.25;
+  private static final double kLaunchRad = 0.125;
 
   private static final double kWheelSpeedPreload = -0.25;
   private static final double kWheelSpeed2nd = 0.5;
@@ -104,7 +104,7 @@ public class Intake extends SubsystemBase {
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
 
-    System.out.println(m_wheelSpeed);
+    System.out.println(getAngleRad());
 
     // System.out.printf(
     //     "Intake: target = %4.2f\tcurrent = %4.2f\t cube = %s\n",
@@ -262,14 +262,12 @@ public class Intake extends SubsystemBase {
    *
    * @return launch of a cube
    */
-  public Command launch() {
+  public Command launch(Level level) {
     return new SequentialCommandGroup(
         this.setAngle(Position.Launch),
         new WaitCommand(3.5),
-        this.holdSpeed(Level.Preload),
-        new WaitCommand(kWheelPreloadSec),
-        this.holdSpeed(Level.Second),
-        new WaitCommand(2),
+        this.holdSpeed(Level.Preload).withTimeout(0.2),
+        this.holdSpeed(level).withTimeout(2),
         this.stop());
   }
 }

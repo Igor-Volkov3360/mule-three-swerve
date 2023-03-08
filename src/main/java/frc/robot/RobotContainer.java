@@ -17,6 +17,7 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Intake.Level;
 import frc.robot.subsystems.Intake.Position;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.RGBControl;
@@ -101,7 +102,7 @@ public class RobotContainer {
     // m_driverController.start().onTrue(m_drive.balance());
 
     m_driverController.a().onTrue(m_intake.pickup());
-    m_driverController.y().onTrue(m_intake.launch());
+    m_driverController.y().onTrue(m_intake.launch(Level.Second));
 
     m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted));
     m_driverController.x().onTrue(m_intake.setAngle(Position.Launch));
