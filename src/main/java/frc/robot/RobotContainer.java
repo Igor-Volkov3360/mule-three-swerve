@@ -119,6 +119,9 @@ public class RobotContainer {
     m_coDriverController.y().onTrue(m_intake.launch(Intake.Level.Third, Intake.Position.Launch));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
 
+    // Mapping a different command on the same button according to the current mode example!
+    // m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
+
     // toggle robot modes
     m_coDriverController
         .start()
