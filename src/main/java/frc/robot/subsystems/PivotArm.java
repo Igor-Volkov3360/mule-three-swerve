@@ -77,12 +77,13 @@ public class PivotArm extends SubsystemBase {
    * @return Desired angle for the pivot arm
    */
   public Command setTarget(String position) {
-    return this.runOnce(
-        () -> {
-          if (position == "up") m_target = kUp;
-          else if (position == "down") m_target = kDown;
-          else if (position == "cube") m_target = kCube;
-        });
+    return this.run(
+            () -> {
+              if (position == "up") m_target = kUp;
+              else if (position == "down") m_target = kDown;
+              else if (position == "cube") m_target = kCube;
+            })
+        .until(this::isOnTarget);
   }
   // mini neo = 110rpm at 100%
   // neo 567 at 100%

@@ -9,10 +9,12 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
+import frc.robot.commands.Sequences;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
@@ -31,6 +33,11 @@ import java.util.HashMap;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+  private enum RobotMode {
+    Cube,
+    Cone
+  };
 
   // The robot's subsystems and commands are defined here...
   private final Vision m_vision = new Vision();
@@ -52,6 +59,9 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final CommandXboxController m_coDriverController = new CommandXboxController(1);
+
+  // Process variables
+  private RobotMode m_currentMode = RobotMode.Cube;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -96,12 +106,31 @@ public class RobotContainer {
     // m_driverController.leftTrigger().onTrue(bodyClimb());
 
     // m_coDriverController.a().onTrue(m_intake.launch(null, null));
+
+    // pick a cone from the feeder station
+    m_coDriverController
+        .a()
+        .onTrue(
+            Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
+                .unless(this::inCubeMode));
+
     m_coDriverController.b().toggleOnTrue(m_gripper.setTarget("close"));
     m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
     m_coDriverController.y().onTrue(m_intake.launch(Intake.Level.Third, Intake.Position.Launch));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
-    // m_coDriverController.start().onTrue(cubeMode());
-    // m_coDriverController.back().onTrue(coneMode());
+
+    // toggle robot modes
+    m_coDriverController
+        .start()
+        .onTrue(
+            Sequences.SwitchToCube(m_elevator, m_intake, this.setMode(RobotMode.Cube))
+                .unless(this::inCubeMode));
+    m_coDriverController
+        .back()
+        .onTrue(
+            Sequences.SwitchToCone(
+                m_elevator, m_intake, this.setMode(RobotMode.Cone).unless(this::inConeMode)));
+
     // m_coDriverController.povLeft().onTrue(navigateLeft());
     // m_coDriverController.povRight().onTrue(navigateRight());
     m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
@@ -116,6 +145,34 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return this.runAuto();
+  }
+
+  /**
+   * Indicates if the current mode is cube
+   *
+   * @return robot is in cube mode
+   */
+  public boolean inCubeMode() {
+    return this.m_currentMode == RobotMode.Cube;
+  }
+
+  /**
+   * Indicates if the current mode is cone
+   *
+   * @return robot is in cone mode
+   */
+  public boolean inConeMode() {
+    return this.m_currentMode == RobotMode.Cone;
+  }
+
+  /**
+   * Sets the current mode
+   *
+   * @param newMode new robot mode
+   * @return instant command
+   */
+  public Command setMode(RobotMode newMode) {
+    return new InstantCommand(() -> m_currentMode = newMode);
   }
 
   /**
