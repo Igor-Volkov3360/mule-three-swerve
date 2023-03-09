@@ -11,9 +11,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class Intake extends SubsystemBase {
 
@@ -54,10 +53,6 @@ public class Intake extends SubsystemBase {
   private static final double kWheelSpeed3rd = 1.0;
   private static final double kWheelSpeedHold = -0.02;
   private static final double kWheelSpeedPickup = -0.3;
-  private static final double kWheelPreloadSec = 0.5;
-  private static final double kWheelLaunchSec = 1.0;
-
-  private static final double kMultiplyer = 0;
 
   private static double kDeadzoneRad = 0.01;
 
@@ -199,7 +194,7 @@ public class Intake extends SubsystemBase {
    * @return blocking command
    */
   public Command setAngle(Position position) {
-    return this.runOnce(() -> this.setAngleFor(position)).until(this::onTarget);
+    return this.run(() -> this.setAngleFor(position)).until(this::onTarget);
   }
 
   /**
@@ -209,7 +204,7 @@ public class Intake extends SubsystemBase {
    * @return forever command
    */
   public Command holdTarget(Position position) {
-    return new SequentialCommandGroup(this.stop(), this.setAngle(position));
+    return Commands.sequence(this.stop(), this.setAngle(position).repeatedly());
   }
 
   /**
@@ -230,19 +225,6 @@ public class Intake extends SubsystemBase {
   private boolean onTarget() {
 
     return Math.abs(m_targetRad - this.getAngleRad()) < kDeadzoneRad;
-  }
-
-  /**
-   * Launch a cube to a grid level
-   *
-   * @param level the desirerd level
-   * @return the yeeting of a cube (handles the angle)
-   */
-  public Command launchToLevel(Level level) {
-    return this.setAngle(Position.Launch)
-        .until(this::onTarget)
-        .andThen(holdSpeed(Level.Preload).withTimeout(kWheelPreloadSec))
-        .andThen(this.holdSpeed(level).withTimeout(kWheelLaunchSec).andThen(this::stop));
   }
 
   /**
@@ -269,7 +251,7 @@ public class Intake extends SubsystemBase {
    * @return blocking command
    */
   public Command pickup() {
-    return new SequentialCommandGroup(
+    return Commands.sequence(
         this.setAngle(Position.Pickup),
         this.holdSpeed(Level.Pickup).until(this::hasCube),
         this.holdSpeed(Level.Hold));
@@ -281,9 +263,8 @@ public class Intake extends SubsystemBase {
    * @return launch of a cube
    */
   public Command launch(Level level, Position position) {
-    return new SequentialCommandGroup(
+    return Commands.sequence(
         this.setAngle(position),
-        new WaitCommand(1.5),
         this.holdSpeed(Level.Preload).withTimeout(0.2),
         this.holdSpeed(level).withTimeout(0.5),
         this.stop());
