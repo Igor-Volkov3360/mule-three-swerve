@@ -51,6 +51,8 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  private final CommandXboxController m_coDriverController =
+      new CommandXboxController(OperatorConstants.kCoDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -69,7 +71,7 @@ public class RobotContainer {
     // Configure the trigger bindings
 
     m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
-    m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCOmmand());
+    m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
     // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
     configureBindings();
   }
@@ -85,46 +87,26 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    // m_driverController.povDown().onTrue(m_elevator.extendTo(Level.Down));
-    // m_driverController.povRight().onTrue(m_elevator.extendTo(Level.Second));
-    // m_driverController.povUp().onTrue(m_elevator.extendTo(Level.Third));
-    // m_driverController.povLeft().onTrue(m_elevator.extendTo(Level.Feeder));
-
-    // m_driverController.a().onTrue(m_elevator.extendTo(feederStation));
-    // m_driverController.b().onTrue(m_elevator.down());
-
-    // m_driverController.povUp().onTrue(m_pivotArm.setTarget("up"));
-    // m_driverController.povDown().onTrue(m_pivotArm.setTarget("down"));
-
-    // m_driverController.povRight().onTrue(m_gripper.setTarget("cone"));
-    // m_driverController.povLeft().onTrue(m_gripper.setTarget("open"));
-
-    // m_driverController.start().onTrue(m_drive.balance());
-
     m_driverController.a().onTrue(m_intake.pickup());
-    m_driverController.y().onTrue(m_intake.launch(Level.Third, Position.Launch));
-
     m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted));
-    m_driverController.b().onTrue(m_intake.holdSpeed(Level.Hold));
-    m_driverController.x().onTrue(m_intake.setAngle(Position.Launch));
-    m_driverController.x().onTrue(m_intake.holdSpeed(Level.Hold));
+    m_driverController.x().onTrue(m_intake.launch(Level.First, Position.Pickup));
+    m_driverController.y().onTrue(m_elevator.extendTo(Elevator.Level.Feeder));
+    m_driverController.leftBumper().whileTrue(visionMode());
+    // m_driverController.start().onTrue(enableBodyClimb());
+    // m_driverController.rightTrigger().onTrue(bodyClimb());
+    // m_driverController.leftTrigger().onTrue(bodyClimb());
 
-    // m_driverController.x().onTrue(m_intake.setTarget("cone"));
-
-    // m_driverController.a().onTrue(m_pivotArm.setTarget("up").until(m_pivotArm::isOnTarget));
-    // m_driverController.b().onTrue(m_pivotArm.setTarget("down").until(m_pivotArm::isOnTarget));
-
-    /*m_driverController
-    .a()
-    .onTrue(
-        new ParallelCommandGroup(
-            m_roller.spin("cone"),
-            m_spindexer.spin(),
-            m_gripper.setTarget("up"),
-            raiseForCone())); */
-
-    // m_driverController.x().onTrue(m_roller.stop());
-    // m_driverController.y().onTrue(m_roller.spin("cone").alongWith(m_spindexer.spin()));
+    // m_coDriverController.a().onTrue(score());
+    m_coDriverController.b().toggleOnTrue(m_gripper.setTarget("close"));
+    // m_coDriverController.x().onTrue(m_intake.launch(secondLvl));
+    // m_coDriverController.y().onTrue(m_intake.launch(thirdLvl));
+    m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
+    // m_coDriverController.start().onTrue(cubeMode());
+    // m_coDriverController.back().onTrue(coneMode());
+    // m_coDriverController.povLeft().onTrue(navigateLeft());
+    // m_coDriverController.povRight().onTrue(navigateRight());
+    m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
+    m_coDriverController.rightTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.DownManual));
   }
 
   /**
@@ -209,5 +191,9 @@ public class RobotContainer {
         new FollowPathWithEvents(Autonomous.followTestTraj(m_drive), path.getMarkers(), eventMap);
 
     return auto;
+  }
+
+  public Command visionMode() {
+    return null;
   }
 }

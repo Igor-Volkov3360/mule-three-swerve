@@ -86,7 +86,7 @@ public class RGBControl extends SubsystemBase {
         });
   }
 
-  public Command teamCOmmand() {
+  public Command teamCommand() {
     return this.runOnce(
         () -> {
           select1.set(false);

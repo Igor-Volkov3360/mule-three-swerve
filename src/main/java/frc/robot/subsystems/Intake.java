@@ -27,6 +27,7 @@ public class Intake extends SubsystemBase {
   public enum Level {
     Pickup,
     Preload,
+    First,
     Second,
     Third,
     Hold,
@@ -186,6 +187,8 @@ public class Intake extends SubsystemBase {
       case Hold:
         m_wheelSpeed = kWheelSpeedHold;
         break;
+      case First:
+        m_wheelSpeed = kWheelSpeed2nd;
     }
   }
 

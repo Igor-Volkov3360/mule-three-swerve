@@ -22,7 +22,9 @@ public class Elevator extends SubsystemBase {
     Down,
     Feeder,
     Second,
-    Third
+    Third,
+    Manual,
+    DownManual
   };
 
   // Subsystem parameters
@@ -41,6 +43,8 @@ public class Elevator extends SubsystemBase {
   private static final double kHeightFeeder = 1.1;
   private static final double kHeightSecond = 1.0;
   private static final double kHeightThird = 1.35;
+  private static final double kManualHeight = 0.2;
+  private static final double kDownManualHeight = -0.2;
 
   // Member objects
   private final CANSparkMax m_lead = new CANSparkMax(kLeadId, MotorType.kBrushless);
@@ -115,6 +119,12 @@ public class Elevator extends SubsystemBase {
         break;
       case Third:
         m_targetMeter = kHeightThird;
+        break;
+      case Manual:
+        m_targetMeter = kManualHeight;
+        break;
+      case DownManual:
+        m_targetMeter = kDownManualHeight;
         break;
     }
   }
