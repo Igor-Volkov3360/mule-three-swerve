@@ -51,8 +51,7 @@ public class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_coDriverController =
-      new CommandXboxController(OperatorConstants.kCoDriverControllerPort);
+  private final CommandXboxController m_coDriverController = new CommandXboxController(1);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -96,10 +95,10 @@ public class RobotContainer {
     // m_driverController.rightTrigger().onTrue(bodyClimb());
     // m_driverController.leftTrigger().onTrue(bodyClimb());
 
-    // m_coDriverController.a().onTrue(score());
+    // m_coDriverController.a().onTrue(m_intake.launch(null, null));
     m_coDriverController.b().toggleOnTrue(m_gripper.setTarget("close"));
-    // m_coDriverController.x().onTrue(m_intake.launch(secondLvl));
-    // m_coDriverController.y().onTrue(m_intake.launch(thirdLvl));
+    m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
+    m_coDriverController.y().onTrue(m_intake.launch(Intake.Level.Third, Intake.Position.Launch));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
     // m_coDriverController.start().onTrue(cubeMode());
     // m_coDriverController.back().onTrue(coneMode());
