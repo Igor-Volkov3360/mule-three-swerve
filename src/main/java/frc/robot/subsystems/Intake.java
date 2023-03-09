@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 public class Intake extends SubsystemBase {
 
   public enum Position {
+    Stored,
     Retracted,
     Pickup,
     Launch
@@ -28,6 +29,7 @@ public class Intake extends SubsystemBase {
     Preload,
     Second,
     Third,
+    Hold,
     Stop
   };
 
@@ -39,15 +41,17 @@ public class Intake extends SubsystemBase {
   private static final int kEncoder = 7;
   private static final double kTurnPerRotation = 0.25;
   private static final double kOffset = 0.28;
-  private static final double kP = 1.0;
+  private static final double kP = 5.0;
 
-  private static final double kInsideRad = 0.45;
+  private static final double kStoredRad = 0.45;
+  private static final double kInsideRad = 0.30;
   private static final double kOutsideRad = 0.01;
-  private static final double kLaunchRad = 0.125;
+  private static final double kLaunchRad = 0.2;
 
   private static final double kWheelSpeedPreload = -0.25;
   private static final double kWheelSpeed2nd = 0.5;
   private static final double kWheelSpeed3rd = 1.0;
+  private static final double kWheelSpeedHold = -0.02;
   private static final double kWheelSpeedPickup = -0.3;
   private static final double kWheelPreloadSec = 0.5;
   private static final double kWheelLaunchSec = 1.0;
@@ -126,8 +130,13 @@ public class Intake extends SubsystemBase {
    * @return pivot motor percent
    */
   private double computePivotPercent() {
-    final double errRad = m_targetRad - this.getAngleRad();
-    return kP * errRad;
+    final double errRad = (m_targetRad - this.getAngleRad()) * 10;
+    double correctedSpeed;
+    if (errRad > 0) correctedSpeed = 3 * kP * (errRad * errRad) / 10;
+    else correctedSpeed = -(kP * (errRad * errRad) / 10);
+    if (correctedSpeed > 0.5) correctedSpeed = 0.5;
+    else if (correctedSpeed < -0.5) correctedSpeed = -0.5;
+    return correctedSpeed;
   }
 
   /**
@@ -137,6 +146,9 @@ public class Intake extends SubsystemBase {
    */
   private void setAngleFor(Position position) {
     switch (position) {
+      case Stored:
+        m_targetRad = kStoredRad;
+        break;
       case Retracted:
         m_targetRad = kInsideRad;
         break;
@@ -171,6 +183,9 @@ public class Intake extends SubsystemBase {
       case Stop:
         m_wheelSpeed = 0.0;
         break;
+      case Hold:
+        m_wheelSpeed = kWheelSpeedHold;
+        break;
     }
   }
 
@@ -191,7 +206,7 @@ public class Intake extends SubsystemBase {
    * @return forever command
    */
   public Command holdTarget(Position position) {
-    return this.run(() -> this.setAngleFor(position));
+    return new SequentialCommandGroup(this.stop(), this.setAngle(position));
   }
 
   /**
@@ -254,7 +269,7 @@ public class Intake extends SubsystemBase {
     return new SequentialCommandGroup(
         this.setAngle(Position.Pickup),
         this.holdSpeed(Level.Pickup).until(this::hasCube),
-        this.stop());
+        this.holdSpeed(Level.Hold));
   }
 
   /**
@@ -262,12 +277,12 @@ public class Intake extends SubsystemBase {
    *
    * @return launch of a cube
    */
-  public Command launch(Level level) {
+  public Command launch(Level level, Position position) {
     return new SequentialCommandGroup(
-        this.setAngle(Position.Launch),
-        new WaitCommand(3.5),
+        this.setAngle(position),
+        new WaitCommand(1.5),
         this.holdSpeed(Level.Preload).withTimeout(0.2),
-        this.holdSpeed(level).withTimeout(2),
+        this.holdSpeed(level).withTimeout(0.5),
         this.stop());
   }
 }

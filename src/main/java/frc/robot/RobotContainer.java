@@ -102,10 +102,12 @@ public class RobotContainer {
     // m_driverController.start().onTrue(m_drive.balance());
 
     m_driverController.a().onTrue(m_intake.pickup());
-    m_driverController.y().onTrue(m_intake.launch(Level.Second));
+    m_driverController.y().onTrue(m_intake.launch(Level.Third, Position.Launch));
 
     m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted));
+    m_driverController.b().onTrue(m_intake.holdSpeed(Level.Hold));
     m_driverController.x().onTrue(m_intake.setAngle(Position.Launch));
+    m_driverController.x().onTrue(m_intake.holdSpeed(Level.Hold));
 
     // m_driverController.x().onTrue(m_intake.setTarget("cone"));
 
