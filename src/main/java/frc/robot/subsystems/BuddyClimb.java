@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class BuddyClimb extends SubsystemBase {
@@ -13,14 +14,42 @@ public class BuddyClimb extends SubsystemBase {
   private static final int buddyLeftId = 10;
   private static final int buddyRightId = 9;
 
-  private CANSparkMax buddyLeft = new CANSparkMax(buddyLeftId, MotorType.kBrushless);
-  private CANSparkMax buddyRight = new CANSparkMax(buddyRightId, MotorType.kBrushless);
+  private boolean m_isBuddyClimbActivated = false;
+
+  private CANSparkMax m_buddyLeft = new CANSparkMax(buddyLeftId, MotorType.kBrushless);
+  private CANSparkMax m_buddyRight = new CANSparkMax(buddyRightId, MotorType.kBrushless);
 
   /** Creates a new BuddyClimb. */
-  public BuddyClimb() {}
+  public BuddyClimb() {
+
+    m_buddyLeft.restoreFactoryDefaults();
+    m_buddyRight.restoreFactoryDefaults();
+
+    m_buddyLeft.setInverted(true);
+
+    m_buddyLeft.burnFlash();
+    m_buddyRight.burnFlash();
+  }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  public Command control(double speed) {
+    return this.run(
+        () -> {
+          if (m_isBuddyClimbActivated) {
+            m_buddyLeft.set(speed);
+            m_buddyRight.set(speed);
+          }
+        });
+  }
+
+  public Command activate() {
+    return this.runOnce(
+        () -> {
+          m_isBuddyClimbActivated = true;
+        });
   }
 }
