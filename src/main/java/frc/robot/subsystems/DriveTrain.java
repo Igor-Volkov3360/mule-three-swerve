@@ -12,6 +12,7 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -49,6 +50,8 @@ public class DriveTrain extends SubsystemBase {
   public static final double kRotKP = 8.0;
   public static final double kRotKI = 0.0;
   public static final double kRotKD = 0.0;
+
+  private static final Pose2d kDeltaAprilTags = new Pose2d(0.0, 0.0, new Rotation2d(0));
 
   public double filteredX = 0;
 
@@ -280,5 +283,13 @@ public class DriveTrain extends SubsystemBase {
 
   public boolean parallel() {
     return filteredX < 0.1;
+  }
+
+  public Command moveLeft() {
+    return null;
+  }
+
+  public Command moveRight() {
+    return null;
   }
 }

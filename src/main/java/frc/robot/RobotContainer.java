@@ -46,8 +46,6 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final Vision m_vision = new Vision();
   private final DriveTrain m_drive = new DriveTrain(m_vision);
-
-  // private final RGBControl m_rgbPanel = new RGBControl();
   private final Elevator m_elevator = new Elevator();
   private final Intake m_intake = new Intake();
   private final PivotArm m_pivotArm = new PivotArm();
@@ -152,8 +150,8 @@ public class RobotContainer {
             Sequences.SwitchToCone(
                 m_elevator, m_intake, this.setMode(RobotMode.Cone).unless(this::inConeMode)));
 
-    // m_coDriverController.povLeft().onTrue(navigateLeft());
-    // m_coDriverController.povRight().onTrue(navigateRight());
+    m_coDriverController.povLeft().onTrue(m_drive.moveLeft());
+    m_coDriverController.povRight().onTrue(m_drive.moveRight());
     m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
     m_coDriverController.rightTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.DownManual));
   }
