@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
 
@@ -53,7 +54,7 @@ public class Intake extends SubsystemBase {
   private static final double kWheelSpeed3rd = 1.0;
   private static final double kWheelSpeedHold = -0.02;
   private static final double kWheelSpeedPickup = -0.3;
-
+  private boolean m_whatever = false;
   private static double kDeadzoneRad = 0.01;
 
   // Member objects
@@ -268,5 +269,21 @@ public class Intake extends SubsystemBase {
         this.holdSpeed(Level.Preload).withTimeout(0.2),
         this.holdSpeed(level).withTimeout(0.5),
         this.stop());
+  }
+
+  public Command launchTo() {
+    if (RobotContainer.getCoPilotJoystick().povUp().getAsBoolean()) {
+      return Commands.sequence(
+          this.setAngle(Position.Launch),
+          this.holdSpeed(Level.Preload).withTimeout(0.2),
+          this.holdSpeed(Level.Third).withTimeout(0.5),
+          this.stop());
+    } else if (RobotContainer.getCoPilotJoystick().povDown().getAsBoolean()) {
+      return Commands.sequence(
+          this.setAngle(Position.Launch),
+          this.holdSpeed(Level.Preload).withTimeout(0.2),
+          this.holdSpeed(Level.Second).withTimeout(0.5),
+          this.stop());
+    } else return null;
   }
 }

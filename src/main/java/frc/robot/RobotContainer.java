@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autonomous;
 import frc.robot.commands.Sequences;
+import frc.robot.subsystems.BuddyClimb;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
@@ -39,6 +40,9 @@ public class RobotContainer {
     Cone
   };
 
+  public boolean povUpPressed = false;
+  public boolean povDownPressed = false;
+
   // The robot's subsystems and commands are defined here...
   private final Vision m_vision = new Vision();
   private final DriveTrain m_drive = new DriveTrain(m_vision);
@@ -49,6 +53,7 @@ public class RobotContainer {
   private final PivotArm m_pivotArm = new PivotArm();
   private final Gripper m_gripper = new Gripper(m_pivotArm);
   private final RGBControl m_rgbPanel = new RGBControl();
+  private final BuddyClimb m_buddyClimb = new BuddyClimb();
 
   private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
   public static final PathPlannerTrajectory path = PathPlanner.loadPath("marker", constraints);
@@ -56,9 +61,9 @@ public class RobotContainer {
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
+  private static final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
-  private final CommandXboxController m_coDriverController = new CommandXboxController(1);
+  private static final CommandXboxController m_coDriverController = new CommandXboxController(1);
 
   // Process variables
   private RobotMode m_currentMode = RobotMode.Cube;
@@ -96,23 +101,36 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    m_driverController.a().onTrue(m_intake.pickup());
-    m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted));
-    m_driverController.x().onTrue(m_intake.launch(Level.First, Position.Pickup));
-    m_driverController.y().onTrue(m_elevator.extendTo(Elevator.Level.Feeder));
-    m_driverController.leftBumper().whileTrue(visionMode());
-    // m_driverController.start().onTrue(enableBodyClimb());
-    // m_driverController.rightTrigger().onTrue(bodyClimb());
-    // m_driverController.leftTrigger().onTrue(bodyClimb());
+    // pick up coob
+    m_driverController.a().onTrue(m_intake.pickup().unless(this::inConeMode));
 
-    // m_coDriverController.a().onTrue(m_intake.launch(null, null));
+    // retract intake
+    m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted).unless(this::inConeMode));
+
+    // vomit cube to first lvl
+    m_driverController
+        .x()
+        .onTrue(m_intake.launch(Level.First, Position.Pickup).unless(this::inConeMode));
 
     // pick a cone from the feeder station
-    m_coDriverController
-        .a()
+    m_driverController
+        .y()
         .onTrue(
             Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
                 .unless(this::inCubeMode));
+
+    // should enable vision mode
+    // m_driverController.leftBumper().whileTrue(visionMode());
+
+    // activate buddyClimb
+    m_driverController.start().onTrue(m_buddyClimb.activate());
+
+    // m_driverController.rightTrigger().onTrue(bodyClimbRight());
+    // m_driverController.leftTrigger().onTrue(bodyClimbLeft());
+
+    // launches cube to right lvl if in cube mode, and cone if in cone mode
+    m_coDriverController.a().onTrue(m_intake.launchTo().unless(this::inConeMode));
+    m_coDriverController.a().onTrue(m_elevator.extend().unless(this::inCubeMode));
 
     m_coDriverController.b().toggleOnTrue(m_gripper.setTarget("close"));
     m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
@@ -252,7 +270,11 @@ public class RobotContainer {
     return auto;
   }
 
-  public Command visionMode() {
-    return null;
+  public static CommandXboxController getCoPilotJoystick() {
+    return m_coDriverController;
+  }
+
+  public static CommandXboxController getPilotJoystick() {
+    return m_driverController;
   }
 }

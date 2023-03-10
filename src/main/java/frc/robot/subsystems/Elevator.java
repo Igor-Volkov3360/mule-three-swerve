@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class Elevator extends SubsystemBase {
 
@@ -158,5 +159,17 @@ public class Elevator extends SubsystemBase {
 
   public boolean isDown() {
     return !m_limitSwitch.get();
+  }
+
+  public Command extend() {
+    if (RobotContainer.getCoPilotJoystick().povUp().getAsBoolean()) {
+      return new SequentialCommandGroup(
+          this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
+          this.run(() -> this.setHeightFor(Level.Third)).until(this::onTarget));
+    } else if (RobotContainer.getCoPilotJoystick().povUp().getAsBoolean()) {
+      return new SequentialCommandGroup(
+          this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
+          this.run(() -> this.setHeightFor(Level.Second)).until(this::onTarget));
+    } else return null;
   }
 }
