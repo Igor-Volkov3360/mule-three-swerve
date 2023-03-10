@@ -51,8 +51,6 @@ public class DriveTrain extends SubsystemBase {
   public static final double kRotKI = 0.0;
   public static final double kRotKD = 0.0;
 
-  private static final Pose2d kDeltaAprilTags = new Pose2d(0.0, 0.0, new Rotation2d(0));
-
   public double filteredX = 0;
 
   public static final int kPathServerPort = 5811;
@@ -80,6 +78,22 @@ public class DriveTrain extends SubsystemBase {
 
   // Process variables
   private double m_lastVisionTimestamp = -1.0;
+
+  private Pose2d m_currentPose =
+      new Pose2d(
+          m_odometry.getEstimatedPosition().getX(),
+          m_odometry.getEstimatedPosition().getY(),
+          new Rotation2d(0));
+
+  // red april tags
+  private static final Pose2d kTagR1 = new Pose2d();
+  private static final Pose2d kTagR2 = new Pose2d();
+  private static final Pose2d kTagR3 = new Pose2d();
+
+  // blue april tags
+  private static final Pose2d kTagB1 = new Pose2d();
+  private static final Pose2d kTagB2 = new Pose2d();
+  private static final Pose2d kTagB3 = new Pose2d();
 
   /** Creates a new DriveTrain. */
   public DriveTrain(Vision vision) {
@@ -285,11 +299,53 @@ public class DriveTrain extends SubsystemBase {
     return filteredX < 0.1;
   }
 
+  /**
+   * This function is used to move the robot to the left and it is ROBOT RELATIVE B1 = id8, B2 =
+   * id7, B3 = id6
+   *
+   * @return robot moving to the left
+   */
   public Command moveLeft() {
-    return null;
+    return this.run(
+        () -> {
+          if (m_currentPose == kTagB1) {
+            // do nothing since it's the limit
+          } else if (m_currentPose == kTagB2) {
+            // go to B1
+          } else if (m_currentPose == kTagB3) {
+            // go to B2
+          } else if (m_currentPose == kTagR1) {
+            // go to R2
+          } else if (m_currentPose == kTagR2) {
+            // go to R3
+          } else if (m_currentPose == kTagR3) {
+            // do nothing since it's the limit
+          }
+        });
   }
 
+  /**
+   * This function is used to move the robot to the right and it is ROBOT RELATIVE R1 = id1, R2 =
+   * id2, R2 = id3
+   *
+   * @return robot moving to the right
+   */
   public Command moveRight() {
-    return null;
+    return this.run(
+        () -> {
+          if (m_currentPose == kTagB1) {
+            // go to B2
+          } else if (m_currentPose == kTagB2) {
+            // go to B3
+          } else if (m_currentPose == kTagB3) {
+            // // do nothing since it's the limit
+          } else if (m_currentPose == kTagR1) {
+            // do nothing since it's the limit
+          } else if (m_currentPose == kTagR2) {
+            // go to R1
+          } else if (m_currentPose == kTagR3) {
+            // go to R2
+          }
+        });
   }
 }
