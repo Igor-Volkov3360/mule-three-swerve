@@ -272,13 +272,13 @@ public class Intake extends SubsystemBase {
   }
 
   public Command launchTo() {
-    if (RobotContainer.getCoPilotJoystick().povUp().getAsBoolean()) {
+    if (RobotContainer.getCoPilotJoystick().y().getAsBoolean()) {
       return Commands.sequence(
           this.setAngle(Position.Launch),
           this.holdSpeed(Level.Preload).withTimeout(0.2),
           this.holdSpeed(Level.Third).withTimeout(0.5),
           this.stop());
-    } else if (RobotContainer.getCoPilotJoystick().povDown().getAsBoolean()) {
+    } else if (RobotContainer.getCoPilotJoystick().x().getAsBoolean()) {
       return Commands.sequence(
           this.setAngle(Position.Launch),
           this.holdSpeed(Level.Preload).withTimeout(0.2),
