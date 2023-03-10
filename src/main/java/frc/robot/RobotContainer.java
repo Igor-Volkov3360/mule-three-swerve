@@ -134,7 +134,7 @@ public class RobotContainer {
 
     m_coDriverController.b().toggleOnTrue(m_gripper.setTarget("close"));
     m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
-    m_coDriverController.y().onTrue(m_intake.launch(Intake.Level.Third, Intake.Position.Launch));
+    m_coDriverController.y().onTrue(m_intake.setAngle(null));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
 
     // Mapping a different command on the same button according to the current mode example!
