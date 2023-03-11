@@ -44,6 +44,7 @@ public class Gripper extends SubsystemBase {
     // This method will be called once per scheduler run
 
     m_gripper.set(motorSpeed() * kMultiplier);
+    System.out.println(m_target + "       " + m_open);
   }
 
   public Command stop() {
@@ -79,6 +80,6 @@ public class Gripper extends SubsystemBase {
    * @return opening and closing of the gripper
    */
   public Command changeState() {
-    return this.runOnce(() -> m_open = !m_open);
+    return this.runOnce(() -> m_open = !m_open).andThen(setTarget());
   }
 }

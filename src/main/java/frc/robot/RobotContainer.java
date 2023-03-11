@@ -130,7 +130,7 @@ public class RobotContainer {
     // m_coDriverController.a().onTrue(m_intake.launchTo().unless(this::inConeMode));
     m_coDriverController.a().onTrue(m_elevator.extend().unless(this::inCubeMode));
 
-    m_coDriverController.b().toggleOnTrue(m_gripper.changeState());
+    m_coDriverController.b().onTrue(m_gripper.changeState());
     m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
     m_coDriverController.y().onTrue(m_intake.setAngle(null));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
