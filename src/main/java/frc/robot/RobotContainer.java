@@ -82,7 +82,7 @@ public class RobotContainer {
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
 
-    m_gripper.setDefaultCommand(m_gripper.setTarget("open", this.inConeMode()));
+    m_gripper.setDefaultCommand(m_gripper.stop());
     m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
     // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
     configureBindings();
@@ -202,8 +202,7 @@ public class RobotContainer {
   public Command IntakeOutSequenceCube() {
     return m_intake
         .setAngle(Position.Pickup)
-        .andThen(
-            m_pivotArm.setTarget("cube").alongWith(m_gripper.setTarget("cube", this.inConeMode())));
+        .andThen(m_pivotArm.setTarget("cube").alongWith(m_gripper.changeState()));
   }
 
   /**
@@ -226,7 +225,7 @@ public class RobotContainer {
 
   public Command secondStageSequence() {
     return m_gripper
-        .setTarget("cube", this.inConeMode())
+        .changeState()
         .withTimeout(0.25)
         .andThen(
             m_pivotArm
@@ -234,27 +233,27 @@ public class RobotContainer {
                 .until(m_pivotArm::isOnTarget)
                 .andThen(m_elevator.extendTo(Elevator.Level.Second))
                 .until(m_elevator::onTarget)
-                .alongWith(m_gripper.setTarget("cube", this.inConeMode()))
-                .withTimeout(1)
-                .andThen(m_gripper.setTarget("open", this.inConeMode()))
-                .withTimeout(2)
-                .andThen(m_elevator.extendTo(Elevator.Level.Down))
-                .until(m_elevator::onTarget));
+                .alongWith(m_gripper.changeState()))
+        .withTimeout(1)
+        .andThen(m_gripper.changeState())
+        .withTimeout(2)
+        .andThen(m_elevator.extendTo(Elevator.Level.Down))
+        .until(m_elevator::onTarget);
   }
 
   public Command thirdStageSequence() {
     return m_gripper
-        .setTarget("cube", this.inConeMode())
+        .changeState()
         .withTimeout(0.25)
         .andThen(
             m_pivotArm
                 .setTarget("up")
                 .andThen(m_elevator.extendTo(Elevator.Level.Third))
-                .alongWith(m_gripper.setTarget("cube", this.inConeMode()))
-                .withTimeout(3)
-                .andThen(m_gripper.setTarget("open", this.inConeMode()))
-                .withTimeout(2)
-                .andThen(m_elevator.extendTo(Elevator.Level.Down)));
+                .alongWith(m_gripper.changeState()))
+        .withTimeout(3)
+        .andThen(m_gripper.changeState())
+        .withTimeout(2)
+        .andThen(m_elevator.extendTo(Elevator.Level.Down));
   }
 
   public Command runAuto() {
