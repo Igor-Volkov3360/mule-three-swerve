@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
 
 public class Intake extends SubsystemBase {
 
@@ -54,7 +53,6 @@ public class Intake extends SubsystemBase {
   private static final double kWheelSpeed3rd = 1.0;
   private static final double kWheelSpeedHold = -0.02;
   private static final double kWheelSpeedPickup = -0.3;
-  private boolean m_whatever = false;
   private static double kDeadzoneRad = 0.01;
 
   // Member objects
@@ -67,6 +65,7 @@ public class Intake extends SubsystemBase {
   // Process variables
   private double m_targetRad = kInsideRad;
   private double m_wheelSpeed = 0;
+  private Level m_targetLevel = Level.Second;
 
   /** Creates a new Intake. */
   public Intake() {
@@ -272,18 +271,14 @@ public class Intake extends SubsystemBase {
   }
 
   public Command launchTo() {
-    if (RobotContainer.getCoPilotJoystick().y().getAsBoolean()) {
-      return Commands.sequence(
-          this.setAngle(Position.Launch),
-          this.holdSpeed(Level.Preload).withTimeout(0.2),
-          this.holdSpeed(Level.Third).withTimeout(0.5),
-          this.stop());
-    } else if (RobotContainer.getCoPilotJoystick().x().getAsBoolean()) {
-      return Commands.sequence(
-          this.setAngle(Position.Launch),
-          this.holdSpeed(Level.Preload).withTimeout(0.2),
-          this.holdSpeed(Level.Second).withTimeout(0.5),
-          this.stop());
-    } else return null;
+    return Commands.sequence(
+        this.setAngle(Position.Launch),
+        this.holdSpeed(Level.Preload).withTimeout(0.2),
+        this.holdSpeed(m_targetLevel).withTimeout(0.5),
+        this.stop());
+  }
+
+  public Command setTargetLevel(Level level) {
+    return this.runOnce(() -> m_targetLevel = level);
   }
 }

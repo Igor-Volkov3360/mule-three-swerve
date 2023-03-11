@@ -17,6 +17,7 @@ import frc.robot.commands.Autonomous;
 import frc.robot.commands.Sequences;
 import frc.robot.subsystems.BuddyClimb;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrain.Mode;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
@@ -118,7 +119,8 @@ public class RobotContainer {
                 .unless(this::inCubeMode));
 
     // should enable vision mode
-    // m_driverController.leftBumper().whileTrue(visionMode());
+    m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Last));
+    m_driverController.rightBumper().whileTrue(m_drive.setVisionMode(Mode.New));
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
@@ -131,8 +133,8 @@ public class RobotContainer {
     m_coDriverController.a().onTrue(m_elevator.extend().unless(this::inCubeMode));
 
     m_coDriverController.b().onTrue(m_gripper.changeState());
-    m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
-    m_coDriverController.y().onTrue(m_intake.setAngle(null));
+    m_coDriverController.x().onTrue(m_intake.setTargetLevel(Level.Second));
+    m_coDriverController.y().onTrue(m_intake.setTargetLevel(Level.Third));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
 
     // Mapping a different command on the same button according to the current mode example!
@@ -266,13 +268,5 @@ public class RobotContainer {
         new FollowPathWithEvents(Autonomous.followTestTraj(m_drive), path.getMarkers(), eventMap);
 
     return auto;
-  }
-
-  public static CommandXboxController getCoPilotJoystick() {
-    return m_coDriverController;
-  }
-
-  public static CommandXboxController getPilotJoystick() {
-    return m_driverController;
   }
 }

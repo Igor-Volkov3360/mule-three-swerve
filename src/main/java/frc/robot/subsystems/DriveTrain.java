@@ -38,6 +38,12 @@ import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {
 
+  public enum Mode {
+    New,
+    Last,
+    Disabled
+  }
+
   // Subsystem parameters
   public static final double kMaxModuleSpeed = 4.0;
 
@@ -64,6 +70,8 @@ public class DriveTrain extends SubsystemBase {
   public static final double maxYScoringPos = 5;
   public static final double scoringGridIncrements = (maxYScoringPos - minYScoringPos) / 8;
   public double YScoringPos = 0.5;
+
+  public Mode m_visionMode = Mode.Disabled;
 
   public static final int kPathServerPort = 5811;
 
@@ -366,5 +374,15 @@ public class DriveTrain extends SubsystemBase {
     double YCurrentPos = m_odometry.getEstimatedPosition().getY();
     double YCurrentBox = (YCurrentPos - minYScoringPos) / scoringGridIncrements;
     YScoringPos = (YCurrentBox * scoringGridIncrements) + minYScoringPos;
+  }
+
+  /* Mode == new or latest */
+
+  public Command setVisionMode(Mode mode) {
+    return this.runOnce(() -> m_visionMode = mode);
+  }
+
+  public boolean visionDisabled() {
+    return m_visionMode == Mode.Disabled;
   }
 }
