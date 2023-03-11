@@ -23,6 +23,7 @@ public class Gripper extends SubsystemBase {
   private static final double kMultiplier = 0.1;
 
   private double m_target = kOpenPosition;
+  private boolean m_open = true;
 
   // private double[] atRightPose = {0.0, 0.0, 0.0};
 
@@ -55,18 +56,12 @@ public class Gripper extends SubsystemBase {
    * @param position This parameter is used to dictate the opening
    * @return the command
    */
-  public Command setTarget(String position) {
+  public Command setTarget() {
     return this.run(
         () -> {
-          if (position == "open") m_target = kOpenPosition;
-          else if (m_pivot.getTarget() == m_pivot.kDown && position == "cube")
-            m_target = kClosePositionCube;
-          else if (m_pivot.getTarget() == m_pivot.kUp && position == "cube")
-            m_target = kCloseUpPositionCube;
-          else if (m_pivot.getTarget() == m_pivot.kDown && position == "cone")
-            m_target = kClosePositionCone;
-          else if (m_pivot.getTarget() == m_pivot.kUp && position == "cone")
-            m_target = kCloseUpPositionCone;
+          if (m_open) m_target = kOpenPosition;
+          else if (m_pivot.getTarget() == m_pivot.kDown && !m_open) m_target = kClosePositionCone;
+          else if (m_pivot.getTarget() == m_pivot.kUp && !m_open) m_target = kCloseUpPositionCone;
         });
   }
 
@@ -76,5 +71,14 @@ public class Gripper extends SubsystemBase {
 
   public Command manualWind() {
     return this.run(() -> m_gripper.set(-0.1));
+  }
+
+  /**
+   * Open and closes the gripper, true = open, false = close
+   *
+   * @return opening and closing of the gripper
+   */
+  public Command changeState() {
+    return this.runOnce(() -> m_open = !m_open);
   }
 }

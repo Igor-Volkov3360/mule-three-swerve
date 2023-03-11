@@ -162,14 +162,18 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command extend() {
+    var sequence = new SequentialCommandGroup();
     if (RobotContainer.getCoPilotJoystick().y().getAsBoolean()) {
-      return new SequentialCommandGroup(
-          this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
-          this.run(() -> this.setHeightFor(Level.Third)).until(this::onTarget));
+      sequence =
+          new SequentialCommandGroup(
+              this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
+              this.run(() -> this.setHeightFor(Level.Third)).until(this::onTarget));
     } else if (RobotContainer.getCoPilotJoystick().x().getAsBoolean()) {
-      return new SequentialCommandGroup(
-          this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
-          this.run(() -> this.setHeightFor(Level.Second)).until(this::onTarget));
-    } else return null;
+      sequence =
+          new SequentialCommandGroup(
+              this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
+              this.run(() -> this.setHeightFor(Level.Second)).until(this::onTarget));
+    }
+    return sequence;
   }
 }

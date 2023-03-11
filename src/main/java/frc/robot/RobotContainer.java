@@ -82,7 +82,7 @@ public class RobotContainer {
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
 
-    m_gripper.setDefaultCommand(m_gripper.setTarget("open"));
+    m_gripper.setDefaultCommand(m_gripper.setTarget("open", this.inConeMode()));
     m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
     // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
     configureBindings();
@@ -127,10 +127,10 @@ public class RobotContainer {
     // m_driverController.leftTrigger().onTrue(bodyClimbLeft());
 
     // launches cube to right lvl if in cube mode, and cone if in cone mode
-    m_coDriverController.a().onTrue(m_intake.launchTo().unless(this::inConeMode));
+    // m_coDriverController.a().onTrue(m_intake.launchTo().unless(this::inConeMode));
     m_coDriverController.a().onTrue(m_elevator.extend().unless(this::inCubeMode));
 
-    m_coDriverController.b().toggleOnTrue(m_gripper.setTarget("close"));
+    m_coDriverController.b().toggleOnTrue(m_gripper.changeState());
     m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
     m_coDriverController.y().onTrue(m_intake.setAngle(null));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
@@ -202,7 +202,8 @@ public class RobotContainer {
   public Command IntakeOutSequenceCube() {
     return m_intake
         .setAngle(Position.Pickup)
-        .andThen(m_pivotArm.setTarget("cube").alongWith(m_gripper.setTarget("cube")));
+        .andThen(
+            m_pivotArm.setTarget("cube").alongWith(m_gripper.setTarget("cube", this.inConeMode())));
   }
 
   /**
@@ -225,7 +226,7 @@ public class RobotContainer {
 
   public Command secondStageSequence() {
     return m_gripper
-        .setTarget("cube")
+        .setTarget("cube", this.inConeMode())
         .withTimeout(0.25)
         .andThen(
             m_pivotArm
@@ -233,9 +234,9 @@ public class RobotContainer {
                 .until(m_pivotArm::isOnTarget)
                 .andThen(m_elevator.extendTo(Elevator.Level.Second))
                 .until(m_elevator::onTarget)
-                .alongWith(m_gripper.setTarget("cube"))
+                .alongWith(m_gripper.setTarget("cube", this.inConeMode()))
                 .withTimeout(1)
-                .andThen(m_gripper.setTarget("open"))
+                .andThen(m_gripper.setTarget("open", this.inConeMode()))
                 .withTimeout(2)
                 .andThen(m_elevator.extendTo(Elevator.Level.Down))
                 .until(m_elevator::onTarget));
@@ -243,15 +244,15 @@ public class RobotContainer {
 
   public Command thirdStageSequence() {
     return m_gripper
-        .setTarget("cube")
+        .setTarget("cube", this.inConeMode())
         .withTimeout(0.25)
         .andThen(
             m_pivotArm
                 .setTarget("up")
                 .andThen(m_elevator.extendTo(Elevator.Level.Third))
-                .alongWith(m_gripper.setTarget("cube"))
+                .alongWith(m_gripper.setTarget("cube", this.inConeMode()))
                 .withTimeout(3)
-                .andThen(m_gripper.setTarget("open"))
+                .andThen(m_gripper.setTarget("open", this.inConeMode()))
                 .withTimeout(2)
                 .andThen(m_elevator.extendTo(Elevator.Level.Down)));
   }

@@ -17,10 +17,8 @@ import frc.robot.subsystems.PivotArm;
 public class Sequences {
 
   public static Command PickConeFromFeeder(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
-    return Commands.parallel(
-        elevator.extendTo(Level.Feeder),
-        pivotArm.setTarget("up"),
-        gripper.setTarget("open").withTimeout(1.0));
+    return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setTarget("up"));
+    // gripper.setTarget("open").withTimeout(1.0));
   }
 
   public static Command SwitchToCone(Elevator elevator, Intake intake, Command switchMode) {
