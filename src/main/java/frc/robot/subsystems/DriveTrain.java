@@ -33,7 +33,7 @@ public class DriveTrain extends SubsystemBase {
 
   public enum Mode {
     New,
-    Latest,
+    Last,
     Disabled
   }
 

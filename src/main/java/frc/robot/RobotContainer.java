@@ -119,7 +119,7 @@ public class RobotContainer {
                 .unless(this::inCubeMode));
 
     // should enable vision mode
-    m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Latest));
+    m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Last));
     m_driverController.rightBumper().whileTrue(m_drive.setVisionMode(Mode.New));
 
     // activate buddyClimb
