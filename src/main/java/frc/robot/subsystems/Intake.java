@@ -53,7 +53,6 @@ public class Intake extends SubsystemBase {
   private static final double kWheelSpeed3rd = 1.0;
   private static final double kWheelSpeedHold = -0.02;
   private static final double kWheelSpeedPickup = -0.3;
-  private boolean m_whatever = false;
   private static double kDeadzoneRad = 0.01;
 
   // Member objects
@@ -272,7 +271,6 @@ public class Intake extends SubsystemBase {
   }
 
   public Command launchTo() {
-
     return Commands.sequence(
         this.setAngle(Position.Launch),
         this.holdSpeed(Level.Preload).withTimeout(0.2),
