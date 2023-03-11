@@ -4,15 +4,20 @@
 
 package frc.robot.subsystems;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import com.pathplanner.lib.server.PathPlannerServer;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -20,9 +25,11 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.Vision.Vision;
 import frc.robot.subsystems.Vision.VisionMeasurement;
@@ -52,6 +59,11 @@ public class DriveTrain extends SubsystemBase {
   public static final double kRotKD = 0.0;
 
   public double filteredX = 0;
+  public static final double XScoringPos = 2;
+  public static final double minYScoringPos = 0.5;
+  public static final double maxYScoringPos = 5;
+  public static final double scoringGridIncrements = (maxYScoringPos - minYScoringPos) / 8;
+  public double YScoringPos = 0.5;
 
   public static final int kPathServerPort = 5811;
 
@@ -78,22 +90,7 @@ public class DriveTrain extends SubsystemBase {
 
   // Process variables
   private double m_lastVisionTimestamp = -1.0;
-
-  private Pose2d m_currentPose =
-      new Pose2d(
-          m_odometry.getEstimatedPosition().getX(),
-          m_odometry.getEstimatedPosition().getY(),
-          new Rotation2d(0));
-
-  // red april tags
-  private static final Pose2d kTagR1 = new Pose2d();
-  private static final Pose2d kTagR2 = new Pose2d();
-  private static final Pose2d kTagR3 = new Pose2d();
-
-  // blue april tags
-  private static final Pose2d kTagB1 = new Pose2d();
-  private static final Pose2d kTagB2 = new Pose2d();
-  private static final Pose2d kTagB3 = new Pose2d();
+  private PathPlannerTrajectory m_scoringTrajectory = null;
 
   /** Creates a new DriveTrain. */
   public DriveTrain(Vision vision) {
@@ -150,6 +147,14 @@ public class DriveTrain extends SubsystemBase {
       positions[i] = m_modules[i].getPosition();
     }
     return positions;
+  }
+
+  private SwerveModuleState[] getModuleStates() {
+    var states = new SwerveModuleState[m_modules.length];
+    for (int i = 0; i < states.length; ++i) {
+      states[i] = m_modules[i].getState();
+    }
+    return states;
   }
 
   /**
@@ -250,10 +255,11 @@ public class DriveTrain extends SubsystemBase {
    * @param trajectory path planner generated trajectory
    * @return blocking command
    */
-  public Command followPathCommand(PathPlannerTrajectory trajectory, boolean b) {
+  public Command followPathCommand(
+      PathPlannerTrajectory trajectory, boolean resetOdometry, boolean useAllianceColour) {
 
     return this.runOnce(() -> this.resetOdometryToTrajectoryStart(trajectory))
-        .unless(() -> !b)
+        .unless(() -> !resetOdometry)
         .andThen(
             new PPSwerveControllerCommand(
                 trajectory,
@@ -263,8 +269,38 @@ public class DriveTrain extends SubsystemBase {
                 new PIDController(kHoloKP, kHoloKI, kHoloKD),
                 new PIDController(kRotKP, kRotKI, kRotKD),
                 this::drive,
-                true,
+                useAllianceColour,
                 this));
+  }
+
+  // More complex path with holonomic rotation. Non-zero starting velocity Max velocity of 4 m/s and
+  // max accel of 3 m/s^2
+  private PathPlannerTrajectory onTheFlyToScoringPos() {
+
+    final var alliance = DriverStation.getAlliance();
+    final var scoringDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
+    final var scoringX = alliance == Alliance.Blue ? 2.0 : 14.7;
+
+    var scoringPos =
+        new PathPoint(
+            new Translation2d(scoringX, this.YScoringPos),
+            Rotation2d.fromDegrees(0),
+            Rotation2d.fromDegrees(scoringDirDeg));
+
+    return PathPlanner.generatePath(new PathConstraints(4, 4), getOnTheFlyStart(), scoringPos);
+  }
+
+  private PathPoint getOnTheFlyStart() {
+    var translation = m_odometry.getEstimatedPosition().getTranslation();
+    var holonomicRot = m_odometry.getEstimatedPosition().getRotation();
+
+    var chassisSpeed = m_kinematics.toChassisSpeeds(getModuleStates());
+    var vx = chassisSpeed.vxMetersPerSecond;
+    var vy = chassisSpeed.vyMetersPerSecond;
+    var magnitude = Math.sqrt(vx * vx + vy * vy);
+    var direction = Rotation2d.fromRadians(Math.atan2(vy, vx));
+
+    return new PathPoint(translation, direction, holonomicRot, magnitude);
   }
 
   /**
@@ -299,53 +335,32 @@ public class DriveTrain extends SubsystemBase {
     return filteredX < 0.1;
   }
 
-  /**
-   * This function is used to move the robot to the left and it is ROBOT RELATIVE B1 = id8, B2 =
-   * id7, B3 = id6
-   *
-   * @return robot moving to the left
-   */
-  public Command moveLeft() {
-    return this.run(
-        () -> {
-          if (m_currentPose == kTagB1) {
-            // do nothing since it's the limit
-          } else if (m_currentPose == kTagB2) {
-            // go to B1
-          } else if (m_currentPose == kTagB3) {
-            // go to B2
-          } else if (m_currentPose == kTagR1) {
-            // go to R2
-          } else if (m_currentPose == kTagR2) {
-            // go to R3
-          } else if (m_currentPose == kTagR3) {
-            // do nothing since it's the limit
-          }
-        });
+  public Command goToTargetGoal() {
+    return Commands.sequence(
+        this.runOnce(() -> m_scoringTrajectory = this.onTheFlyToScoringPos()),
+        this.followPathCommand(m_scoringTrajectory, false, false));
   }
 
   /**
-   * This function is used to move the robot to the right and it is ROBOT RELATIVE R1 = id1, R2 =
-   * id2, R2 = id3
-   *
-   * @return robot moving to the right
+   * @param toTheRight true means robot goes right
    */
-  public Command moveRight() {
-    return this.run(
-        () -> {
-          if (m_currentPose == kTagB1) {
-            // go to B2
-          } else if (m_currentPose == kTagB2) {
-            // go to B3
-          } else if (m_currentPose == kTagB3) {
-            // // do nothing since it's the limit
-          } else if (m_currentPose == kTagR1) {
-            // do nothing since it's the limit
-          } else if (m_currentPose == kTagR2) {
-            // go to R1
-          } else if (m_currentPose == kTagR3) {
-            // go to R2
-          }
-        });
+  public Command moveScorePosition(boolean toTheRight) {
+    return this.runOnce(() -> incrementScorePosition(toTheRight));
+  }
+  /**
+   * @param direction true means robot goes right
+   */
+  public void incrementScorePosition(boolean direction) {
+    if (direction) YScoringPos += 0.6;
+    else YScoringPos -= 0.6;
+
+    // clamps around min and max value to insure we don't run into the walls
+    MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
+  }
+  // sets the Y target position to the robot's closest grid
+  public void setToCLosestGoal() {
+    double YCurrentPos = m_odometry.getEstimatedPosition().getY();
+    double YCurrentBox = (YCurrentPos - minYScoringPos) / scoringGridIncrements;
+    YScoringPos = (YCurrentBox * scoringGridIncrements) + minYScoringPos;
   }
 }

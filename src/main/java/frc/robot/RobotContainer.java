@@ -150,8 +150,8 @@ public class RobotContainer {
             Sequences.SwitchToCone(
                 m_elevator, m_intake, this.setMode(RobotMode.Cone).unless(this::inConeMode)));
 
-    m_coDriverController.povLeft().onTrue(m_drive.moveLeft());
-    m_coDriverController.povRight().onTrue(m_drive.moveRight());
+    // m_coDriverController.povLeft().onTrue(m_drive.moveLeft());
+    // m_coDriverController.povRight().onTrue(m_drive.moveRight());
     m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
     m_coDriverController.rightTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.DownManual));
   }

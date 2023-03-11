@@ -14,6 +14,6 @@ public class Autonomous {
   /** Follow a simple path from the robot start location */
   public static Command followTestTraj(DriveTrain driveTrain) {
 
-    return driveTrain.followPathCommand(PathPlanner.loadPath("marker", 4.0, 4.0), true);
+    return driveTrain.followPathCommand(PathPlanner.loadPath("marker", 4.0, 4.0), true, true);
   }
 }
