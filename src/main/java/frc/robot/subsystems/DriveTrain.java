@@ -293,10 +293,14 @@ public class DriveTrain extends SubsystemBase {
   private PathPoint getOnTheFlyStart() {
     var translation = m_odometry.getEstimatedPosition().getTranslation();
     var holonomicRot = m_odometry.getEstimatedPosition().getRotation();
-
     var chassisSpeed = m_kinematics.toChassisSpeeds(getModuleStates());
-    var vx = chassisSpeed.vxMetersPerSecond;
-    var vy = chassisSpeed.vyMetersPerSecond;
+
+    var velocityVector =
+        new Translation2d(chassisSpeed.vxMetersPerSecond, chassisSpeed.vyMetersPerSecond);
+    var fieldSpeed = velocityVector.rotateBy(holonomicRot);
+
+    var vx = fieldSpeed.getX();
+    var vy = fieldSpeed.getY();
     var magnitude = Math.sqrt(vx * vx + vy * vy);
     var direction = Rotation2d.fromRadians(Math.atan2(vy, vx));
 
