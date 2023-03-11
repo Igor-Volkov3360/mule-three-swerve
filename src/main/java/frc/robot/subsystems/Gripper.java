@@ -15,9 +15,7 @@ public class Gripper extends SubsystemBase {
   private static final int kGripperId = 15;
 
   private static final double kOpenPosition = 0;
-  private static final double kClosePositionCube = -30;
-  private static final double kClosePositionCone = -50;
-  private static final double kCloseUpPositionCube = kClosePositionCube - 20;
+  private static final double kClosePositionCone = -30;
   private static final double kCloseUpPositionCone = kClosePositionCone - 30;
 
   private static final double kMultiplier = 0.1;
@@ -58,7 +56,7 @@ public class Gripper extends SubsystemBase {
    * @return the command
    */
   public Command setTarget() {
-    return this.run(
+    return this.runOnce(
         () -> {
           if (m_open) m_target = kOpenPosition;
           else if (m_pivot.getTarget() == m_pivot.kDown && !m_open) m_target = kClosePositionCone;
@@ -80,6 +78,6 @@ public class Gripper extends SubsystemBase {
    * @return opening and closing of the gripper
    */
   public Command changeState() {
-    return this.runOnce(() -> m_open = !m_open).andThen(setTarget());
+    return this.runOnce(() -> m_open = !m_open).andThen(this.setTarget());
   }
 }
