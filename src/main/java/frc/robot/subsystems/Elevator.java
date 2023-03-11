@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
 
 public class Elevator extends SubsystemBase {
 
@@ -57,6 +56,7 @@ public class Elevator extends SubsystemBase {
 
   // Process variables
   private double m_targetMeter = kNeutralMeter;
+  private Level m_targetLevel = Level.Down;
 
   /** Creates a new Elevator. */
   public Elevator() {
@@ -162,18 +162,13 @@ public class Elevator extends SubsystemBase {
   }
 
   public Command extend() {
-    var sequence = new SequentialCommandGroup();
-    if (RobotContainer.getCoPilotJoystick().y().getAsBoolean()) {
-      sequence =
-          new SequentialCommandGroup(
-              this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
-              this.run(() -> this.setHeightFor(Level.Third)).until(this::onTarget));
-    } else if (RobotContainer.getCoPilotJoystick().x().getAsBoolean()) {
-      sequence =
-          new SequentialCommandGroup(
-              this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
-              this.run(() -> this.setHeightFor(Level.Second)).until(this::onTarget));
-    }
-    return sequence;
+
+    return new SequentialCommandGroup(
+        this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
+        this.run(() -> this.setHeightFor(m_targetLevel)).until(this::onTarget));
+  }
+
+  public Command setTargetLevel(Level level) {
+    return this.runOnce(() -> m_targetLevel = level);
   }
 }

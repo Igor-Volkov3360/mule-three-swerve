@@ -31,6 +31,12 @@ import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {
 
+  public enum Mode {
+    New,
+    Latest,
+    Disabled
+  }
+
   // Subsystem parameters
   public static final double kMaxModuleSpeed = 4.0;
 
@@ -52,6 +58,8 @@ public class DriveTrain extends SubsystemBase {
   public static final double kRotKD = 0.0;
 
   public double filteredX = 0;
+
+  public Mode m_visionMode = Mode.Disabled;
 
   public static final int kPathServerPort = 5811;
 
@@ -347,5 +355,15 @@ public class DriveTrain extends SubsystemBase {
             // go to R2
           }
         });
+  }
+
+  /* Mode == new or latest */
+
+  public Command setVisionMode(Mode mode) {
+    return this.runOnce(() -> m_visionMode = mode);
+  }
+
+  public boolean visionDisabled() {
+    return m_visionMode == Mode.Disabled;
   }
 }

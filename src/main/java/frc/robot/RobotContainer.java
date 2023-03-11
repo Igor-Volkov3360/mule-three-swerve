@@ -9,6 +9,7 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -17,6 +18,7 @@ import frc.robot.commands.Autonomous;
 import frc.robot.commands.Sequences;
 import frc.robot.subsystems.BuddyClimb;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrain.Mode;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
@@ -118,7 +120,8 @@ public class RobotContainer {
                 .unless(this::inCubeMode));
 
     // should enable vision mode
-    // m_driverController.leftBumper().whileTrue(visionMode());
+    m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Latest));
+    m_driverController.rightBumper().whileTrue(m_drive.setVisionMode(Mode.New));
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
@@ -131,12 +134,12 @@ public class RobotContainer {
     m_coDriverController.a().onTrue(m_elevator.extend().unless(this::inCubeMode));
 
     m_coDriverController.b().onTrue(m_gripper.changeState());
-    m_coDriverController.x().onTrue(m_intake.setAngle(Intake.Position.Launch));
-    m_coDriverController.y().onTrue(m_intake.setAngle(null));
+    m_coDriverController.x().onTrue(m_intake.setTargetLevel(Level.Second));
+    m_coDriverController.y().onTrue(m_intake.setTargetLevel(Level.Third));
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
 
     // Mapping a different command on the same button according to the current mode example!
-    // m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
+    m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
 
     // toggle robot modes
     m_coDriverController
@@ -150,8 +153,8 @@ public class RobotContainer {
             Sequences.SwitchToCone(
                 m_elevator, m_intake, this.setMode(RobotMode.Cone).unless(this::inConeMode)));
 
-    m_coDriverController.povLeft().onTrue(m_drive.moveLeft());
-    m_coDriverController.povRight().onTrue(m_drive.moveRight());
+    m_coDriverController.povLeft().onTrue(m_drive.moveLeft().unless(m_drive::visionDisabled));
+    m_coDriverController.povRight().onTrue(m_drive.moveRight().unless(m_drive::visionDisabled));
     m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
     m_coDriverController.rightTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.DownManual));
   }
@@ -266,13 +269,5 @@ public class RobotContainer {
         new FollowPathWithEvents(Autonomous.followTestTraj(m_drive), path.getMarkers(), eventMap);
 
     return auto;
-  }
-
-  public static CommandXboxController getCoPilotJoystick() {
-    return m_coDriverController;
-  }
-
-  public static CommandXboxController getPilotJoystick() {
-    return m_driverController;
   }
 }
