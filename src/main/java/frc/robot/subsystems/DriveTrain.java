@@ -115,7 +115,6 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
     // Call module periodic
-
     inDeadband();
 
     for (final var module : m_modules) {

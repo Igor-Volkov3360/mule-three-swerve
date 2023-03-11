@@ -133,25 +133,25 @@
     {
       "position": 1.767272727272622,
       "names": [
-        "shoot cube "
+        "shootCube "
       ]
     },
     {
       "position": 4.0,
       "names": [
-        "shootCube"
+        "shootCube2"
       ]
     },
     {
       "position": 0.0,
       "names": [
-        "extenCone"
+        "extendCone"
       ]
     },
     {
       "position": 3.0,
       "names": [
-        "grabCube"
+        "grabCube2"
       ]
     }
   ]

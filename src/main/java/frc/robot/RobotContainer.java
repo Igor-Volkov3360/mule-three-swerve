@@ -8,12 +8,12 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autonomous;
 import frc.robot.commands.Sequences;
 import frc.robot.subsystems.BuddyClimb;
 import frc.robot.subsystems.DriveTrain;
@@ -55,7 +55,9 @@ public class RobotContainer {
   private final BuddyClimb m_buddyClimb = new BuddyClimb();
 
   private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
-  public static final PathPlannerTrajectory path = PathPlanner.loadPath("marker", constraints);
+  public static final PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
+  public static final PathPlannerTrajectory path1 =
+      PathPlanner.loadPath("begin with cone 2 cubes", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -67,8 +69,14 @@ public class RobotContainer {
   // Process variables
   private RobotMode m_currentMode = RobotMode.Cube;
 
+  // creates sendable chooser
+  SendableChooser<Command> m_chooser = new SendableChooser<>();
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
+    m_chooser.addOption("begin with cone 2 cubes", this.runPath1());
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
@@ -165,7 +173,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return this.runAuto();
+    return m_chooser.getSelected(); // this.runAuto();
   }
 
   /**
@@ -258,14 +266,17 @@ public class RobotContainer {
         .andThen(m_elevator.extendTo(Elevator.Level.Down));
   }
 
-  public Command runAuto() {
+  public Command runPath1() {
 
-    eventMap.put("yez", m_pivotArm.setTarget("up"));
-
-    // eventMap.put("lift", m_elevator.extendTo(0.8));
+    eventMap.put("extendCone", m_elevator.extendTo(Elevator.Level.Third));
+    eventMap.put("grabCube", m_intake.pickup());
+    eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
+    eventMap.put("grabCube2", m_intake.pickup());
+    eventMap.put("shootCube2", m_intake.launch(Level.Second, Position.Launch));
 
     Command auto =
-        new FollowPathWithEvents(Autonomous.followTestTraj(m_drive), path.getMarkers(), eventMap);
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(path1, true, true), path1.getMarkers(), eventMap);
 
     return auto;
   }
