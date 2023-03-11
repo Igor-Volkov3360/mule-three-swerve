@@ -9,7 +9,6 @@ import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -139,7 +138,7 @@ public class RobotContainer {
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
 
     // Mapping a different command on the same button according to the current mode example!
-    m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
+    // m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
 
     // toggle robot modes
     m_coDriverController
