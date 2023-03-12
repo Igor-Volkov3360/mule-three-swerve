@@ -74,6 +74,9 @@ public class RobotContainer {
   public static final PathPlannerTrajectory pathConeBalance =
       PathPlanner.loadPath("cone balance", constraints);
 
+  public static final PathPlannerTrajectory pathCubeBalance =
+      PathPlanner.loadPath("cube balance", constraints);
+
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -99,6 +102,7 @@ public class RobotContainer {
     m_chooser.addOption("cone cube balance", this.runPathScoreConeShootCubeBalance());
     m_chooser.addOption("balance", this.runPathBalance());
     m_chooser.addOption("cone balance", this.runPathConeBalance());
+    m_chooser.addOption("cube balance", this.runPathCubeBalance());
 
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
@@ -289,5 +293,18 @@ public class RobotContainer {
             eventMap);
 
     return coneBalance;
+  }
+
+  public Command runPathCubeBalance() {
+    eventMap.put("grabCube", m_intake.vomit());
+    eventMap.put("balance", m_drive.balance());
+
+    Command cubeBalance =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathConeBalance, true, true),
+            pathConeBalance.getMarkers(),
+            eventMap);
+
+    return cubeBalance;
   }
 }

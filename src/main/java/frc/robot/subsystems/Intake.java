@@ -281,4 +281,9 @@ public class Intake extends SubsystemBase {
   public Command setTargetLevel(Level level) {
     return this.runOnce(() -> m_targetLevel = level);
   }
+
+  public Command vomit() {
+    return this.runOnce(
+        () -> this.setAngle(Position.Pickup).alongWith(this.holdSpeed(Level.First)));
+  }
 }
