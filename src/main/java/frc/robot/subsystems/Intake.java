@@ -284,6 +284,6 @@ public class Intake extends SubsystemBase {
 
   public Command vomit() {
     return this.runOnce(
-        () -> this.setAngle(Position.Pickup).alongWith(this.holdSpeed(Level.First)));
+        () -> this.launch(Level.First, Position.Pickup).alongWith(this.holdSpeed(Level.First)));
   }
 }

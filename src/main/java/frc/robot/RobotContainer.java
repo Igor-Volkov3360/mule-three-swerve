@@ -75,7 +75,7 @@ public class RobotContainer {
       PathPlanner.loadPath("cone balance", constraints);
 
   public static final PathPlannerTrajectory pathCubeBalance =
-      PathPlanner.loadPath("cube balance", constraints);
+      PathPlanner.loadPath("cube balance", 2.0, 2.0);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -296,8 +296,9 @@ public class RobotContainer {
   }
 
   public Command runPathCubeBalance() {
-    eventMap.put("grabCube", m_intake.vomit());
+    eventMap.put("grabCube", m_intake.pickup());
     eventMap.put("balance", m_drive.balance());
+    eventMap.put("vomit", m_intake.vomit());
 
     Command cubeBalance =
         new FollowPathWithEvents(
