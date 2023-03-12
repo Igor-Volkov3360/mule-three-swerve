@@ -374,6 +374,7 @@ public class DriveTrain extends SubsystemBase {
   public Command moveScorePosition(boolean toTheRight) {
     return this.runOnce(() -> incrementScorePosition(toTheRight));
   }
+
   /**
    * @param direction true means robot goes right
    */
@@ -384,6 +385,7 @@ public class DriveTrain extends SubsystemBase {
     // clamps around min and max value to insure we don't run into the walls
     MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
   }
+
   /* reset the yScoringPos to closest scoring area */
   public void resetToCLosestScoringPos() {
     double YCurrentPos = m_odometry.getEstimatedPosition().getY();
