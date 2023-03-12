@@ -139,8 +139,16 @@ public class DriveTrain extends SubsystemBase {
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
+  }
 
-    // System.out.println(m_accelerometer.getX() + "         " + m_accelerometer.getZ());
+  private void setVisionFor(Mode mode) {
+    switch (mode) {
+      case New:
+        this.setToCLosestGoal();
+      case Last:
+        this.onTheFlyToScoringPos();
+      case Disabled:
+    }
   }
 
   /**
@@ -378,7 +386,8 @@ public class DriveTrain extends SubsystemBase {
   /* Mode == new or latest */
 
   public Command setVisionMode(Mode mode) {
-    return this.runOnce(() -> m_visionMode = mode);
+    m_visionMode = mode;
+    return this.runOnce(() -> setVisionFor(mode));
   }
 
   public boolean visionDisabled() {
