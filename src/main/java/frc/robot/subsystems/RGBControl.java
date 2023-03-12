@@ -68,7 +68,7 @@ public class RGBControl extends SubsystemBase {
         });
   }
 
-  public Command orangeCommand() {
+  public Command yellowCommand() {
     return this.run(
         () -> {
           select1.set(false);

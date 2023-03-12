@@ -38,4 +38,12 @@ public class Sequences {
         intake.setAngle(Position.Retracted),
         switchMode);
   }
+
+  public static Command scoreCone(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
+    return Commands.sequence(
+        gripper.changeState(),
+        elevator.extendTo(Elevator.Level.Third),
+        pivotArm.setTarget("up"),
+        gripper.changeState());
+  }
 }

@@ -56,8 +56,12 @@ public class RobotContainer {
 
   private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
   public static final PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
-  public static final PathPlannerTrajectory path1 =
+
+  public static final PathPlannerTrajectory pathScoreCone2Cubes =
       PathPlanner.loadPath("begin with cone 2 cubes", constraints);
+
+  public static final PathPlannerTrajectory pathScoreConeShootCubeBalance =
+      PathPlanner.loadPath("cone cube balance", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -76,7 +80,7 @@ public class RobotContainer {
   public RobotContainer() {
 
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
-    m_chooser.addOption("begin with cone 2 cubes", this.runPath1());
+    m_chooser.addOption("begin with cone 2 cubes", this.runPathScoreCone2Cubes());
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
@@ -86,7 +90,7 @@ public class RobotContainer {
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX(),
-            false));
+            true));
 
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
@@ -153,12 +157,14 @@ public class RobotContainer {
         .start()
         .onTrue(
             Sequences.SwitchToCube(m_elevator, m_intake, this.setMode(RobotMode.Cube))
-                .unless(this::inCubeMode));
+                .unless(this::inCubeMode)
+                .alongWith(m_rgbPanel.purpleCommand()));
     m_coDriverController
         .back()
         .onTrue(
             Sequences.SwitchToCone(
-                m_elevator, m_intake, this.setMode(RobotMode.Cone).unless(this::inConeMode)));
+                    m_elevator, m_intake, this.setMode(RobotMode.Cone).unless(this::inConeMode))
+                .alongWith(m_rgbPanel.yellowCommand()));
 
     // m_coDriverController.povLeft().onTrue(m_drive.moveLeft());
     // m_coDriverController.povRight().onTrue(m_drive.moveRight());
@@ -266,18 +272,36 @@ public class RobotContainer {
         .andThen(m_elevator.extendTo(Elevator.Level.Down));
   }
 
-  public Command runPath1() {
+  public Command runPathScoreCone2Cubes() {
 
-    eventMap.put("extendCone", m_elevator.extendTo(Elevator.Level.Third));
+    eventMap.put("extendCone", Sequences.scoreCone(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("grabCube", m_intake.pickup());
     eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
     eventMap.put("grabCube2", m_intake.pickup());
     eventMap.put("shootCube2", m_intake.launch(Level.Second, Position.Launch));
 
-    Command auto =
+    Command scoreCone2Cubes =
         new FollowPathWithEvents(
-            m_drive.followPathCommand(path1, true, true), path1.getMarkers(), eventMap);
+            m_drive.followPathCommand(pathScoreCone2Cubes, true, true),
+            pathScoreCone2Cubes.getMarkers(),
+            eventMap);
 
-    return auto;
+    return scoreCone2Cubes;
+  }
+
+  public Command runPathScoreConeShootCubeBalance() {
+
+    eventMap.put("scoreCone", Sequences.scoreCone(m_elevator, m_pivotArm, m_gripper));
+    eventMap.put("intake", m_intake.pickup());
+    eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
+    eventMap.put("balance", m_drive.balance());
+
+    Command scoreConeShootCubeBalance =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathScoreConeShootCubeBalance, true, true),
+            pathScoreConeShootCubeBalance.getMarkers(),
+            eventMap);
+
+    return scoreConeShootCubeBalance;
   }
 }
