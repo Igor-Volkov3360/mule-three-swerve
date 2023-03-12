@@ -144,9 +144,12 @@ public class DriveTrain extends SubsystemBase {
   private void setVisionFor(Mode mode) {
     switch (mode) {
       case New:
-        this.setToCLosestGoal();
+        this.resetToCLosestScoringPos();
+        this.goToTargetGoal();
+        break;
       case Last:
-        this.onTheFlyToScoringPos();
+        this.goToTargetGoal();
+        break;
       case Disabled:
     }
   }
@@ -354,6 +357,11 @@ public class DriveTrain extends SubsystemBase {
     return filteredX < 0.1;
   }
 
+  /**
+   * this command makes the robot go to the YScoringPos using onTheFlyToScoringPos
+   *
+   * @return commands that make the robot go to the right scoring pos
+   */
   public Command goToTargetGoal() {
     return Commands.sequence(
         this.runOnce(() -> m_scoringTrajectory = this.onTheFlyToScoringPos()),
@@ -376,8 +384,8 @@ public class DriveTrain extends SubsystemBase {
     // clamps around min and max value to insure we don't run into the walls
     MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
   }
-  // sets the Y target position to the robot's closest grid
-  public void setToCLosestGoal() {
+  /* reset the yScoringPos to closest scoring area */
+  public void resetToCLosestScoringPos() {
     double YCurrentPos = m_odometry.getEstimatedPosition().getY();
     double YCurrentBox = (YCurrentPos - minYScoringPos) / scoringGridIncrements;
     YScoringPos = (Math.round(YCurrentBox) * scoringGridIncrements) + minYScoringPos;

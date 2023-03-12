@@ -62,11 +62,17 @@ public class RobotContainer {
 
   public static final PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
 
-  public static final PathPlannerTrajectory pathScoreCone2Cubes =
-      PathPlanner.loadPath("begin with cone 2 cubes", constraints);
+  public static final PathPlannerTrajectory pathScoreCone2CubesLeft =
+      PathPlanner.loadPath("begin with cone 2 cubes left", constraints);
 
-  public static final PathPlannerTrajectory pathScoreConeShootCubeBalance =
-      PathPlanner.loadPath("cone cube balance", constraints);
+  public static final PathPlannerTrajectory pathScoreConeShootCubeBalanceLeft =
+      PathPlanner.loadPath("cone cube balance left", constraints);
+
+  public static final PathPlannerTrajectory pathScoreConeShootCubeBalanceRight =
+      PathPlanner.loadPath("cone cube balance right", constraints);
+
+  public static final PathPlannerTrajectory pathScoreCone2CubesRight =
+      PathPlanner.loadPath("begin with cone 2 cubes right", constraints);
 
   public static final PathPlannerTrajectory pathBalance =
       PathPlanner.loadPath("balance", constraints);
@@ -98,12 +104,12 @@ public class RobotContainer {
 
     // create options for auto mode
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
-    m_chooser.addOption("begin with cone 2 cubes", this.runPathScoreCone2Cubes());
-    m_chooser.addOption("cone cube balance", this.runPathScoreConeShootCubeBalance());
+    m_chooser.addOption("begin with cone 2 cubes left", this.runPathScoreCone2CubesLeft());
+    m_chooser.addOption("cone cube balance left", this.runPathScoreConeShootCubeBalanceLeft());
+    m_chooser.addOption("begin with cone 2 cubes right", this.runPathScoreCone2CubesRight());
+    m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
     m_chooser.addOption("balance", this.runPathBalance());
     m_chooser.addOption("cone balance", this.runPathConeBalance());
-    m_chooser.addOption("cube balance", this.runPathCubeBalance());
-
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
@@ -239,7 +245,7 @@ public class RobotContainer {
    *
    * @return the autonomous path
    */
-  public Command runPathScoreCone2Cubes() {
+  public Command runPathScoreCone2CubesLeft() {
 
     eventMap.put("extendCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("grabCube", m_intake.pickup());
@@ -247,29 +253,29 @@ public class RobotContainer {
     eventMap.put("grabCube2", m_intake.pickup());
     eventMap.put("shootCube2", m_intake.launch(Level.Second, Position.Launch));
 
-    Command scoreCone2Cubes =
+    Command scoreCone2CubesLeft =
         new FollowPathWithEvents(
-            m_drive.followPathCommand(pathScoreCone2Cubes, true, true),
-            pathScoreCone2Cubes.getMarkers(),
+            m_drive.followPathCommand(pathScoreCone2CubesLeft, true, true),
+            pathScoreCone2CubesLeft.getMarkers(),
             eventMap);
 
-    return scoreCone2Cubes;
+    return scoreCone2CubesLeft;
   }
 
-  public Command runPathScoreConeShootCubeBalance() {
+  public Command runPathScoreConeShootCubeBalanceLeft() {
 
     eventMap.put("scoreCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("intake", m_intake.pickup());
     eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
     eventMap.put("balance", m_drive.balance());
 
-    Command scoreConeShootCubeBalance =
+    Command scoreConeShootCubeBalanceLeft =
         new FollowPathWithEvents(
-            m_drive.followPathCommand(pathScoreConeShootCubeBalance, true, true),
-            pathScoreConeShootCubeBalance.getMarkers(),
+            m_drive.followPathCommand(pathScoreConeShootCubeBalanceLeft, true, true),
+            pathScoreConeShootCubeBalanceLeft.getMarkers(),
             eventMap);
 
-    return scoreConeShootCubeBalance;
+    return scoreConeShootCubeBalanceLeft;
   }
 
   public Command runPathBalance() {
@@ -295,17 +301,37 @@ public class RobotContainer {
     return coneBalance;
   }
 
-  public Command runPathCubeBalance() {
-    eventMap.put("grabCube", m_intake.pickup());
-    eventMap.put("balance", m_drive.balance());
-    eventMap.put("vomit", m_intake.vomit());
+  public Command runPathScoreConeShootCubeBalanceRight() {
 
-    Command cubeBalance =
+    eventMap.put("extendCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
+    eventMap.put("grabCube", m_intake.pickup());
+    eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
+    eventMap.put("grabCube2", m_intake.pickup());
+    eventMap.put("shootCube2", m_intake.launch(Level.Second, Position.Launch));
+
+    Command scoreCone2CubesRight =
         new FollowPathWithEvents(
-            m_drive.followPathCommand(pathConeBalance, true, true),
-            pathConeBalance.getMarkers(),
+            m_drive.followPathCommand(pathScoreCone2CubesRight, true, true),
+            pathScoreCone2CubesRight.getMarkers(),
             eventMap);
 
-    return cubeBalance;
+    return scoreCone2CubesRight;
+  }
+
+  public Command runPathScoreCone2CubesRight() {
+
+    eventMap.put("extendCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
+    eventMap.put("grabCube", m_intake.pickup());
+    eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
+    eventMap.put("grabCube2", m_intake.pickup());
+    eventMap.put("shootCube2", m_intake.launch(Level.Second, Position.Launch));
+
+    Command scoreCone2CubesRight =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathScoreCone2CubesRight, true, true),
+            pathScoreCone2CubesRight.getMarkers(),
+            eventMap);
+
+    return scoreCone2CubesRight;
   }
 }
