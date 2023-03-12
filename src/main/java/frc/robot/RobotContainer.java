@@ -8,6 +8,9 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -55,14 +58,21 @@ public class RobotContainer {
   private final BuddyClimb m_buddyClimb = new BuddyClimb();
 
   private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
+  // different trajectories
+
   public static final PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
 
-  // different trajectories
   public static final PathPlannerTrajectory pathScoreCone2Cubes =
       PathPlanner.loadPath("begin with cone 2 cubes", constraints);
 
   public static final PathPlannerTrajectory pathScoreConeShootCubeBalance =
       PathPlanner.loadPath("cone cube balance", constraints);
+
+  public static final PathPlannerTrajectory pathBalance =
+      PathPlanner.loadPath("balance", constraints);
+
+  public static final PathPlannerTrajectory pathConeBalance =
+      PathPlanner.loadPath("cone balance", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -74,16 +84,24 @@ public class RobotContainer {
   // Process variables
   private RobotMode m_currentMode = RobotMode.Cube;
 
-  // creates sendable chooser
-  SendableChooser<Command> m_chooser = new SendableChooser<>();
+  SendableChooser<Command> m_chooser;
+  ComplexWidget chooserList;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    // creates sendable chooser
+    m_chooser = new SendableChooser<>();
 
     // create options for auto mode
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
     m_chooser.addOption("begin with cone 2 cubes", this.runPathScoreCone2Cubes());
     m_chooser.addOption("cone cube balance", this.runPathScoreConeShootCubeBalance());
+    m_chooser.addOption("balance", this.runPathBalance());
+    m_chooser.addOption("cone balance", this.runPathConeBalance());
+
+    chooserList =
+        Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
@@ -248,5 +266,28 @@ public class RobotContainer {
             eventMap);
 
     return scoreConeShootCubeBalance;
+  }
+
+  public Command runPathBalance() {
+    eventMap.put("balance", m_drive.balance());
+
+    Command balance =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathBalance, true, true), pathBalance.getMarkers(), eventMap);
+
+    return balance;
+  }
+
+  public Command runPathConeBalance() {
+    eventMap.put("scoreCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
+    eventMap.put("balance", m_drive.balance());
+
+    Command coneBalance =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathConeBalance, true, true),
+            pathConeBalance.getMarkers(),
+            eventMap);
+
+    return coneBalance;
   }
 }
