@@ -372,7 +372,7 @@ public class DriveTrain extends SubsystemBase {
   public void setToCLosestGoal() {
     double YCurrentPos = m_odometry.getEstimatedPosition().getY();
     double YCurrentBox = (YCurrentPos - minYScoringPos) / scoringGridIncrements;
-    YScoringPos = (YCurrentBox * scoringGridIncrements) + minYScoringPos;
+    YScoringPos = (Math.round(YCurrentBox) * scoringGridIncrements) + minYScoringPos;
   }
 
   /* Mode == new or latest */

@@ -3,14 +3,15 @@ gripper:
 
 rgb panel: 
 
-    1- when we are not aligned its red, when we are aligned its green( to the april tags)
+    1- when we are not aligned its red, when we are aligned its green(to the april tags)
 
 drivetrain:
-    1- ask PL what should be the differents autonomous modes
-    1.1- write them down
-    1.2- make them
 
-    2- automatically align the robot using the apriltags and reset the odometry at the same time so the robot doesnt suffer from drift
+    1- test autonomous modes
+
+    2- make more autonomous modes
+
+    3- automatically align the robot using the apriltags and reset the odometry at the same time so the robot doesnt suffer from drift
 
 start script for april tags:
 
