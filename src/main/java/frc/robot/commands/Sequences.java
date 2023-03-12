@@ -18,7 +18,6 @@ public class Sequences {
 
   public static Command PickConeFromFeeder(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
     return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setTarget("up"));
-    // gripper.setTarget("open").withTimeout(1.0));
   }
 
   public static Command SwitchToCone(Elevator elevator, Intake intake, Command switchMode) {
@@ -39,11 +38,23 @@ public class Sequences {
         switchMode);
   }
 
-  public static Command scoreCone(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
+  public static Command scoreConeThird(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
     return Commands.sequence(
         gripper.changeState(),
         elevator.extendTo(Elevator.Level.Third),
         pivotArm.setTarget("up"),
-        gripper.changeState());
+        gripper.changeState(),
+        elevator.extendTo(Level.Down),
+        pivotArm.setTarget("down"));
+  }
+
+  public static Command scoreConeSecond(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
+    return Commands.sequence(
+        gripper.changeState(),
+        elevator.extendTo(Elevator.Level.Second),
+        pivotArm.setTarget("up"),
+        gripper.changeState(),
+        elevator.extendTo(Level.Down),
+        pivotArm.setTarget("down"));
   }
 }

@@ -57,6 +57,7 @@ public class RobotContainer {
   private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
   public static final PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
 
+  // different trajectories
   public static final PathPlannerTrajectory pathScoreCone2Cubes =
       PathPlanner.loadPath("begin with cone 2 cubes", constraints);
 
@@ -79,8 +80,10 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+    // create options for auto mode
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
     m_chooser.addOption("begin with cone 2 cubes", this.runPathScoreCone2Cubes());
+    m_chooser.addOption("cone cube balance", this.runPathScoreConeShootCubeBalance());
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
@@ -209,72 +212,14 @@ public class RobotContainer {
   public Command setMode(RobotMode newMode) {
     return new InstantCommand(() -> m_currentMode = newMode);
   }
-
   /**
-   * This command is used ot intake cubes
+   * starting here, commands define complex paths for autonomous aka with events
    *
-   * @return the sequence that is used to intake game pieces
+   * @return the autonomous path
    */
-  public Command IntakeOutSequenceCube() {
-    return m_intake
-        .setAngle(Position.Pickup)
-        .andThen(m_pivotArm.setTarget("cube").alongWith(m_gripper.changeState()));
-  }
-
-  /**
-   * This command is used ot intake cones
-   *
-   * @return the sequence that is used to intake game pieces
-   */
-  public Command IntakeOutSequenceCone() {
-    return m_intake.setAngle(Position.Pickup).andThen(m_pivotArm.setTarget("up"));
-  }
-
-  /**
-   * This function retracts the intake
-   *
-   * @return the sequence that retracts the intake
-   */
-  public Command IntakeInSequence() {
-    return m_pivotArm.setTarget("down").alongWith(m_intake.setAngle(Position.Retracted));
-  }
-
-  public Command secondStageSequence() {
-    return m_gripper
-        .changeState()
-        .withTimeout(0.25)
-        .andThen(
-            m_pivotArm
-                .setTarget("up")
-                .until(m_pivotArm::isOnTarget)
-                .andThen(m_elevator.extendTo(Elevator.Level.Second))
-                .until(m_elevator::onTarget)
-                .alongWith(m_gripper.changeState()))
-        .withTimeout(1)
-        .andThen(m_gripper.changeState())
-        .withTimeout(2)
-        .andThen(m_elevator.extendTo(Elevator.Level.Down))
-        .until(m_elevator::onTarget);
-  }
-
-  public Command thirdStageSequence() {
-    return m_gripper
-        .changeState()
-        .withTimeout(0.25)
-        .andThen(
-            m_pivotArm
-                .setTarget("up")
-                .andThen(m_elevator.extendTo(Elevator.Level.Third))
-                .alongWith(m_gripper.changeState()))
-        .withTimeout(3)
-        .andThen(m_gripper.changeState())
-        .withTimeout(2)
-        .andThen(m_elevator.extendTo(Elevator.Level.Down));
-  }
-
   public Command runPathScoreCone2Cubes() {
 
-    eventMap.put("extendCone", Sequences.scoreCone(m_elevator, m_pivotArm, m_gripper));
+    eventMap.put("extendCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("grabCube", m_intake.pickup());
     eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
     eventMap.put("grabCube2", m_intake.pickup());
@@ -291,7 +236,7 @@ public class RobotContainer {
 
   public Command runPathScoreConeShootCubeBalance() {
 
-    eventMap.put("scoreCone", Sequences.scoreCone(m_elevator, m_pivotArm, m_gripper));
+    eventMap.put("scoreCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("intake", m_intake.pickup());
     eventMap.put("shootCube", m_intake.launch(Level.Third, Position.Launch));
     eventMap.put("balance", m_drive.balance());
