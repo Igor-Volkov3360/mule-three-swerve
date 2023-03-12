@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
   private static final double kWheelSpeedPreload = -0.25;
   private static final double kWheelSpeed2nd = 0.5;
   private static final double kWheelSpeed3rd = 1.0;
-  private static final double kWheelSpeedHold = -0.02;
+  private static final double kWheelSpeedHold = -0.01;
   private static final double kWheelSpeedPickup = -0.3;
   private static double kDeadzoneRad = 0.01;
 
@@ -79,11 +79,11 @@ public class Intake extends SubsystemBase {
 
     m_wheelsLeft.restoreFactoryDefaults();
     m_wheelsLeft.setIdleMode(IdleMode.kBrake);
-    m_wheelsLeft.setInverted(false);
+    m_wheelsLeft.setInverted(true);
 
     m_wheelsRight.restoreFactoryDefaults();
     m_wheelsRight.setIdleMode(IdleMode.kBrake);
-    m_wheelsRight.setInverted(true);
+    m_wheelsRight.setInverted(false);
 
     m_pivot.burnFlash();
     m_wheelsLeft.burnFlash();
@@ -104,7 +104,7 @@ public class Intake extends SubsystemBase {
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
 
-    // System.out.println(getAngleRad());
+    System.out.println(m_wheelsLeft.getAppliedOutput());
 
     // System.out.printf(
     //     "Intake: target = %4.2f\tcurrent = %4.2f\t cube = %s\n",

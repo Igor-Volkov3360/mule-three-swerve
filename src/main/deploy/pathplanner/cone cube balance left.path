@@ -20,8 +20,8 @@
           "scoreCone"
         ],
         "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "after",
+        "waitTime": 6.0
       }
     },
     {
@@ -94,8 +94,8 @@
           "balance"
         ],
         "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "before",
+        "waitTime": 2.0
       }
     }
   ],
