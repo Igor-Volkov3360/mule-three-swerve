@@ -18,7 +18,7 @@ public class Gripper extends SubsystemBase {
   private static final double kClosePositionCone = -30;
   private static final double kCloseUpPositionCone = kClosePositionCone - 30;
 
-  private static final double kMultiplier = 0.1;
+  private static final double kMultiplier = 0.25;
 
   private double m_target = kOpenPosition;
   private boolean m_open = true;
@@ -42,11 +42,21 @@ public class Gripper extends SubsystemBase {
     // This method will be called once per scheduler run
 
     m_gripper.set(motorSpeed() * kMultiplier);
-    // System.out.println(m_target + "       " + m_open);
+    System.out.println(
+        m_open
+            + "       "
+            + m_target
+            + "       "
+            + m_gripper.getEncoder().getPosition()
+            + "       "
+            + m_gripper.getAppliedOutput()
+            + "       "
+            + m_gripper.getOutputCurrent());
+    System.out.println(motorSpeed() * kMultiplier);
   }
 
   public Command stop() {
-    return this.run(() -> m_gripper.set(0));
+    return this.runOnce(() -> m_gripper.set(0));
   }
 
   /**
@@ -59,13 +69,13 @@ public class Gripper extends SubsystemBase {
     return this.runOnce(
         () -> {
           if (m_open) m_target = kOpenPosition;
-          else if (m_pivot.getTarget() == m_pivot.kDown && !m_open) m_target = kClosePositionCone;
-          else if (m_pivot.getTarget() == m_pivot.kUp && !m_open) m_target = kCloseUpPositionCone;
+          else if (m_pivot.getTarget() == m_pivot.kDown) m_target = kClosePositionCone;
+          else if (m_pivot.getTarget() == m_pivot.kUp) m_target = kCloseUpPositionCone;
         });
   }
 
   private double motorSpeed() {
-    return (m_target - m_gripper.getEncoder().getPosition()) / 2;
+    return (m_target - m_gripper.getEncoder().getPosition());
   }
 
   public Command manualWind() {

@@ -27,14 +27,14 @@ public class Sequences {
         intake.setAngle(Position.Pickup),
         pivotArm.setTarget("up"),
         new WaitCommand(0.2),
-        elevator.extendTo(Level.Second),
+        elevator.extendTo(Level.Sequences),
         intake.setAngle(Position.Stored),
         elevator.extendTo(Level.Down));
   }
 
   public static Command SwitchToCube(Elevator elevator, Intake intake, PivotArm pivotArm) {
     return Commands.sequence(
-        elevator.extendTo(Level.Second),
+        elevator.extendTo(Level.Sequences),
         new WaitCommand(0.3), // do NOT remove this delay, its perfect
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
