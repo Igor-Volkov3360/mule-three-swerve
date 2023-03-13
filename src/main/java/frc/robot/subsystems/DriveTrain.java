@@ -140,7 +140,7 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    System.out.println(m_gyro.getAngle());
+    // System.out.println(m_gyro.getAngle());
   }
 
   private void setVisionFor(Mode mode) {

@@ -12,6 +12,7 @@ import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Position;
 import frc.robot.subsystems.PivotArm;
+import frc.robot.subsystems.Wheels;
 
 /** Add your docs here. */
 public class Sequences {
@@ -20,22 +21,19 @@ public class Sequences {
     return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setTarget("up"));
   }
 
-  public static Command SwitchToCone(Elevator elevator, Intake intake, Command switchMode) {
+  public static Command SwitchToCone(Elevator elevator, Intake intake) {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Second),
         intake.setAngle(Position.Retracted),
-        elevator.extendTo(Level.Down),
-        switchMode);
+        elevator.extendTo(Level.Down));
   }
 
-  public static Command SwitchToCube(Elevator elevator, Intake intake, Command switchMode) {
+  public static Command SwitchToCube(Elevator elevator, Intake intake) {
     return Commands.sequence(
-        elevator.extendTo(Level.Second),
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
-        intake.setAngle(Position.Retracted),
-        switchMode);
+        intake.setAngle(Position.Retracted));
   }
 
   public static Command scoreConeThird(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
@@ -56,5 +54,38 @@ public class Sequences {
         gripper.changeState(),
         elevator.extendTo(Level.Down),
         pivotArm.setTarget("down"));
+  }
+
+  /**
+   * Pickup a cube by lowering the intake and spinning until a cube is detected
+   *
+   * @return blocking command
+   */
+  public static Command pickup(Intake intake, Wheels wheels) {
+    return Commands.sequence(
+        intake.setAngle(Position.Pickup),
+        wheels.holdSpeed(Wheels.Level.Pickup).until(intake::hasCube),
+        intake.setAngle(Position.Retracted),
+        wheels.holdSpeed(Wheels.Level.Hold).until(intake::noCube));
+  }
+
+  /**
+   * This command launches a cube by raising the intake, preloding, and launching then stopping
+   *
+   * @return launch of a cube
+   */
+  public static Command launch(
+      Intake intake, Wheels wheels, Wheels.Level level, Position position) {
+    return Commands.sequence(
+        intake.setAngle(position),
+        wheels.holdSpeed(Wheels.Level.Preload).withTimeout(0.2),
+        wheels.holdSpeed(level).withTimeout(0.5));
+  }
+
+  public static Command vomit(Intake intake, Wheels wheels) {
+    return Commands.sequence(
+        intake.setAngle(Position.Pickup).withTimeout(2),
+        wheels.setTargetLevel(Wheels.Level.First),
+        wheels.launchTo());
   }
 }
