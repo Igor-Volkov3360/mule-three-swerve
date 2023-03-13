@@ -204,7 +204,8 @@ public class RobotContainer {
                 // .unless(this::inCubeMode)
                 .alongWith(this.setMode(RobotMode.Cube))
                 .alongWith(this.setMode(RobotMode.Cube))
-                .andThen(m_rgbPanel.purpleCommand()));
+                .alongWith(m_rgbPanel.purpleCommand())
+                .alongWith(new PrintCommand("Cube Mode")));
     m_coDriverController
         .back()
         .onTrue(
@@ -212,7 +213,8 @@ public class RobotContainer {
                 // .unless(this::inConeMode)
                 .alongWith(this.setMode(RobotMode.Cone))
                 .alongWith(this.setMode(RobotMode.Cone))
-                .andThen(m_rgbPanel.yellowCommand()));
+                .alongWith(m_rgbPanel.yellowCommand())
+                .alongWith(new PrintCommand("Cone Mode")));
 
     m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(false));
     m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(true));

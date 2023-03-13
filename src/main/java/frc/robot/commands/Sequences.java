@@ -26,6 +26,7 @@ public class Sequences {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         pivotArm.setTarget("up"),
+        new WaitCommand(0.2),
         elevator.extendTo(Level.Second),
         intake.setAngle(Position.Stored),
         elevator.extendTo(Level.Down));
