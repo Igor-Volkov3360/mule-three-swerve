@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
@@ -21,19 +22,22 @@ public class Sequences {
     return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setTarget("up"));
   }
 
-  public static Command SwitchToCone(Elevator elevator, Intake intake) {
+  public static Command SwitchToCone(Elevator elevator, Intake intake, PivotArm pivotArm) {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
+        pivotArm.setTarget("up"),
         elevator.extendTo(Level.Second),
-        intake.setAngle(Position.Retracted),
+        intake.setAngle(Position.Stored),
         elevator.extendTo(Level.Down));
   }
 
-  public static Command SwitchToCube(Elevator elevator, Intake intake) {
+  public static Command SwitchToCube(Elevator elevator, Intake intake, PivotArm pivotArm) {
     return Commands.sequence(
+        elevator.extendTo(Level.Second),
+        new WaitCommand(0.3), // do NOT remove this delay, its perfect
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
-        intake.setAngle(Position.Retracted));
+        pivotArm.setTarget("down"));
   }
 
   public static Command scoreConeThird(Elevator elevator, PivotArm pivotArm, Gripper gripper) {

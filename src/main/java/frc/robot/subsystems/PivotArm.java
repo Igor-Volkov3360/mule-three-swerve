@@ -65,9 +65,6 @@ public class PivotArm extends SubsystemBase {
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
-
-    // System.out.println(m_pivot.getOutputCurrent() + "       " + m_encoder.getPosition());
-    // System.out.println(hasSetZero);
   }
 
   /**
@@ -77,13 +74,12 @@ public class PivotArm extends SubsystemBase {
    * @return Desired angle for the pivot arm
    */
   public Command setTarget(String position) {
-    return this.run(
-            () -> {
-              if (position == "up") m_target = kUp;
-              else if (position == "down") m_target = kDown;
-              else if (position == "cube") m_target = kCube;
-            })
-        .until(this::isOnTarget);
+    return this.runOnce(
+        () -> {
+          if (position == "up") m_target = kUp;
+          else if (position == "down") m_target = kDown;
+          else if (position == "cube") m_target = kCube;
+        });
   }
   // mini neo = 110rpm at 100%
   // neo 567 at 100%

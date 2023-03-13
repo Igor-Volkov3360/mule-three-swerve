@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 
 public class BuddyClimb extends SubsystemBase {
 
@@ -34,14 +35,20 @@ public class BuddyClimb extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    // System.out.println(RobotContainer.getPilot().getLeftTriggerAxis());
   }
 
   public Command control(double speed) {
     return this.run(
         () -> {
           if (m_isBuddyClimbActivated) {
-            m_buddyLeft.set(speed);
-            m_buddyRight.set(speed);
+            m_buddyLeft.set(
+                RobotContainer.getPilot().getLeftTriggerAxis()
+                    - RobotContainer.getPilot().getRightTriggerAxis());
+            m_buddyRight.set(
+                RobotContainer.getPilot().getLeftTriggerAxis()
+                    - RobotContainer.getPilot().getRightTriggerAxis());
+            System.out.println(m_buddyLeft.get());
           }
         });
   }

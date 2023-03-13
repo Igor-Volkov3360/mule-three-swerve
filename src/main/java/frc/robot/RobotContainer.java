@@ -165,10 +165,14 @@ public class RobotContainer {
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
-
-    // m_driverController.rightTrigger().onTrue(bodyClimbRight());
-    // m_driverController.leftTrigger().onTrue(bodyClimbLeft());
-
+    /*
+        m_driverController
+            .rightTrigger()
+            .onTrue(m_buddyClimb.control(m_driverController.getLeftTriggerAxis()));
+        m_driverController
+            .leftTrigger()
+            .onTrue(m_buddyClimb.control(-m_driverController.getRightTriggerAxis()));
+    */
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     // m_coDriverController.a().onTrue(m_intake.launchTo().unless(this::inConeMode));
     // m_coDriverController.a().onTrue(m_elevator.extend().unless(this::inCubeMode));
@@ -196,18 +200,20 @@ public class RobotContainer {
     m_coDriverController
         .start()
         .onTrue(
-            Sequences.SwitchToCube(m_elevator, m_intake)
-                .unless(this::inCubeMode)
-                .alongWith(this.colour().alongWith(this.setMode(RobotMode.Cube))));
+            Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm)
+                // .unless(this::inCubeMode)
+                .alongWith(this.setMode(RobotMode.Cube))
+                .alongWith(this.setMode(RobotMode.Cube))
+                .andThen(m_rgbPanel.purpleCommand()));
     m_coDriverController
         .back()
         .onTrue(
-            Sequences.SwitchToCone(m_elevator, m_intake)
-                .unless(this::inConeMode)
-                .alongWith(this.colour().alongWith(this.setMode(RobotMode.Cone))));
+            Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm)
+                // .unless(this::inConeMode)
+                .alongWith(this.setMode(RobotMode.Cone))
+                .alongWith(this.setMode(RobotMode.Cone))
+                .andThen(m_rgbPanel.yellowCommand()));
 
-    m_coDriverController.start().onTrue(m_rgbPanel.purpleCommand());
-    m_coDriverController.back().onTrue(m_rgbPanel.yellowCommand());
     m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(false));
     m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(true));
     m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
@@ -357,9 +363,12 @@ public class RobotContainer {
   }
 
   public Command colour() {
-    if (this.inConeMode()) return m_rgbPanel.yellowCommand().alongWith(new PrintCommand("cone"));
-    else if (this.inCubeMode())
-      return m_rgbPanel.purpleCommand().alongWith(new PrintCommand("cube"));
+    if (this.inConeMode()) return m_rgbPanel.purpleCommand();
+    else if (this.inCubeMode()) return m_rgbPanel.yellowCommand();
     else return m_rgbPanel.getDefaultCommand();
+  }
+
+  public static CommandXboxController getPilot() {
+    return m_driverController;
   }
 }
