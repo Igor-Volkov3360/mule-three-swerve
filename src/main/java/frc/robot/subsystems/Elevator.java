@@ -41,7 +41,7 @@ public class Elevator extends SubsystemBase {
   private static final double kAcc = 2.0;
 
   private static final double kHeightDown = 0.0;
-  private static final double kHeightFeeder = 1.1;
+  private static final double kHeightFeeder = 1.0;
   private static final double kHeightSecond = 1.0;
   private static final double kHeightThird = 1.35;
   private static final double kManualHeight = 0.2;
