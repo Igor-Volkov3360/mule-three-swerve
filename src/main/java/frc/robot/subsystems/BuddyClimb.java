@@ -36,21 +36,19 @@ public class BuddyClimb extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     // System.out.println(RobotContainer.getPilot().getLeftTriggerAxis());
+
+    if (m_isBuddyClimbActivated) {
+      m_buddyLeft.set(
+          RobotContainer.getPilot().getLeftTriggerAxis()
+              - RobotContainer.getPilot().getRightTriggerAxis());
+      m_buddyRight.set(
+          RobotContainer.getPilot().getLeftTriggerAxis()
+              - RobotContainer.getPilot().getRightTriggerAxis());
+    }
   }
 
   public Command control(double speed) {
-    return this.run(
-        () -> {
-          if (m_isBuddyClimbActivated) {
-            m_buddyLeft.set(
-                RobotContainer.getPilot().getLeftTriggerAxis()
-                    - RobotContainer.getPilot().getRightTriggerAxis());
-            m_buddyRight.set(
-                RobotContainer.getPilot().getLeftTriggerAxis()
-                    - RobotContainer.getPilot().getRightTriggerAxis());
-            System.out.println(m_buddyLeft.get());
-          }
-        });
+    return this.run(() -> {});
   }
 
   public Command activate() {
