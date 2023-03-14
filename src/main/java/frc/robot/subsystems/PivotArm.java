@@ -63,7 +63,7 @@ public class PivotArm extends SubsystemBase {
       m_target = m_encoder.getPosition();
     }
 
-    if (!hasSetZero && DriverStation.isEnabled()) this.setZero();
+    if (!hasSetZero && DriverStation.isEnabled()) setZero();
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
@@ -102,9 +102,20 @@ public class PivotArm extends SubsystemBase {
     return m_pivot.getOutputCurrent() > maxResistance;
   }
 
+  /*
+  public Command setZero() {
+    return this.runOnce(
+        () -> {
+          if (hasSetZero == false) {
+            setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
+            hasSetZero = true;
+          }
+        });
+  }
+  */
+
   public void setZero() {
     setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
-    hasSetZero = true;
   }
 
   private Command setSpeed(double speed) {
