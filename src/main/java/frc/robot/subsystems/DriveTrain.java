@@ -298,7 +298,7 @@ public class DriveTrain extends SubsystemBase {
    * More complex path with holonomic rotation. Non-zero starting velocity Max velocity of 4 m/s and
    * max accel of 3 m/s^2
    *
-   * @return
+   * @return a path to follow
    */
   private PathPlannerTrajectory onTheFlyToScoringPos() {
 
@@ -412,4 +412,13 @@ public class DriveTrain extends SubsystemBase {
   public boolean visionDisabled() {
     return m_visionMode == Mode.Disabled;
   }
+
+  /*
+  public Command alignWithVision() {
+
+    return () -> this.resetToCLosestScoringPos();
+    // drive there
+
+  }
+  */
 }

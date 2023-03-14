@@ -23,7 +23,7 @@ public class PivotArm extends SubsystemBase {
   private static final double kHorizontalPercent = 0.02;
   private static final double kNeutralRad = 0.0;
 
-  public final double kUp = 2; // when the gripper is PARRALLEL to the ground
+  public final double kUp = 2.2; // when the gripper is PARRALLEL to the ground
   public final double kDown = 0.0; // when the gripper is PERPENDICULAR to the ground
   private static final double kCube = 0.8;
   private double m_target = kNeutralRad;
@@ -63,6 +63,8 @@ public class PivotArm extends SubsystemBase {
       m_target = m_encoder.getPosition();
     }
 
+    if (!hasSetZero && DriverStation.isEnabled()) this.setZero();
+
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
   }
@@ -100,14 +102,9 @@ public class PivotArm extends SubsystemBase {
     return m_pivot.getOutputCurrent() > maxResistance;
   }
 
-  public Command setZero() {
-    return this.runOnce(
-        () -> {
-          if (hasSetZero == false) {
-            setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
-            hasSetZero = true;
-          }
-        });
+  public void setZero() {
+    setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
+    hasSetZero = true;
   }
 
   private Command setSpeed(double speed) {
