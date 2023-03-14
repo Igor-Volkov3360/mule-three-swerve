@@ -1,0 +1,75 @@
+{
+  "waypoints": [
+    {
+      "anchorPoint": {
+        "x": 2.0285534910692467,
+        "y": 2.759787406367265
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.7445135467407455,
+        "y": 2.8423981820216695
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.9102433809751087,
+        "y": 2.8056822817308236
+      },
+      "prevControl": {
+        "x": 2.9102433809751087,
+        "y": 2.8056822817308236
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    }
+  ],
+  "markers": [
+    {
+      "position": 1.0,
+      "names": [
+        "shootCube",
+        "balance"
+      ]
+    },
+    {
+      "position": 1.0,
+      "names": [
+        "event"
+      ]
+    },
+    {
+      "position": 1.0,
+      "names": [
+        "balance"
+      ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "shootCube"
+      ]
+    }
+  ]
+}

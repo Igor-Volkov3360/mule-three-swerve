@@ -112,6 +112,7 @@ public class RobotContainer {
     m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
     m_chooser.addOption("balance", this.runPathBalance());
     m_chooser.addOption("cone balance", this.runPathConeBalance());
+    m_chooser.addOption("cube balance", this.runPathCubeBalance());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
@@ -337,6 +338,21 @@ public class RobotContainer {
             eventMap);
 
     return coneBalance;
+  }
+
+  public Command runPathCubeBalance() {
+    eventMap.clear();
+    eventMap.put(
+        "shootCube", Sequences.launch(m_intake, m_wheels, WheelLevel.Third, Position.Launch));
+    eventMap.put("balance", m_drive.balance());
+
+    FollowPathWithEvents cubeBalance =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathConeBalance, true, true),
+            pathConeBalance.getMarkers(),
+            eventMap);
+
+    return cubeBalance;
   }
 
   public Command runPathScoreConeShootCubeBalanceRight() {
