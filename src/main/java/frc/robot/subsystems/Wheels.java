@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Wheels extends SubsystemBase {
 
-  public enum Level {
+  public enum WheelLevel {
     Pickup,
     Preload,
     First,
@@ -29,18 +29,21 @@ public class Wheels extends SubsystemBase {
   private static final double kWheelSpeedPreload = -0.25;
   private static final double kWheelSpeed2nd = 0.5;
   private static final double kWheelSpeed3rd = 1.0;
-  private static final double kWheelSpeedHold = -0.05;
+  private static final double kWheelSpeedHold = -0.10;
   private static final double kWheelSpeedPickup = -0.3;
   private static final double kWheelSpeedFirst = 0.15;
 
   private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
   private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
 
-  private Level m_targetLevel = Level.Second;
+  private WheelLevel m_targetLevel = WheelLevel.Second;
   private double m_wheelSpeed = 0;
-  /** Creates a new Wheels. */
-  public Wheels() {
+  private static Intake m_intake;
 
+  /** Creates a new Wheels. */
+  public Wheels(Intake intake) {
+
+    m_intake = intake;
     m_wheelsLeft.restoreFactoryDefaults();
     m_wheelsLeft.setIdleMode(IdleMode.kBrake);
     m_wheelsLeft.setInverted(true);
@@ -58,6 +61,7 @@ public class Wheels extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if (m_intake.getPosition() == m_intake.kInsideRad) m_wheelSpeed = kWheelSpeedHold;
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
   }
@@ -67,7 +71,7 @@ public class Wheels extends SubsystemBase {
    *
    * @param level target level
    */
-  private void setSpeedFor(Level level) {
+  private void setSpeedFor(WheelLevel level) {
     switch (level) {
       case Pickup:
         m_wheelSpeed = kWheelSpeedPickup;
@@ -98,7 +102,7 @@ public class Wheels extends SubsystemBase {
    * @param level throwing level
    * @return forever command
    */
-  public Command holdSpeed(Level level) {
+  public Command holdSpeed(WheelLevel level) {
     return this.run(() -> this.setSpeedFor(level));
   }
 
@@ -113,12 +117,12 @@ public class Wheels extends SubsystemBase {
 
   public Command launchTo() {
     return Commands.sequence(
-        this.holdSpeed(Level.Preload).withTimeout(0.2),
+        this.holdSpeed(WheelLevel.Preload).withTimeout(0.2),
         this.holdSpeed(m_targetLevel).withTimeout(0.5),
         this.stop());
   }
 
-  public Command setTargetLevel(Level level) {
+  public Command setTargetLevel(WheelLevel level) {
     return this.runOnce(() -> m_targetLevel = level);
   }
 }

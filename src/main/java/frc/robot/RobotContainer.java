@@ -32,6 +32,7 @@ import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.RGBControl;
 import frc.robot.subsystems.Vision.Vision;
 import frc.robot.subsystems.Wheels;
+import frc.robot.subsystems.Wheels.WheelLevel;
 import java.util.HashMap;
 
 /**
@@ -59,7 +60,7 @@ public class RobotContainer {
   private final Gripper m_gripper = new Gripper(m_pivotArm);
   private final RGBControl m_rgbPanel = new RGBControl();
   private final BuddyClimb m_buddyClimb = new BuddyClimb();
-  private final Wheels m_wheels = new Wheels();
+  private final Wheels m_wheels = new Wheels(m_intake);
 
   private static final PathConstraints constraints = new PathConstraints(1.0, 1.0);
   // different trajectories
@@ -151,7 +152,12 @@ public class RobotContainer {
     m_driverController.a().onTrue(Sequences.pickup(m_intake, m_wheels).unless(this::inConeMode));
 
     // retract intake
-    m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted).unless(this::inConeMode));
+    m_driverController
+        .b()
+        .onTrue(
+            m_intake
+                .setAngle(Position.Retracted)
+                .alongWith(m_wheels.setTargetLevel(WheelLevel.Hold) /*.unless(this::inConeMode)*/));
 
     // vomit cube to first lvl
     m_driverController.x().onTrue(Sequences.vomit(m_intake, m_wheels));
@@ -171,7 +177,6 @@ public class RobotContainer {
     m_driverController.start().onTrue(m_buddyClimb.activate());
 
     m_driverController.povUp().onTrue(m_drive.balance());
-    m_driverController.rightBumper().onTrue(m_buddyClimb.yeet());
     /*
         m_driverController
             .rightTrigger()
@@ -275,10 +280,12 @@ public class RobotContainer {
     eventMap.put("extendCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("grabCube", Sequences.pickup(m_intake, m_wheels));
     eventMap.put(
-        "shootCube", Sequences.launch(m_intake, m_wheels, Wheels.Level.Third, Position.Launch));
+        "shootCube",
+        Sequences.launch(m_intake, m_wheels, Wheels.WheelLevel.Third, Position.Launch));
     eventMap.put("grabCube2", Sequences.pickup(m_intake, m_wheels));
     eventMap.put(
-        "shootCube2", Sequences.launch(m_intake, m_wheels, Wheels.Level.Second, Position.Launch));
+        "shootCube2",
+        Sequences.launch(m_intake, m_wheels, Wheels.WheelLevel.Second, Position.Launch));
 
     FollowPathWithEvents scoreCone2CubesLeft =
         new FollowPathWithEvents(
@@ -337,10 +344,12 @@ public class RobotContainer {
     eventMap.put("extendCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("grabCube", Sequences.pickup(m_intake, m_wheels));
     eventMap.put(
-        "shootCube", Sequences.launch(m_intake, m_wheels, Wheels.Level.Third, Position.Launch));
+        "shootCube",
+        Sequences.launch(m_intake, m_wheels, Wheels.WheelLevel.Third, Position.Launch));
     eventMap.put("grabCube2", Sequences.pickup(m_intake, m_wheels));
     eventMap.put(
-        "shootCube2", Sequences.launch(m_intake, m_wheels, Wheels.Level.Second, Position.Launch));
+        "shootCube2",
+        Sequences.launch(m_intake, m_wheels, Wheels.WheelLevel.Second, Position.Launch));
 
     FollowPathWithEvents scoreCone2CubesRight =
         new FollowPathWithEvents(
@@ -356,10 +365,12 @@ public class RobotContainer {
     eventMap.put("extendCone", Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper));
     eventMap.put("grabCube", Sequences.pickup(m_intake, m_wheels));
     eventMap.put(
-        "shootCube", Sequences.launch(m_intake, m_wheels, Wheels.Level.Third, Position.Launch));
+        "shootCube",
+        Sequences.launch(m_intake, m_wheels, Wheels.WheelLevel.Third, Position.Launch));
     eventMap.put("grabCube2", Sequences.pickup(m_intake, m_wheels));
     eventMap.put(
-        "shootCube2", Sequences.launch(m_intake, m_wheels, Wheels.Level.Second, Position.Launch));
+        "shootCube2",
+        Sequences.launch(m_intake, m_wheels, Wheels.WheelLevel.Second, Position.Launch));
 
     FollowPathWithEvents scoreCone2CubesRight =
         new FollowPathWithEvents(

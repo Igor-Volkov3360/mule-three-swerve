@@ -8,6 +8,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
@@ -52,14 +53,12 @@ public class BuddyClimb extends SubsystemBase {
   }
 
   public Command activate() {
-    return this.runOnce(
-        () -> {
-          m_isBuddyClimbActivated = true;
-        });
-  }
-
-  public Command yeet() {
-    return this.runOnce(() -> m_yeetScrew.setRaw(1))
-        .andThen(new WaitCommand(15).andThen(() -> m_yeetScrew.setRaw(0)));
+    return new SequentialCommandGroup(
+        this.runOnce(
+            () -> {
+              m_isBuddyClimbActivated = true;
+            }),
+        this.runOnce(() -> m_yeetScrew.setRaw(1))
+            .andThen(new WaitCommand(15).andThen(() -> m_yeetScrew.setRaw(0))));
   }
 }
