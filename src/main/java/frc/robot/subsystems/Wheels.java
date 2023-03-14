@@ -27,7 +27,7 @@ public class Wheels extends SubsystemBase {
   private static final int kWheelsRight = 18;
 
   private static final double kWheelSpeedPreload = -0.25;
-  private static final double kWheelSpeed2nd = 0.5;
+  private static final double kWheelSpeed2nd = 0.8;
   private static final double kWheelSpeed3rd = 1.0;
   private static final double kWheelSpeedHold = -0.10;
   private static final double kWheelSpeedPickup = -0.3;
@@ -36,7 +36,7 @@ public class Wheels extends SubsystemBase {
   private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
   private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
 
-  private WheelLevel m_targetLevel = WheelLevel.Second;
+  private WheelLevel m_targetLevel = WheelLevel.Stop;
   private double m_wheelSpeed = 0;
   private static Intake m_intake;
 
@@ -64,6 +64,8 @@ public class Wheels extends SubsystemBase {
     if (m_intake.getPosition() == m_intake.kInsideRad) m_wheelSpeed = kWheelSpeedHold;
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
+
+    System.out.println(m_wheelSpeed + "    " + m_targetLevel);
   }
 
   /**

@@ -83,7 +83,9 @@ public class RobotContainer {
 
   PathPlannerTrajectory pathConeBalance = PathPlanner.loadPath("cone balance", constraints);
 
-  PathPlannerTrajectory pathCubeBalance = PathPlanner.loadPath("cube balance", 2.0, 2.0);
+  PathPlannerTrajectory pathCubeBalance = PathPlanner.loadPath("cube balance", constraints);
+
+  PathPlannerTrajectory pathCube = PathPlanner.loadPath("cube", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -113,6 +115,7 @@ public class RobotContainer {
     m_chooser.addOption("balance", this.runPathBalance());
     m_chooser.addOption("cone balance", this.runPathConeBalance());
     m_chooser.addOption("cube balance", this.runPathCubeBalance());
+    m_chooser.addOption("cube", this.runPathCube());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
@@ -187,9 +190,9 @@ public class RobotContainer {
             .onTrue(m_buddyClimb.control(-m_driverController.getRightTriggerAxis()));
     */
     // launches cube to right lvl if in cube mode, and cone if in cone mode
-    // m_coDriverController.a().onTrue(m_intake.launchTo().unless(this::inConeMode));
-    // m_coDriverController.a().onTrue(m_elevator.extend().unless(this::inCubeMode));
-    m_coDriverController.a().onTrue(m_wheels.launchTo().unless(this::inConeMode));
+    m_coDriverController
+        .a()
+        .onTrue(Commands.either(m_wheels.launchTo(), m_elevator.extend(), this::inCubeMode));
 
     m_coDriverController.b().onTrue(m_gripper.changeState());
     m_coDriverController
@@ -395,6 +398,20 @@ public class RobotContainer {
             eventMap);
 
     return scoreCone2CubesRight;
+  }
+
+  public Command runPathCube() {
+    eventMap.clear();
+    eventMap.put("down", m_intake.setAngle(Position.Pickup));
+    eventMap.put("intake", Sequences.pickup(m_intake, m_wheels));
+    eventMap.put(
+        "shoot", Sequences.setTargetThirdIntake(m_intake, m_wheels).andThen(m_wheels.launchTo()));
+
+    FollowPathWithEvents cube =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathCube, true, true), pathCube.getMarkers(), eventMap);
+
+    return cube;
   }
 
   public Command colour() {
