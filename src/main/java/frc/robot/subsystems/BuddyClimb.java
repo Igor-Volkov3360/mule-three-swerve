@@ -51,10 +51,6 @@ public class BuddyClimb extends SubsystemBase {
     }
   }
 
-  public Command control(double speed) {
-    return this.run(() -> {});
-  }
-
   public Command activate() {
     return this.runOnce(
         () -> {
@@ -64,6 +60,6 @@ public class BuddyClimb extends SubsystemBase {
 
   public Command yeet() {
     return this.runOnce(() -> m_yeetScrew.setRaw(1))
-        .andThen(new WaitCommand(2).andThen(() -> m_yeetScrew.setRaw(0)));
+        .andThen(new WaitCommand(15).andThen(() -> m_yeetScrew.setRaw(0)));
   }
 }
