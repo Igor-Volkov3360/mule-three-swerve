@@ -65,9 +65,9 @@ public class Sequences {
   public static Command pickup(Intake intake, Wheels wheels) {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
-        wheels.holdSpeed(Wheels.Level.Pickup).until(intake::hasCube),
+        wheels.holdSpeed(Wheels.WheelLevel.Pickup).until(intake::hasCube),
         intake.setAngle(Position.Retracted),
-        wheels.holdSpeed(Wheels.Level.Hold).until(intake::noCube));
+        wheels.holdSpeed(Wheels.WheelLevel.Hold).until(intake::noCube));
   }
 
   /**
@@ -76,29 +76,31 @@ public class Sequences {
    * @return launch of a cube
    */
   public static Command launch(
-      Intake intake, Wheels wheels, Wheels.Level level, Position position) {
+      Intake intake, Wheels wheels, Wheels.WheelLevel level, Position position) {
     return Commands.sequence(
         intake.setAngle(position),
-        wheels.holdSpeed(Wheels.Level.Preload).withTimeout(0.2),
+        wheels.holdSpeed(Wheels.WheelLevel.Preload).withTimeout(0.2),
         wheels.holdSpeed(level).withTimeout(0.5));
   }
 
   public static Command vomit(Intake intake, Wheels wheels) {
     return Commands.sequence(
         intake.setAngle(Position.Pickup).withTimeout(2),
-        wheels.setTargetLevel(Wheels.Level.First),
+        wheels.setTargetLevel(Wheels.WheelLevel.First),
         wheels.launchTo());
   }
 
   public static Command setTargetThirdIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
-        intake.setAngle(Intake.Position.Launch).andThen(wheels.setTargetLevel(Wheels.Level.Third)));
+        intake
+            .setAngle(Intake.Position.Launch)
+            .andThen(wheels.setTargetLevel(Wheels.WheelLevel.Third)));
   }
 
   public static Command setTargetSecondIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
         intake
             .setAngle(Intake.Position.Launch)
-            .andThen(wheels.setTargetLevel(Wheels.Level.Second)));
+            .andThen(wheels.setTargetLevel(Wheels.WheelLevel.Second)));
   }
 }

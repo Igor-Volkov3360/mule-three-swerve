@@ -31,7 +31,7 @@ public class Intake extends SubsystemBase {
   private static final double kP = 5.0;
 
   private static final double kStoredRad = 0.45;
-  private static final double kInsideRad = 0.30;
+  public static final double kInsideRad = 0.30;
   private static final double kOutsideRad = 0.01;
   private static final double kLaunchRad = 0.2;
   private static double kDeadzoneRad = 0.05;
@@ -147,5 +147,9 @@ public class Intake extends SubsystemBase {
 
   public boolean noCube() {
     return !hasCube();
+  }
+
+  public double getPosition() {
+    return m_targetRad;
   }
 }
