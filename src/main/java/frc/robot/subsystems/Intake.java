@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
   private static final double kInsideRad = 0.30;
   private static final double kOutsideRad = 0.01;
   private static final double kLaunchRad = 0.2;
-  private static double kDeadzoneRad = 0.01;
+  private static double kDeadzoneRad = 0.05;
 
   // Member objects
   private final CANSparkMax m_pivot = new CANSparkMax(kPivot, MotorType.kBrushless);

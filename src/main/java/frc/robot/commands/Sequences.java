@@ -22,13 +22,15 @@ public class Sequences {
     return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setTarget("up"));
   }
 
-  public static Command SwitchToCone(Elevator elevator, Intake intake, PivotArm pivotArm) {
+  public static Command SwitchToCone(
+      Elevator elevator, Intake intake, PivotArm pivotArm, Gripper gripper) {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         pivotArm.setTarget("up"),
         new WaitCommand(0.2),
         elevator.extendTo(Level.Sequences),
         intake.setAngle(Position.Stored),
+        new WaitCommand(0.3),
         elevator.extendTo(Level.Down));
   }
 
@@ -43,22 +45,18 @@ public class Sequences {
 
   public static Command scoreConeThird(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
     return Commands.sequence(
-        gripper.changeState(),
         elevator.extendTo(Elevator.Level.Third),
         pivotArm.setTarget("up"),
         gripper.changeState(),
-        elevator.extendTo(Level.Down),
-        pivotArm.setTarget("down"));
+        elevator.extendTo(Level.Down));
   }
 
   public static Command scoreConeSecond(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
     return Commands.sequence(
-        gripper.changeState(),
         elevator.extendTo(Elevator.Level.Second),
         pivotArm.setTarget("up"),
         gripper.changeState(),
-        elevator.extendTo(Level.Down),
-        pivotArm.setTarget("down"));
+        elevator.extendTo(Level.Down));
   }
 
   /**
@@ -92,5 +90,17 @@ public class Sequences {
         intake.setAngle(Position.Pickup).withTimeout(2),
         wheels.setTargetLevel(Wheels.Level.First),
         wheels.launchTo());
+  }
+
+  public static Command setTargetThirdIntake(Intake intake, Wheels wheels) {
+    return Commands.sequence(
+        intake.setAngle(Intake.Position.Launch).andThen(wheels.setTargetLevel(Wheels.Level.Third)));
+  }
+
+  public static Command setTargetSecondIntake(Intake intake, Wheels wheels) {
+    return Commands.sequence(
+        intake
+            .setAngle(Intake.Position.Launch)
+            .andThen(wheels.setTargetLevel(Wheels.Level.Second)));
   }
 }

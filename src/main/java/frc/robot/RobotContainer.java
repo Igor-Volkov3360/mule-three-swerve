@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -126,9 +127,9 @@ public class RobotContainer {
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
 
-    m_gripper.setDefaultCommand(m_gripper.stop());
     m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
     // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
+
     configureBindings();
   }
 
@@ -142,6 +143,9 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
+
+    // Mapping a different command on the same button according to the current mode example!
+    // m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
 
     // pick up coob
     m_driverController.a().onTrue(Sequences.pickup(m_intake, m_wheels).unless(this::inConeMode));
@@ -165,6 +169,8 @@ public class RobotContainer {
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
+
+    m_driverController.povUp().onTrue(m_drive.balance());
     /*
         m_driverController
             .rightTrigger()
@@ -182,19 +188,20 @@ public class RobotContainer {
     m_coDriverController
         .x()
         .onTrue(
-            m_intake
-                .setAngle(Position.Launch)
-                .andThen(m_wheels.setTargetLevel(Wheels.Level.Second)));
+            Commands.either(
+                Sequences.setTargetSecondIntake(m_intake, m_wheels),
+                Sequences.scoreConeSecond(m_elevator, m_pivotArm, m_gripper),
+                this::inCubeMode));
     m_coDriverController
         .y()
         .onTrue(
-            m_intake
-                .setAngle(Position.Launch)
-                .andThen(m_wheels.setTargetLevel(Wheels.Level.Third)));
-    m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
+            Commands.either(
+                Sequences.setTargetThirdIntake(m_intake, m_wheels),
+                Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper),
+                this::inCubeMode));
 
-    // Mapping a different command on the same button according to the current mode example!
-    // m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
+    m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
+    m_coDriverController.rightBumper().onTrue(m_gripper.defaultWinch());
 
     // toggle robot modes
     m_coDriverController
@@ -208,7 +215,7 @@ public class RobotContainer {
     m_coDriverController
         .back()
         .onTrue(
-            Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm)
+            Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm, m_gripper)
                 // .unless(this::inConeMode)
                 .andThen(this.setMode(RobotMode.Cone))
                 .alongWith(m_rgbPanel.yellowCommand())

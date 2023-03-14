@@ -94,7 +94,7 @@ public class DriveTrain extends SubsystemBase {
 
   private final Vision m_vision;
 
-  LinearFilter m_xAccel = LinearFilter.movingAverage(10);
+  LinearFilter m_xAccel = LinearFilter.movingAverage(30);
 
   // Process variables
   private double m_lastVisionTimestamp = -1.0;
@@ -116,6 +116,7 @@ public class DriveTrain extends SubsystemBase {
   public void periodic() {
     // Call module periodic
     inDeadband();
+    filteredX = m_xAccel.calculate(m_accelerometer.getX());
 
     for (final var module : m_modules) {
       module.periodic();
@@ -140,7 +141,7 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
-    // System.out.println(m_gyro.getAngle());
+    // System.out.println(m_accelerometer.getZ());
   }
 
   private void setVisionFor(Mode mode) {
@@ -344,19 +345,19 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public Command balance() {
-    return this.run(() -> drive(-0.4, 0, 0, true))
+    return this.run(() -> drive(0.6, 0, 0, true))
         .until(this::inAngle)
-        .andThen(this.run(() -> drive(-0.2, 0, 0, true)))
+        .andThen(this.run(() -> drive(0.4, 0, 0, true)))
         .until(this::parallel)
         .andThen(this.runOnce(() -> drive(0, 0, 0, true)));
   }
 
   public boolean inAngle() {
-    return filteredX > 0.1;
+    return filteredX > 0.3;
   }
 
   public boolean parallel() {
-    return filteredX < 0.1;
+    return filteredX < 0.3 && filteredX > -0.3;
   }
 
   /**

@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -14,15 +15,17 @@ public class Gripper extends SubsystemBase {
   // Subsystem parameters
   private static final int kGripperId = 15;
 
-  private static final double kOpenPosition = 0;
-  private static final double kClosePositionCone = -30;
-  private static final double kCloseUpPositionCone = kClosePositionCone - 30;
+  private static final double kOpenPosition = 60;
+  private static final double kClosePositionCone = 0;
+  private static final double kCloseUpPositionCone = kClosePositionCone - 15;
 
-  private static final double kMultiplier = 0.25;
+  private static final double kp = 0.05;
+  private double err = 0;
+  private double cmd = 0;
+  private static final int kMaxCurrent = 10;
 
   private double m_target = kOpenPosition;
   private boolean m_open = true;
-
   // private double[] atRightPose = {0.0, 0.0, 0.0};
 
   // Member objects
@@ -33,6 +36,7 @@ public class Gripper extends SubsystemBase {
   public Gripper(PivotArm pivot) {
 
     m_gripper.restoreFactoryDefaults();
+    m_gripper.setSmartCurrentLimit(kMaxCurrent);
     m_gripper.burnFlash();
     m_pivot = pivot;
   }
@@ -41,22 +45,10 @@ public class Gripper extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    m_gripper.set(motorSpeed() * kMultiplier);
-    System.out.println(
-        m_open
-            + "       "
-            + m_target
-            + "       "
-            + m_gripper.getEncoder().getPosition()
-            + "       "
-            + m_gripper.getAppliedOutput()
-            + "       "
-            + m_gripper.getOutputCurrent());
-    System.out.println(motorSpeed() * kMultiplier);
-  }
-
-  public Command stop() {
-    return this.runOnce(() -> m_gripper.set(0));
+    err = m_target - m_gripper.getEncoder().getPosition();
+    cmd = err * kp;
+    m_gripper.set(MathUtil.clamp(cmd, -0.7, 0.7));
+    System.out.println(m_open);
   }
 
   /**
@@ -74,12 +66,17 @@ public class Gripper extends SubsystemBase {
         });
   }
 
-  private double motorSpeed() {
-    return (m_target - m_gripper.getEncoder().getPosition());
+  public Command holdTarget() {
+    return this.run(
+        () -> {
+          if (m_open) m_target = kOpenPosition;
+          else if (m_pivot.getTarget() == m_pivot.kDown) m_target = kClosePositionCone;
+          else if (m_pivot.getTarget() == m_pivot.kUp) m_target = kCloseUpPositionCone;
+        });
   }
 
-  public Command manualWind() {
-    return this.run(() -> m_gripper.set(-0.1));
+  public void manualWind() {
+    m_gripper.set(-0.7);
   }
 
   /**
@@ -88,6 +85,15 @@ public class Gripper extends SubsystemBase {
    * @return opening and closing of the gripper
    */
   public Command changeState() {
-    return this.runOnce(() -> m_open = !m_open).andThen(this.setTarget());
+    return this.runOnce(() -> m_open = !m_open).andThen(this.runOnce(() -> this.setTarget()));
+  }
+
+  public Command defaultWinch() {
+    return this.run(() -> m_gripper.set(-0.4))
+        .withTimeout(2)
+        .andThen(
+            this.runOnce(() -> m_gripper.getEncoder().setPosition(0.0))
+                .andThen(runOnce(() -> m_open = true))
+                .andThen(this.setTarget()));
   }
 }

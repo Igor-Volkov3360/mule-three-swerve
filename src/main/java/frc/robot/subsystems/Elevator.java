@@ -142,7 +142,11 @@ public class Elevator extends SubsystemBase {
    */
   public Command extendTo(Level level) {
     return new SequentialCommandGroup(
-        this.runOnce(() -> m_pid.reset(m_encoder.getPosition())),
+        this.runOnce(
+            () -> {
+              m_pid.reset(m_encoder.getPosition());
+              this.setHeightFor(level);
+            }),
         this.run(() -> this.setHeightFor(level)).until(this::onTarget));
   }
 
