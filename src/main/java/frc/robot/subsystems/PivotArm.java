@@ -63,7 +63,7 @@ public class PivotArm extends SubsystemBase {
       m_target = m_encoder.getPosition();
     }
 
-    if (!hasSetZero && DriverStation.isEnabled()) setZero();
+    // if (!hasSetZero && DriverStation.isEnabled()) setZero();
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
