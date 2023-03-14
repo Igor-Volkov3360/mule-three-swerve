@@ -85,7 +85,7 @@ public class Gripper extends SubsystemBase {
    * @return opening and closing of the gripper
    */
   public Command changeState() {
-    return this.runOnce(() -> m_open = !m_open).andThen(this.runOnce(() -> this.setTarget()));
+    return this.runOnce(() -> m_open = !m_open).andThen(this.setTarget());
   }
 
   public Command defaultWinch() {

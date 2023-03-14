@@ -294,8 +294,12 @@ public class DriveTrain extends SubsystemBase {
                 this));
   }
 
-  // More complex path with holonomic rotation. Non-zero starting velocity Max velocity of 4 m/s and
-  // max accel of 3 m/s^2
+  /**
+   * More complex path with holonomic rotation. Non-zero starting velocity Max velocity of 4 m/s and
+   * max accel of 3 m/s^2
+   *
+   * @return
+   */
   private PathPlannerTrajectory onTheFlyToScoringPos() {
 
     final var alliance = DriverStation.getAlliance();
@@ -396,8 +400,10 @@ public class DriveTrain extends SubsystemBase {
     YScoringPos = (Math.round(YCurrentBox) * scoringGridIncrements) + minYScoringPos;
   }
 
-  /* Mode == new or latest */
-
+  /**
+   * @param mode Mode == new or latest
+   * @return
+   */
   public Command setVisionMode(Mode mode) {
     m_visionMode = mode;
     return this.runOnce(() -> setVisionFor(mode));

@@ -171,6 +171,7 @@ public class RobotContainer {
     m_driverController.start().onTrue(m_buddyClimb.activate());
 
     m_driverController.povUp().onTrue(m_drive.balance());
+    m_driverController.rightBumper().onTrue(m_buddyClimb.yeet());
     /*
         m_driverController
             .rightTrigger()

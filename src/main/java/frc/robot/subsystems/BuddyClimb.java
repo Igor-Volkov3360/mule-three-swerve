@@ -6,8 +6,10 @@ package frc.robot.subsystems;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
 
 public class BuddyClimb extends SubsystemBase {
@@ -19,6 +21,8 @@ public class BuddyClimb extends SubsystemBase {
 
   private CANSparkMax m_buddyLeft = new CANSparkMax(buddyLeftId, MotorType.kBrushless);
   private CANSparkMax m_buddyRight = new CANSparkMax(buddyRightId, MotorType.kBrushless);
+
+  private Servo m_yeetScrew = new Servo(0);
 
   /** Creates a new BuddyClimb. */
   public BuddyClimb() {
@@ -56,5 +60,10 @@ public class BuddyClimb extends SubsystemBase {
         () -> {
           m_isBuddyClimbActivated = true;
         });
+  }
+
+  public Command yeet() {
+    return this.runOnce(() -> m_yeetScrew.setRaw(1))
+        .andThen(new WaitCommand(2).andThen(() -> m_yeetScrew.setRaw(0)));
   }
 }

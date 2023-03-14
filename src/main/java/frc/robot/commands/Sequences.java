@@ -47,7 +47,6 @@ public class Sequences {
     return Commands.sequence(
         elevator.extendTo(Elevator.Level.Third),
         pivotArm.setTarget("up"),
-        gripper.changeState(),
         elevator.extendTo(Level.Down));
   }
 
@@ -55,7 +54,6 @@ public class Sequences {
     return Commands.sequence(
         elevator.extendTo(Elevator.Level.Second),
         pivotArm.setTarget("up"),
-        gripper.changeState(),
         elevator.extendTo(Level.Down));
   }
 
