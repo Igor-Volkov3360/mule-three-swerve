@@ -87,12 +87,9 @@ public class RobotContainer {
 
   PathPlannerTrajectory pathCubeBalance = PathPlanner.loadPath("cube balance", constraints);
 
-  PathPlannerTrajectory pathCube = PathPlanner.loadPath("shoot dont move", constraints);
+  PathPlannerTrajectory pathCube = PathPlanner.loadPath("cube", constraints);
 
-  PathPlannerTrajectory pathGetCube = PathPlanner.loadPath("cube", constraints);
-
-  PathPlannerTrajectory pathShootCubeGetCubeShoot =
-      PathPlanner.loadPath("shoot cube grab cube shoot cube", constraints);
+  PathPlannerTrajectory pathSingleCube = PathPlanner.loadPath("single cube", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -120,17 +117,11 @@ public class RobotContainer {
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
     m_chooser.addOption("begin with cone 2 cubes left", this.runPathScoreCone2CubesLeft());
     m_chooser.addOption("cone cube balance left", this.runPathScoreConeShootCubeBalanceLeft());
-    /*
-        m_chooser.addOption("begin with cone 2 cubes right", this.runPathScoreCone2CubesRight());
-        m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
-        m_chooser.addOption("balance", this.runPathBalance());
-        m_chooser.addOption("cone balance", this.runPathConeBalance());
-        m_chooser.addOption("cube balance", this.runPathCubeBalance());
-        m_chooser.addOption("cube dont move", this.runPathCubeDontMove());
-        m_chooser.addOption("fuken go", this.fukenGo());
-        m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
-        m_chooser.addOption("mode auto good", this.runShootCubeGrabCube());
-    */
+    m_chooser.addOption("begin with cone 2 cubes right", this.runPathScoreCone2CubesRight());
+    m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
+    m_chooser.addOption("balance", this.runPathBalance());
+    m_chooser.addOption("cone balance", this.runPathConeBalance());
+    m_chooser.addOption("cube balance", this.runPathCubeBalance());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
     camera = Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
@@ -407,34 +398,6 @@ public class RobotContainer {
             eventMap);
 
     return scoreCone2CubesRight;
-  }
-
-  public Command runPathCubeDontMove() {
-    eventMap.clear();
-    eventMap.put(
-        "shoot", Sequences.setTargetThirdIntake(m_intake, m_wheels).andThen(m_wheels.launchTo()));
-
-    FollowPathWithEvents cube =
-        new FollowPathWithEvents(
-            m_drive.followPathCommand(pathCube, true, true), pathCube.getMarkers(), eventMap);
-
-    return cube;
-  }
-
-  public Command runShootCubeGrabCube() {
-    eventMap.clear();
-
-    eventMap.put("shootCube", Sequences.setTargetSecondIntake(m_intake, m_wheels));
-    eventMap.put("down", m_intake.setAngle(Position.Pickup));
-    eventMap.put("intake", Sequences.pickup(m_intake, m_wheels));
-
-    FollowPathWithEvents cubesequence =
-        new FollowPathWithEvents(
-            m_drive.followPathCommand(pathShootCubeGetCubeShoot, true, true),
-            pathShootCubeGetCubeShoot.getMarkers(),
-            eventMap);
-
-    return cubesequence;
   }
 
   public Command colour() {
