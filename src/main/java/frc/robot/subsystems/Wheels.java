@@ -36,7 +36,7 @@ public class Wheels extends SubsystemBase {
   private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
   private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
 
-  private WheelLevel m_targetLevel = WheelLevel.Stop;
+  private WheelLevel m_targetLevel = WheelLevel.Third;
   private double m_wheelSpeed = 0;
   private static Intake m_intake;
 

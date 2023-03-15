@@ -158,10 +158,7 @@ public class RobotContainer {
     // retract intake
     m_driverController
         .b()
-        .onTrue(
-            m_intake
-                .setAngle(Position.Retracted)
-                .alongWith(m_wheels.setTargetLevel(WheelLevel.Hold) /*.unless(this::inConeMode)*/));
+        .onTrue(m_intake.setAngle(Position.Retracted) /*.unless(this::inConeMode)*/);
 
     // vomit cube to first lvl
     m_driverController.x().onTrue(Sequences.vomit(m_intake, m_wheels));
