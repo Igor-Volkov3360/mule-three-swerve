@@ -18,6 +18,9 @@ import frc.robot.subsystems.Wheels;
 /** Add your docs here. */
 public class Sequences {
 
+  private static final double kPreloadTime = 0.2;
+  private static final double kLaunchTime = 0.5;
+
   public static Command PickConeFromFeeder(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
     return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setTarget("up"));
   }
@@ -27,7 +30,7 @@ public class Sequences {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         pivotArm.setTarget("up"),
-        new WaitCommand(0.2),
+        new WaitCommand(kPreloadTime),
         elevator.extendTo(Level.Sequences),
         intake.setAngle(Position.Stored),
         new WaitCommand(0.3),
@@ -79,8 +82,8 @@ public class Sequences {
       Intake intake, Wheels wheels, Wheels.WheelLevel level, Position position) {
     return Commands.sequence(
         intake.setAngle(position),
-        wheels.holdSpeed(Wheels.WheelLevel.Preload).withTimeout(0.2),
-        wheels.holdSpeed(level).withTimeout(0.5));
+        wheels.holdSpeed(Wheels.WheelLevel.Preload).withTimeout(kPreloadTime),
+        wheels.holdSpeed(level).withTimeout(kLaunchTime));
   }
 
   public static Command vomit(Intake intake, Wheels wheels) {

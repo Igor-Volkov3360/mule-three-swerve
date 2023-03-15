@@ -29,9 +29,11 @@ public class Wheels extends SubsystemBase {
   private static final double kWheelSpeedPreload = -0.25;
   private static final double kWheelSpeed2nd = 0.8;
   private static final double kWheelSpeed3rd = 1.0;
-  private static final double kWheelSpeedHold = -0.10;
+  private static final double kWheelSpeedHold = -0.02;
   private static final double kWheelSpeedPickup = -0.3;
-  private static final double kWheelSpeedFirst = 0.15;
+  private static final double kWheelSpeedFirst = 0.10;
+  private static final double kPreloadTime = 0.2;
+  private static final double kLaunchTime = 0.5;
 
   private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
   private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
@@ -65,7 +67,7 @@ public class Wheels extends SubsystemBase {
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
 
-    System.out.println(m_wheelSpeed + "    " + m_targetLevel);
+    // System.out.println(m_wheelSpeed + "    " + m_targetLevel);
   }
 
   /**
@@ -119,8 +121,8 @@ public class Wheels extends SubsystemBase {
 
   public Command launchTo() {
     return Commands.sequence(
-        this.holdSpeed(WheelLevel.Preload).withTimeout(0.2),
-        this.holdSpeed(m_targetLevel).withTimeout(0.5),
+        this.holdSpeed(WheelLevel.Preload).withTimeout(kPreloadTime),
+        this.holdSpeed(m_targetLevel).withTimeout(kLaunchTime),
         this.stop());
   }
 

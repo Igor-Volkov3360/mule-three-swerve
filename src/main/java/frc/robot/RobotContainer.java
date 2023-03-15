@@ -217,7 +217,7 @@ public class RobotContainer {
             Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm)
                 // .unless(this::inCubeMode)
                 .andThen(this.setMode(RobotMode.Cube))
-                .alongWith(m_rgbPanel.purpleCommand())
+                .andThen(this.colour())
                 .alongWith(new PrintCommand("Cube Mode")));
     m_coDriverController
         .back()
@@ -225,7 +225,7 @@ public class RobotContainer {
             Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm, m_gripper)
                 // .unless(this::inConeMode)
                 .andThen(this.setMode(RobotMode.Cone))
-                .alongWith(m_rgbPanel.yellowCommand())
+                .andThen(this.colour())
                 .alongWith(new PrintCommand("Cone Mode")));
 
     m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(false));

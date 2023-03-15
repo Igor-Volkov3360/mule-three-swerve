@@ -63,6 +63,13 @@ public class PivotArm extends SubsystemBase {
       m_target = m_encoder.getPosition();
     }
 
+    /*
+    if (!hasSetZero) {
+      setZero();
+      hasSetZero = true;
+    }
+    */
+
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
   }
@@ -81,8 +88,7 @@ public class PivotArm extends SubsystemBase {
           else if (position == "cube") m_target = kCube;
         });
   }
-  // mini neo = 110rpm at 100%
-  // neo 567 at 100%
+
   public Command compensate(double position, double speed) {
     return setTarget("down");
   }
