@@ -347,9 +347,8 @@ public class RobotContainer {
 
   public Command runPathCubeBalance() {
     eventMap.clear();
-    eventMap.put(
-        "shootCube", Sequences.launch(m_intake, m_wheels, WheelLevel.Third, Position.Launch));
-    eventMap.put("balance", m_drive.balance());
+    eventMap.put("shoot", Sequences.launch(m_intake, m_wheels, WheelLevel.Third, Position.Launch));
+    // eventMap.put("balance", m_drive.balance());
 
     FollowPathWithEvents cubeBalance =
         new FollowPathWithEvents(

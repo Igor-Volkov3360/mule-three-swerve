@@ -70,6 +70,12 @@
       "names": [
         "shootCube"
       ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "shoot"
+      ]
     }
   ]
 }
