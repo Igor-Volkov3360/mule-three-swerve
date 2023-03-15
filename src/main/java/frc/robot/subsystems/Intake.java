@@ -43,6 +43,7 @@ public class Intake extends SubsystemBase {
 
   // Process variables
   private double m_targetRad = kInsideRad;
+  private boolean isStopped = false;
 
   /** Creates a new Intake. */
   public Intake() {
@@ -65,7 +66,7 @@ public class Intake extends SubsystemBase {
     }
 
     // uncomment for pivot operation
-    m_pivot.set(computePivotPercent());
+    if (!isStopped) m_pivot.set(computePivotPercent());
 
     // System.out.println(hasCube());
   }
@@ -151,5 +152,9 @@ public class Intake extends SubsystemBase {
 
   public double getPosition() {
     return m_targetRad;
+  }
+
+  public Command stop() {
+    return this.runOnce(() -> isStopped = true);
   }
 }

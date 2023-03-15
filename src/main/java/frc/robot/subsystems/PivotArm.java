@@ -63,12 +63,7 @@ public class PivotArm extends SubsystemBase {
       m_target = m_encoder.getPosition();
     }
 
-    /*
-    if (!hasSetZero) {
-      setZero();
-      hasSetZero = true;
-    }
-    */
+    setZero();
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
@@ -119,7 +114,10 @@ public class PivotArm extends SubsystemBase {
   */
 
   public void setZero() {
-    setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
+    if (!hasSetZero) {
+      setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
+      hasSetZero = true;
+    }
   }
 
   private Command setSpeed(double speed) {

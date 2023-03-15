@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.Wheels.WheelLevel;
 
 public class BuddyClimb extends SubsystemBase {
 
@@ -25,8 +26,21 @@ public class BuddyClimb extends SubsystemBase {
 
   private Servo m_yeetScrew = new Servo(0);
 
+  private Intake m_intake;
+  private Wheels m_wheels;
+  private PivotArm m_pivot;
+  private Gripper m_gripper;
+  private Elevator m_elevator;
+
   /** Creates a new BuddyClimb. */
-  public BuddyClimb() {
+  public BuddyClimb(
+      Intake intake, Wheels wheels, PivotArm pivot, Gripper gripper, Elevator elevator) {
+
+    m_intake = intake;
+    m_wheels = wheels;
+    m_pivot = pivot;
+    m_gripper = gripper;
+    m_elevator = elevator;
 
     m_buddyLeft.restoreFactoryDefaults();
     m_buddyRight.restoreFactoryDefaults();
@@ -60,5 +74,18 @@ public class BuddyClimb extends SubsystemBase {
             }),
         this.runOnce(() -> m_yeetScrew.setRaw(1))
             .andThen(new WaitCommand(15).andThen(() -> m_yeetScrew.setRaw(0))));
+  }
+
+  /**
+   * This function is used to stop every subsystems when we are climbing
+   *
+   * @return alt + f4
+   */
+  private Command stopEverything() {
+    return this.runOnce(
+        () ->
+            m_intake
+                .stop()
+                .alongWith(m_wheels.holdSpeed(WheelLevel.Stop).alongWith(m_elevator.stop())));
   }
 }
