@@ -91,6 +91,8 @@ public class RobotContainer {
 
   PathPlannerTrajectory pathSingleCube = PathPlanner.loadPath("single cube", constraints);
 
+  PathPlannerTrajectory path2Cubes = PathPlanner.loadPath("2 cubes", constraints);
+
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed

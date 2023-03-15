@@ -2,15 +2,15 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.0,
-        "y": 3.0
+        "x": 1.9350715611153444,
+        "y": 4.409462709550419
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0,
-        "y": 3.0
+        "x": 3.3416275964496376,
+        "y": 4.795894496302881
       },
-      "holonomicAngle": 0,
+      "holonomicAngle": 179.78682391084064,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -24,16 +24,41 @@
     },
     {
       "anchorPoint": {
-        "x": 3.0,
-        "y": 5.0
+        "x": 5.105737412863715,
+        "y": 5.0157848527502615
       },
       "prevControl": {
-        "x": 3.0,
-        "y": 4.0
+        "x": 4.736470063217905,
+        "y": 4.984761292439252
       },
       "nextControl": {
-        "x": 3.0,
-        "y": 4.0
+        "x": 5.649197546243083,
+        "y": 5.0614430140816
+      },
+      "holonomicAngle": -178.27997845979684,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.474833223972003,
+        "y": 4.641298586416617
+      },
+      "prevControl": {
+        "x": 5.063464187692263,
+        "y": 5.2239616406316145
+      },
+      "nextControl": {
+        "x": 5.063464187692263,
+        "y": 5.2239616406316145
       },
       "holonomicAngle": 0,
       "isReversal": true,
@@ -49,15 +74,15 @@
     },
     {
       "anchorPoint": {
-        "x": 5.0,
-        "y": 3.0
+        "x": 2.1456838434510206,
+        "y": 4.394559803008495
       },
       "prevControl": {
-        "x": 4.0,
-        "y": 3.0
+        "x": 4.479525398286908,
+        "y": 4.838167721474332
       },
       "nextControl": null,
-      "holonomicAngle": 0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -70,5 +95,27 @@
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.0,
+      "names": [
+        "event",
+        "shoot"
+      ]
+    },
+    {
+      "position": 0.18632812500000004,
+      "names": [
+        "event",
+        "intake"
+      ]
+    },
+    {
+      "position": 2.871200284090907,
+      "names": [
+        "event",
+        "shoot2"
+      ]
+    }
+  ]
 }
