@@ -95,13 +95,6 @@ public class Elevator extends SubsystemBase {
       m_pid.reset(m_targetMeter);
     }
     m_lead.set(motorSpeed());
-
-    /*
-    System.out.printf(
-        "Elevator height = %4.2f m\t target = %4.2f\t percent = %4.2f\n",
-        m_encoder.getPosition(), m_pid.getSetpoint().position, m_lead.getAppliedOutput());
-
-    */
   }
 
   /**
@@ -179,4 +172,6 @@ public class Elevator extends SubsystemBase {
   public Command setTargetLevel(Level level) {
     return this.runOnce(() -> m_targetLevel = level);
   }
+
+  public void manualMode() {}
 }

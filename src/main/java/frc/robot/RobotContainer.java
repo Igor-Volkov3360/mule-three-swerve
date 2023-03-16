@@ -25,6 +25,7 @@ import frc.robot.subsystems.BuddyClimb;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.DriveTrain.Mode;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Position;
@@ -166,9 +167,11 @@ public class RobotContainer {
     // pick a cone from the feeder station
     m_driverController
         .y()
-        .onTrue(
+        .toggleOnTrue(
             Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
                 .unless(this::inCubeMode));
+
+    m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
     // should enable vision mode
     m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Last));
