@@ -49,7 +49,7 @@ public class Intake extends SubsystemBase {
   public Intake() {
 
     m_pivot.restoreFactoryDefaults();
-    m_pivot.setIdleMode(IdleMode.kCoast);
+    m_pivot.setIdleMode(IdleMode.kBrake);
     m_pivot.setInverted(true);
 
     m_dutyEncoder.setDistancePerRotation(kTurnPerRotation);

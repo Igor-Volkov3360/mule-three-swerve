@@ -60,8 +60,7 @@ public class RobotContainer {
   private final Gripper m_gripper = new Gripper(m_pivotArm);
   private final RGBControl m_rgbPanel = new RGBControl();
   private final Wheels m_wheels = new Wheels(m_intake);
-  private final BuddyClimb m_buddyClimb =
-      new BuddyClimb(m_intake, m_wheels, m_pivotArm, m_gripper, m_elevator);
+  private final BuddyClimb m_buddyClimb = new BuddyClimb(m_intake, m_wheels, m_elevator);
 
   private static final PathConstraints constraints = new PathConstraints(1.0, 1.0);
   // different trajectories

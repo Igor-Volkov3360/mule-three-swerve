@@ -28,18 +28,13 @@ public class BuddyClimb extends SubsystemBase {
 
   private Intake m_intake;
   private Wheels m_wheels;
-  private PivotArm m_pivot;
-  private Gripper m_gripper;
   private Elevator m_elevator;
 
   /** Creates a new BuddyClimb. */
-  public BuddyClimb(
-      Intake intake, Wheels wheels, PivotArm pivot, Gripper gripper, Elevator elevator) {
+  public BuddyClimb(Intake intake, Wheels wheels, Elevator elevator) {
 
     m_intake = intake;
     m_wheels = wheels;
-    m_pivot = pivot;
-    m_gripper = gripper;
     m_elevator = elevator;
 
     m_buddyLeft.restoreFactoryDefaults();
@@ -68,6 +63,7 @@ public class BuddyClimb extends SubsystemBase {
 
   public Command activate() {
     return new SequentialCommandGroup(
+        this.runOnce(() -> stopEverything()),
         this.runOnce(
             () -> {
               m_isBuddyClimbActivated = true;
