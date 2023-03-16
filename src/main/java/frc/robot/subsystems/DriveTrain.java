@@ -114,6 +114,7 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+    resetOdometry();
     // Call module periodic
     inDeadband();
     filteredX = m_xAccel.calculate(m_accelerometer.getX());
@@ -414,8 +415,9 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public void resetOdometry() {
-    m_odometry.resetPosition(
-        m_gyro.getRotation2d(), this.getModulePositions(), m_vision.getMeasurement().m_pose);
+    if (m_vision.getMeasurement().m_pose != null)
+      m_odometry.resetPosition(
+          m_gyro.getRotation2d(), this.getModulePositions(), m_vision.getMeasurement().m_pose);
   }
 
   /*
