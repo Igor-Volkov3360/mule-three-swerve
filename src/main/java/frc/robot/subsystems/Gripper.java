@@ -95,4 +95,8 @@ public class Gripper extends SubsystemBase {
                 .andThen(runOnce(() -> m_open = true))
                 .andThen(this.setTarget()));
   }
+
+  public Command setTargetCurrent() {
+    return this.runOnce(() -> m_target = m_gripper.getEncoder().getPosition());
+  }
 }

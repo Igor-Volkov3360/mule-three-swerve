@@ -8,8 +8,6 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -25,7 +23,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Sequences;
 import frc.robot.subsystems.BuddyClimb;
 import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.DriveTrain.Mode;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
@@ -53,6 +50,7 @@ public class RobotContainer {
 
   public boolean povUpPressed = false;
   public boolean povDownPressed = false;
+  public boolean joystickInversion = false;
 
   // The robot's subsystems and commands are defined here...
   private final Vision m_vision = new Vision();
@@ -116,42 +114,49 @@ public class RobotContainer {
 
     // create options for auto mode
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
-    m_chooser.addOption("begin with cone 2 cubes left", this.runPathScoreCone2CubesLeft());
-    m_chooser.addOption("cone cube balance left", this.runPathScoreConeShootCubeBalanceLeft());
-    m_chooser.addOption("begin with cone 2 cubes right", this.runPathScoreCone2CubesRight());
-    m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
-    m_chooser.addOption("balance", this.runPathBalance());
-    m_chooser.addOption("cone balance", this.runPathConeBalance());
-    m_chooser.addOption("cube balance", this.runPathCubeBalance());
-    m_chooser.addOption("cube dont move", this.runPathCubeDontMove());
+    // m_chooser.addOption("begin with cone 2 cubes left", this.runPathScoreCone2CubesLeft());
+    // m_chooser.addOption("cone cube balance left", this.runPathScoreConeShootCubeBalanceLeft());
+    // m_chooser.addOption("begin with cone 2 cubes right", this.runPathScoreCone2CubesRight());
+    // m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
+    // m_chooser.addOption("balance", this.runPathBalance());
+    // m_chooser.addOption("cone balance", this.runPathConeBalance());
+    // m_chooser.addOption("cube balance", this.runPathCubeBalance());
+    // m_chooser.addOption("cube dont move", this.runPathCubeDontMove());
     m_chooser.addOption("stop", this.stop());
-    m_chooser.addOption("fuken go", this.fukenGo());
-    m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
-    m_chooser.addOption("mode auto good", this.runShootCubeGrabCube());
+    // m_chooser.addOption("fuken go", this.fukenGo());
+    // m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
+    // m_chooser.addOption("mode auto good", this.runShootCubeGrabCube());
+    m_chooser.addOption("shoot cube dont move", this.shootCube());
 
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
+    /*
+            if (DriverStation.getAlliance() == Alliance.Red)
+              m_drive.setDefaultCommand(
+                  m_drive.driveCommand(
+                      () -> -m_driverController.getLeftY(),
+                      () -> -m_driverController.getLeftX(),
+                      () -> -m_driverController.getRightX(),
+                      true));
 
-    if (DriverStation.getAlliance() == Alliance.Blue)
-      m_drive.setDefaultCommand(
-          m_drive.driveCommand(
-              () -> -m_driverController.getLeftY(),
-              () -> -m_driverController.getLeftX(),
-              () -> -m_driverController.getRightX(),
-              true));
-
-    if (DriverStation.getAlliance() == Alliance.Red)
-      m_drive.setDefaultCommand(
-          m_drive.driveCommand(
-              () -> m_driverController.getLeftY(),
-              () -> m_driverController.getLeftX(),
-              () -> -m_driverController.getRightX(),
-              true));
-
-    // m_gripper.setDefaultCommand(m_gripper.openCommand());
+            if (DriverStation.getAlliance() == Alliance.Blue)
+              m_drive.setDefaultCommand(
+                  m_drive.driveCommand(
+                      () -> m_driverController.getLeftY(),
+                      () -> m_driverController.getLeftX(),
+                      () -> -m_driverController.getRightX(),
+    é                  true));
+        */
+    m_drive.setDefaultCommand(
+        m_drive.driveCommand(
+            () -> m_driverController.getLeftY(),
+            () -> m_driverController.getLeftX(),
+            () -> -m_driverController.getRightX(),
+            true));
+    m_gripper.setDefaultCommand(m_gripper.setTargetCurrent());
     // Configure the trigger bindings
 
     m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
@@ -200,8 +205,10 @@ public class RobotContainer {
     m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
     // should enable vision mode
-    m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Last));
-    m_driverController.rightBumper().whileTrue(m_drive.setVisionMode(Mode.New));
+    // m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Last));
+    // m_driverController.rightBumper().whileTrue(m_drive.setVisionMode(Mode.New));
+
+    // m_driverController.rightBumper().onTrue(invertJoystick());
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
@@ -481,20 +488,44 @@ public class RobotContainer {
     return m_drive.driveWithSpeed(1.0, 1.0, 0.0).withTimeout(5);
   }
 
-  public Command shootSingle() {
+  // public Command runPathGetCubeShoot() {
+  //   eventMap.clear();
+  //   eventMap.put("down", m_intake.setAngle(Position.Pickup));
+  //   eventMap.put("intake", Sequences.pickup(m_intake, m_wheels));
+  //   eventMap.put(
+  //       "shoot", Sequences.setTargetThirdIntake(m_intake,
+  // m_wheels).andThen(m_wheels.launchTo()));
+
+  //   FollowPathWithEvents shootCube =
+  //       new FollowPathWithEvents(
+  //           m_drive.followPathCommand(pathGetCube, true, true), pathGetCube.getMarkers(),
+  // eventMap);
+  //   return shootCube;
+  // }
+
+  public static CommandXboxController getCoPilot() {
+    return m_coDriverController;
+  }
+
+  public Command shootCube() {
     return Sequences.launch(m_intake, m_wheels, WheelLevel.Third, Position.Launch);
   }
 
-  public Command runPathGetCubeShoot() {
-    eventMap.clear();
-    eventMap.put("down", m_intake.setAngle(Position.Pickup));
-    eventMap.put("intake", Sequences.pickup(m_intake, m_wheels));
-    eventMap.put(
-        "shoot", Sequences.setTargetThirdIntake(m_intake, m_wheels).andThen(m_wheels.launchTo()));
-
-    FollowPathWithEvents shootCube =
-        new FollowPathWithEvents(
-            m_drive.followPathCommand(pathGetCube, true, true), pathGetCube.getMarkers(), eventMap);
-    return shootCube;
+  public Command invertJoystick() {
+    if (joystickInversion) {
+      joystickInversion = !joystickInversion;
+      return m_drive.driveCommand(
+          () -> m_driverController.getLeftY(),
+          () -> m_driverController.getLeftX(),
+          () -> -m_driverController.getRightX(),
+          true);
+    } else {
+      joystickInversion = !joystickInversion;
+      return m_drive.driveCommand(
+          () -> -m_driverController.getLeftY(),
+          () -> -m_driverController.getLeftX(),
+          () -> -m_driverController.getRightX(),
+          true);
+    }
   }
 }

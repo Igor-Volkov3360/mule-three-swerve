@@ -142,13 +142,13 @@
           "shoot"
         ],
         "executionBehavior": "parallel",
-        "waitBehavior": "none",
-        "waitTime": 0
+        "waitBehavior": "before",
+        "waitTime": 2
       }
     }
   ],
   "maxVelocity": 4.0,
-  "maxAcceleration": 8.0,
+  "maxAcceleration": 0.5,
   "isReversed": null,
   "markers": [
     {
@@ -160,7 +160,7 @@
     {
       "position": 0.008096590909090876,
       "names": [
-        "shootCube"
+        "shoot"
       ]
     },
     {
@@ -170,15 +170,9 @@
       ]
     },
     {
-      "position": 0.0,
+      "position": 3.8545454545453026,
       "names": [
-        "shootCube"
-      ]
-    },
-    {
-      "position": 0.0,
-      "names": [
-        "shootCube"
+        "shootCube2"
       ]
     }
   ]

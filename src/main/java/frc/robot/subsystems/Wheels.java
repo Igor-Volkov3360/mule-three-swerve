@@ -27,11 +27,11 @@ public class Wheels extends SubsystemBase {
   private static final int kWheelsRight = 18;
 
   private static final double kWheelSpeedPreload = -0.25;
-  private static final double kWheelSpeed2nd = 0.5;
-  private static final double kWheelSpeed3rd = 1.0;
+  private static final double kWheelSpeed2nd = 0.22;
+  private static final double kWheelSpeed3rd = 0.45;
   private static final double kWheelSpeedHold = -0.15;
   private static final double kWheelSpeedPickup = -0.3;
-  private static final double kWheelSpeedFirst = 0.20;
+  private static final double kWheelSpeedFirst = 0.10;
   private static final double kPreloadTime = 0.2;
   private static final double kLaunchTime = 0.5;
 

@@ -53,11 +53,11 @@ public class BuddyClimb extends SubsystemBase {
 
     if (m_isBuddyClimbActivated) {
       m_buddyLeft.set(
-          RobotContainer.getPilot().getLeftTriggerAxis()
-              - RobotContainer.getPilot().getRightTriggerAxis());
+          RobotContainer.getCoPilot().getLeftTriggerAxis()
+              - RobotContainer.getCoPilot().getRightTriggerAxis());
       m_buddyRight.set(
-          RobotContainer.getPilot().getLeftTriggerAxis()
-              - RobotContainer.getPilot().getRightTriggerAxis());
+          RobotContainer.getCoPilot().getLeftTriggerAxis()
+              - RobotContainer.getCoPilot().getRightTriggerAxis());
     }
   }
 
