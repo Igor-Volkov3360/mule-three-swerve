@@ -26,7 +26,6 @@ public class Gripper extends SubsystemBase {
 
   private double m_target = kOpenPosition;
   private boolean m_open = true;
-  private boolean hasSetZero = false;
   // private double[] atRightPose = {0.0, 0.0, 0.0};
 
   // Member objects
@@ -46,7 +45,6 @@ public class Gripper extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
 
-    // if (!hasSetZero && DriverStation.isEnabled()) this.defaultWinch();
     err = m_target - m_gripper.getEncoder().getPosition();
     cmd = err * kp;
     m_gripper.set(MathUtil.clamp(cmd, -0.7, 0.7));
