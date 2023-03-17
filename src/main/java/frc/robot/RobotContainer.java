@@ -92,6 +92,9 @@ public class RobotContainer {
 
   PathPlannerTrajectory pathGetCube = PathPlanner.loadPath("cube", constraints);
 
+  PathPlannerTrajectory pathShootCubeGetCubeShoot =
+      PathPlanner.loadPath("shoot cube grab cube shoot cube", constraints);
+
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -124,6 +127,8 @@ public class RobotContainer {
     m_chooser.addOption("stop", this.stop());
     m_chooser.addOption("fuken go", this.fukenGo());
     m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
+    m_chooser.addOption("mode auto good", this.runShootCubeGrabCube());
+
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
@@ -227,6 +232,7 @@ public class RobotContainer {
                 Sequences.scoreConeSecond(m_elevator, m_pivotArm, m_gripper)
                     .alongWith(m_rgbPanel.yellowCommand()),
                 this::inCubeMode));
+
     m_coDriverController
         .y()
         .onTrue(
@@ -437,6 +443,22 @@ public class RobotContainer {
             m_drive.followPathCommand(pathCube, true, true), pathCube.getMarkers(), eventMap);
 
     return cube;
+  }
+
+  public Command runShootCubeGrabCube() {
+    eventMap.clear();
+
+    eventMap.put("shootCube", Sequences.setTargetSecondIntake(m_intake, m_wheels));
+    eventMap.put("down", m_intake.setAngle(Position.Pickup));
+    eventMap.put("intake", Sequences.pickup(m_intake, m_wheels));
+
+    FollowPathWithEvents cubesequence =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathShootCubeGetCubeShoot, true, true),
+            pathShootCubeGetCubeShoot.getMarkers(),
+            eventMap);
+
+    return cubesequence;
   }
 
   public Command colour() {
