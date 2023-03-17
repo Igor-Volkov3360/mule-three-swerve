@@ -114,7 +114,7 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    resetOdometry();
+    // resetOdometry();
     // Call module periodic
     inDeadband();
     filteredX = m_xAccel.calculate(m_accelerometer.getX());
@@ -414,13 +414,13 @@ public class DriveTrain extends SubsystemBase {
     return m_visionMode == Mode.Disabled;
   }
 
-  public void resetOdometry() {
-    if (m_vision.getMeasurement().m_pose != null)
-      m_odometry.resetPosition(
-          m_gyro.getRotation2d(), this.getModulePositions(), m_vision.getMeasurement().m_pose);
-  }
-
   /*
+    public void resetOdometry() {
+      if (m_vision.getMeasurement().m_pose != null)
+        m_odometry.resetPosition(
+            m_gyro.getRotation2d(), this.getModulePositions(), m_vision.getMeasurement().m_pose);
+    }
+
   public Command alignWithVision() {
 
     return () -> this.resetToCLosestScoringPos();
@@ -428,4 +428,8 @@ public class DriveTrain extends SubsystemBase {
 
   }
   */
+
+  public Command driveWithSpeed(double speedX, double speedY, double rotation) {
+    return this.runOnce(() -> this.drive(speedX, speedY, rotation, true));
+  }
 }

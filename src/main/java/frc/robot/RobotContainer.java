@@ -8,6 +8,8 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -63,7 +65,7 @@ public class RobotContainer {
   private final Wheels m_wheels = new Wheels(m_intake);
   private final BuddyClimb m_buddyClimb = new BuddyClimb(m_intake, m_wheels, m_elevator);
 
-  private static final PathConstraints constraints = new PathConstraints(1.0, 1.0);
+  private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
   // different trajectories
 
   PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
@@ -86,7 +88,9 @@ public class RobotContainer {
 
   PathPlannerTrajectory pathCubeBalance = PathPlanner.loadPath("cube balance", constraints);
 
-  PathPlannerTrajectory pathCube = PathPlanner.loadPath("cube", constraints);
+  PathPlannerTrajectory pathCube = PathPlanner.loadPath("shoot dont move", constraints);
+
+  PathPlannerTrajectory pathGetCube = PathPlanner.loadPath("cube", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -116,19 +120,31 @@ public class RobotContainer {
     m_chooser.addOption("balance", this.runPathBalance());
     m_chooser.addOption("cone balance", this.runPathConeBalance());
     m_chooser.addOption("cube balance", this.runPathCubeBalance());
-    m_chooser.addOption("cube", this.runPathCube());
+    m_chooser.addOption("cube dont move", this.runPathCubeDontMove());
+    m_chooser.addOption("stop", this.stop());
+    m_chooser.addOption("fuken go", this.fukenGo());
+    m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
 
-    m_drive.setDefaultCommand(
-        m_drive.driveCommand(
-            () -> -m_driverController.getLeftY(),
-            () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX(),
-            true));
+    if (DriverStation.getAlliance() == Alliance.Blue)
+      m_drive.setDefaultCommand(
+          m_drive.driveCommand(
+              () -> -m_driverController.getLeftY(),
+              () -> -m_driverController.getLeftX(),
+              () -> -m_driverController.getRightX(),
+              true));
+
+    if (DriverStation.getAlliance() == Alliance.Red)
+      m_drive.setDefaultCommand(
+          m_drive.driveCommand(
+              () -> m_driverController.getLeftY(),
+              () -> m_driverController.getLeftX(),
+              () -> -m_driverController.getRightX(),
+              true));
 
     // m_gripper.setDefaultCommand(m_gripper.openCommand());
     // Configure the trigger bindings
@@ -154,12 +170,17 @@ public class RobotContainer {
     // m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
 
     // pick up coob
-    m_driverController.a().onTrue(Sequences.pickup(m_intake, m_wheels).unless(this::inConeMode));
+    m_driverController
+        .a()
+        .onTrue(
+            Sequences.pickup(m_intake, m_wheels)
+                .unless(this::inConeMode)
+                .alongWith(m_rgbPanel.purpleCommand()));
 
     // retract intake
     m_driverController
         .b()
-        .onTrue(m_intake.setAngle(Position.Retracted) /*.unless(this::inConeMode)*/);
+        .onTrue(m_intake.setAngle(Position.Retracted) /* .unless(this::inConeMode)*/);
 
     // vomit cube to first lvl
     m_driverController.x().onTrue(Sequences.vomit(m_intake, m_wheels));
@@ -192,22 +213,28 @@ public class RobotContainer {
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     m_coDriverController
         .a()
-        .onTrue(Commands.either(m_wheels.launchTo(), m_elevator.extend(), this::inCubeMode));
+        .onTrue(
+            Commands.either(m_wheels.launchTo(), m_elevator.extend(), this::inCubeMode)
+                .alongWith(m_rgbPanel.purpleCommand()));
 
-    m_coDriverController.b().onTrue(m_gripper.changeState());
+    m_coDriverController.b().onTrue(m_gripper.changeState().alongWith(m_rgbPanel.purpleCommand()));
     m_coDriverController
         .x()
         .onTrue(
             Commands.either(
-                Sequences.setTargetSecondIntake(m_intake, m_wheels),
-                Sequences.scoreConeSecond(m_elevator, m_pivotArm, m_gripper),
+                Sequences.setTargetSecondIntake(m_intake, m_wheels)
+                    .alongWith(m_rgbPanel.purpleCommand()),
+                Sequences.scoreConeSecond(m_elevator, m_pivotArm, m_gripper)
+                    .alongWith(m_rgbPanel.yellowCommand()),
                 this::inCubeMode));
     m_coDriverController
         .y()
         .onTrue(
             Commands.either(
-                Sequences.setTargetThirdIntake(m_intake, m_wheels),
-                Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper),
+                Sequences.setTargetThirdIntake(m_intake, m_wheels)
+                    .alongWith(m_rgbPanel.purpleCommand()),
+                Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper)
+                    .alongWith(m_rgbPanel.yellowCommand()),
                 this::inCubeMode));
 
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
@@ -220,7 +247,7 @@ public class RobotContainer {
             Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm)
                 // .unless(this::inCubeMode)
                 .andThen(this.setMode(RobotMode.Cube))
-                .andThen(this.colour())
+                .andThen(m_rgbPanel.purpleCommand())
                 .alongWith(new PrintCommand("Cube Mode")));
     m_coDriverController
         .back()
@@ -228,7 +255,7 @@ public class RobotContainer {
             Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm, m_gripper)
                 // .unless(this::inConeMode)
                 .andThen(this.setMode(RobotMode.Cone))
-                .andThen(this.colour())
+                .andThen(m_rgbPanel.yellowCommand())
                 .alongWith(new PrintCommand("Cone Mode")));
 
     m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(false));
@@ -400,10 +427,8 @@ public class RobotContainer {
     return scoreCone2CubesRight;
   }
 
-  public Command runPathCube() {
+  public Command runPathCubeDontMove() {
     eventMap.clear();
-    eventMap.put("down", m_intake.setAngle(Position.Pickup));
-    eventMap.put("intake", Sequences.pickup(m_intake, m_wheels));
     eventMap.put(
         "shoot", Sequences.setTargetThirdIntake(m_intake, m_wheels).andThen(m_wheels.launchTo()));
 
@@ -415,12 +440,39 @@ public class RobotContainer {
   }
 
   public Command colour() {
-    if (this.inConeMode()) return m_rgbPanel.purpleCommand();
-    else if (this.inCubeMode()) return m_rgbPanel.yellowCommand();
-    else return m_rgbPanel.getDefaultCommand();
+    Command command = m_rgbPanel.getDefaultCommand();
+    if (this.inCubeMode()) command = m_rgbPanel.yellowCommand();
+    else if (this.inConeMode()) command = m_rgbPanel.purpleCommand();
+    return command;
   }
 
   public static CommandXboxController getPilot() {
     return m_driverController;
+  }
+
+  public Command stop() {
+    Command stopComamnd = m_drive.driveWithSpeed(0, 0, 0);
+    return stopComamnd;
+  }
+
+  public Command fukenGo() {
+    return m_drive.driveWithSpeed(1.0, 1.0, 0.0).withTimeout(5);
+  }
+
+  public Command shootSingle() {
+    return Sequences.launch(m_intake, m_wheels, WheelLevel.Third, Position.Launch);
+  }
+
+  public Command runPathGetCubeShoot() {
+    eventMap.clear();
+    eventMap.put("down", m_intake.setAngle(Position.Pickup));
+    eventMap.put("intake", Sequences.pickup(m_intake, m_wheels));
+    eventMap.put(
+        "shoot", Sequences.setTargetThirdIntake(m_intake, m_wheels).andThen(m_wheels.launchTo()));
+
+    FollowPathWithEvents shootCube =
+        new FollowPathWithEvents(
+            m_drive.followPathCommand(pathGetCube, true, true), pathGetCube.getMarkers(), eventMap);
+    return shootCube;
   }
 }

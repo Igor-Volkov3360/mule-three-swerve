@@ -47,17 +47,11 @@ public class Sequences {
   }
 
   public static Command scoreConeThird(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
-    return Commands.sequence(
-        elevator.extendTo(Elevator.Level.Third),
-        pivotArm.setTarget("up"),
-        elevator.extendTo(Level.Down));
+    return Commands.sequence(elevator.extendTo(Elevator.Level.Third), pivotArm.setTarget("up"));
   }
 
   public static Command scoreConeSecond(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
-    return Commands.sequence(
-        elevator.extendTo(Elevator.Level.Second),
-        pivotArm.setTarget("up"),
-        elevator.extendTo(Level.Down));
+    return Commands.sequence(elevator.extendTo(Elevator.Level.Second), pivotArm.setTarget("up"));
   }
 
   /**
@@ -95,15 +89,11 @@ public class Sequences {
 
   public static Command setTargetThirdIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
-        intake
-            .setAngle(Intake.Position.Launch)
-            .andThen(wheels.setTargetLevel(Wheels.WheelLevel.Third)));
+        intake.setAngle(Intake.Position.Launch), wheels.setTargetLevel(Wheels.WheelLevel.Third));
   }
 
   public static Command setTargetSecondIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
-        intake
-            .setAngle(Intake.Position.Launch)
-            .andThen(wheels.setTargetLevel(Wheels.WheelLevel.Second)));
+        intake.setAngle(Intake.Position.Launch), wheels.setTargetLevel(Wheels.WheelLevel.Second));
   }
 }

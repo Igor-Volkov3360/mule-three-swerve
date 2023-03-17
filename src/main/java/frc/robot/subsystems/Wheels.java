@@ -27,18 +27,18 @@ public class Wheels extends SubsystemBase {
   private static final int kWheelsRight = 18;
 
   private static final double kWheelSpeedPreload = -0.25;
-  private static final double kWheelSpeed2nd = 0.8;
+  private static final double kWheelSpeed2nd = 0.5;
   private static final double kWheelSpeed3rd = 1.0;
   private static final double kWheelSpeedHold = -0.15;
   private static final double kWheelSpeedPickup = -0.3;
-  private static final double kWheelSpeedFirst = 0.10;
+  private static final double kWheelSpeedFirst = 0.20;
   private static final double kPreloadTime = 0.2;
   private static final double kLaunchTime = 0.5;
 
   private final CANSparkMax m_wheelsLeft = new CANSparkMax(kWheelsLeft, MotorType.kBrushless);
   private final CANSparkMax m_wheelsRight = new CANSparkMax(kWheelsRight, MotorType.kBrushless);
 
-  private WheelLevel m_targetLevel = WheelLevel.Third;
+  private WheelLevel m_targetLevel = WheelLevel.First;
   private double m_wheelSpeed = 0;
   private static Intake m_intake;
 
@@ -75,8 +75,8 @@ public class Wheels extends SubsystemBase {
    *
    * @param level target level
    */
-  private void setSpeedFor(WheelLevel level) {
-    switch (level) {
+  private void setSpeedFor(WheelLevel wlevel) {
+    switch (wlevel) {
       case Pickup:
         m_wheelSpeed = kWheelSpeedPickup;
         break;
@@ -97,6 +97,7 @@ public class Wheels extends SubsystemBase {
         break;
       case First:
         m_wheelSpeed = kWheelSpeedFirst;
+        break;
     }
   }
 
@@ -106,8 +107,8 @@ public class Wheels extends SubsystemBase {
    * @param level throwing level
    * @return forever command
    */
-  public Command holdSpeed(WheelLevel level) {
-    return this.run(() -> this.setSpeedFor(level));
+  public Command holdSpeed(WheelLevel wlevel) {
+    return this.run(() -> this.setSpeedFor(wlevel));
   }
 
   /**
@@ -116,17 +117,21 @@ public class Wheels extends SubsystemBase {
    * @return instant command
    */
   public Command stop() {
-    return this.runOnce(() -> m_wheelSpeed = 0.0);
+    return this.runOnce(() -> this.setSpeedFor(WheelLevel.Stop));
   }
 
   public Command launchTo() {
     return Commands.sequence(
         this.holdSpeed(WheelLevel.Preload).withTimeout(kPreloadTime),
-        this.holdSpeed(m_targetLevel).withTimeout(kLaunchTime),
+        this.setSpeedWithTarget().withTimeout(kLaunchTime),
         this.stop());
   }
 
   public Command setTargetLevel(WheelLevel level) {
     return this.runOnce(() -> m_targetLevel = level);
+  }
+
+  public Command setSpeedWithTarget() {
+    return this.run(() -> this.setSpeedFor(m_targetLevel));
   }
 }

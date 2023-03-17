@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
   private static final int kEncoder = 7;
   private static final double kTurnPerRotation = 0.25;
   private static final double kOffset = 0.28;
-  private static final double kP = 5.0;
+  private static final double kP = 3.0;
 
   private static final double kStoredRad = 0.45;
   public final double kInsideRad = 0.30;
