@@ -8,6 +8,7 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -105,6 +106,7 @@ public class RobotContainer {
 
   SendableChooser<Command> m_chooser;
   ComplexWidget chooserList;
+  ComplexWidget camera;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -130,6 +132,7 @@ public class RobotContainer {
 
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
+    camera = Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
 
     // Drive in robot relative velocities
     // Axis are inverted to follow North-West-Up (NWU) convention
@@ -229,7 +232,7 @@ public class RobotContainer {
             Commands.either(m_wheels.launchTo(), m_elevator.extend(), this::inCubeMode)
                 .alongWith(m_rgbPanel.purpleCommand()));
 
-    m_coDriverController.b().onTrue(m_gripper.changeState().alongWith(m_rgbPanel.purpleCommand()));
+    m_coDriverController.b().onTrue(m_gripper.changeState().alongWith(m_rgbPanel.yellowCommand()));
     m_coDriverController
         .x()
         .onTrue(
@@ -273,8 +276,8 @@ public class RobotContainer {
 
     m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(false));
     m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(true));
-    m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
-    m_coDriverController.rightTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.DownManual));
+    // m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
+    // m_coDriverController.rightTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.DownManual));
   }
 
   /**
@@ -508,7 +511,11 @@ public class RobotContainer {
   }
 
   public Command shootCube() {
-    return Sequences.launch(m_intake, m_wheels, WheelLevel.Third, Position.Launch);
+    return m_intake
+        .setAngle(Position.Launch)
+        .andThen(new WaitCommand(3))
+        .andThen(m_wheels.setTargetLevel(WheelLevel.Third))
+        .andThen(m_wheels.launchTo());
   }
 
   public Command invertJoystick() {

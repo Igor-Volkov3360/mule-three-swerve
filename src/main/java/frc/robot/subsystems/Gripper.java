@@ -48,6 +48,8 @@ public class Gripper extends SubsystemBase {
     err = m_target - m_gripper.getEncoder().getPosition();
     cmd = err * kp;
     m_gripper.set(MathUtil.clamp(cmd, -0.7, 0.7));
+
+    // System.out.println(m_open);
   }
 
   /**
