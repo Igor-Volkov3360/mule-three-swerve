@@ -68,7 +68,7 @@ public class Intake extends SubsystemBase {
     // uncomment for pivot operation
     if (!isStopped) m_pivot.set(computePivotPercent());
 
-    // System.out.println(hasCube());
+    System.out.println(hasCube());
   }
 
   /**
