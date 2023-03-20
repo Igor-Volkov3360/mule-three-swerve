@@ -118,18 +118,19 @@ public class RobotContainer {
     m_chooser.addOption("shoot cube dont move", this.shootCube());
     m_chooser.addOption("stop", this.stop());
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
-    // m_chooser.addOption("begin with cone 2 cubes left", this.runPathScoreCone2CubesLeft());
-    // m_chooser.addOption("cone cube balance left", this.runPathScoreConeShootCubeBalanceLeft());
-    // m_chooser.addOption("begin with cone 2 cubes right", this.runPathScoreCone2CubesRight());
-    // m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
-    // m_chooser.addOption("balance", this.runPathBalance());
-    // m_chooser.addOption("cone balance", this.runPathConeBalance());
-    // m_chooser.addOption("cube balance", this.runPathCubeBalance());
-    // m_chooser.addOption("cube dont move", this.runPathCubeDontMove());
-    // m_chooser.addOption("fuken go", this.fukenGo());
-    // m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
-    // m_chooser.addOption("mode auto good", this.runShootCubeGrabCube());
-
+    m_chooser.addOption("begin with cone 2 cubes left", this.runPathScoreCone2CubesLeft());
+    m_chooser.addOption("cone cube balance left", this.runPathScoreConeShootCubeBalanceLeft());
+    /*
+        m_chooser.addOption("begin with cone 2 cubes right", this.runPathScoreCone2CubesRight());
+        m_chooser.addOption("cone cube balance right", this.runPathScoreConeShootCubeBalanceRight());
+        m_chooser.addOption("balance", this.runPathBalance());
+        m_chooser.addOption("cone balance", this.runPathConeBalance());
+        m_chooser.addOption("cube balance", this.runPathCubeBalance());
+        m_chooser.addOption("cube dont move", this.runPathCubeDontMove());
+        m_chooser.addOption("fuken go", this.fukenGo());
+        m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
+        m_chooser.addOption("mode auto good", this.runShootCubeGrabCube());
+    */
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
     camera = Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
@@ -159,9 +160,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
-    // Mapping a different command on the same button according to the current mode example!
-    // m_coDriverController.a().onTrue(Commands.either(null, null, this::inConeMode));
 
     // pick up coob
     m_driverController
