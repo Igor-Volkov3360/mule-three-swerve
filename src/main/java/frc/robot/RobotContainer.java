@@ -217,20 +217,9 @@ public class RobotContainer {
     m_driverController.start().onTrue(m_buddyClimb.activate());
 
     m_driverController.povUp().onTrue(m_drive.balance());
-    /*
-        m_driverController
-            .rightTrigger()
-            .onTrue(m_buddyClimb.control(m_driverController.getLeftTriggerAxis()));
-        m_driverController
-            .leftTrigger()
-            .onTrue(m_buddyClimb.control(-m_driverController.getRightTriggerAxis()));
-    */
+
     // launches cube to right lvl if in cube mode, and cone if in cone mode
-    m_coDriverController
-        .a()
-        .onTrue(
-            Commands.either(m_wheels.launchTo(), m_elevator.extend(), this::inCubeMode)
-                .alongWith(m_rgbPanel.purpleCommand()));
+    m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbPanel.purpleCommand()));
 
     m_coDriverController.b().onTrue(m_gripper.changeState().alongWith(m_rgbPanel.yellowCommand()));
     m_coDriverController
@@ -261,23 +250,21 @@ public class RobotContainer {
         .start()
         .onTrue(
             Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm)
-                // .unless(this::inCubeMode)
                 .andThen(this.setMode(RobotMode.Cube))
                 .andThen(m_rgbPanel.purpleCommand())
-                .alongWith(new PrintCommand("Cube Mode")));
+                .alongWith(new PrintCommand("Cube Mode"))
+                .unless(this::inCubeMode));
     m_coDriverController
         .back()
         .onTrue(
             Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm, m_gripper)
-                // .unless(this::inConeMode)
                 .andThen(this.setMode(RobotMode.Cone))
                 .andThen(m_rgbPanel.yellowCommand())
-                .alongWith(new PrintCommand("Cone Mode")));
+                .alongWith(new PrintCommand("Cone Mode"))
+                .unless(this::inConeMode));
 
     m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(false));
     m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(true));
-    // m_coDriverController.leftTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.Manual));
-    // m_coDriverController.rightTrigger().whileTrue(m_elevator.extendTo(Elevator.Level.DownManual));
   }
 
   /**
