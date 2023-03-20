@@ -115,6 +115,8 @@ public class RobotContainer {
     m_chooser = new SendableChooser<>();
 
     // create options for auto mode
+    m_chooser.addOption("shoot cube dont move", this.shootCube());
+    m_chooser.addOption("stop", this.stop());
     m_chooser.setDefaultOption("line", m_drive.followPathCommand(line, true, true));
     // m_chooser.addOption("begin with cone 2 cubes left", this.runPathScoreCone2CubesLeft());
     // m_chooser.addOption("cone cube balance left", this.runPathScoreConeShootCubeBalanceLeft());
@@ -124,35 +126,15 @@ public class RobotContainer {
     // m_chooser.addOption("cone balance", this.runPathConeBalance());
     // m_chooser.addOption("cube balance", this.runPathCubeBalance());
     // m_chooser.addOption("cube dont move", this.runPathCubeDontMove());
-    m_chooser.addOption("stop", this.stop());
     // m_chooser.addOption("fuken go", this.fukenGo());
     // m_chooser.addOption("shoot cube", this.runPathGetCubeShoot());
     // m_chooser.addOption("mode auto good", this.runShootCubeGrabCube());
-    m_chooser.addOption("shoot cube dont move", this.shootCube());
 
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
     camera = Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
 
     // Drive in robot relative velocities
-    // Axis are inverted to follow North-West-Up (NWU) convention
-    /*
-            if (DriverStation.getAlliance() == Alliance.Red)
-              m_drive.setDefaultCommand(
-                  m_drive.driveCommand(
-                      () -> -m_driverController.getLeftY(),
-                      () -> -m_driverController.getLeftX(),
-                      () -> -m_driverController.getRightX(),
-                      true));
-
-            if (DriverStation.getAlliance() == Alliance.Blue)
-              m_drive.setDefaultCommand(
-                  m_drive.driveCommand(
-                      () -> m_driverController.getLeftY(),
-                      () -> m_driverController.getLeftX(),
-                      () -> -m_driverController.getRightX(),
-    é                  true));
-        */
     m_drive.setDefaultCommand(
         m_drive.driveCommand(
             () -> m_driverController.getLeftY(),
@@ -163,7 +145,6 @@ public class RobotContainer {
     // Configure the trigger bindings
 
     m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
-    // m_pivotArm.setDefaultCommand(m_pivotArm.setZero());
 
     configureBindings();
   }
@@ -274,7 +255,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return m_chooser.getSelected(); // this.runAuto();
+    return m_chooser.getSelected();
   }
 
   /**
