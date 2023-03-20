@@ -89,6 +89,12 @@ public class Gripper extends SubsystemBase {
     return this.runOnce(() -> m_open = !m_open).andThen(this.setTarget());
   }
 
+  /**
+   * This function resets the 0 of the encoders to make sure that the openign and closing is a the
+   * right palace even when it's not at the right place on power up
+   *
+   * @return defaulting of the gripper 0
+   */
   public Command defaultWinch() {
     return this.run(() -> m_gripper.set(-0.4))
         .withTimeout(2)
@@ -98,6 +104,12 @@ public class Gripper extends SubsystemBase {
                 .andThen(this.setTarget()));
   }
 
+  /**
+   * This function make sure that the gripper isn't moving when enabled, we had some issues with
+   * that at FG
+   *
+   * @return The gripper not moving
+   */
   public Command setTargetCurrent() {
     return this.runOnce(() -> m_target = m_gripper.getEncoder().getPosition());
   }

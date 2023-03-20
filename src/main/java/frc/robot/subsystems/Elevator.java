@@ -44,8 +44,6 @@ public class Elevator extends SubsystemBase {
   private static final double kHeightFeeder = 1.0;
   private static final double kHeightSecond = 1.0;
   private static final double kHeightThird = 1.35;
-  private static final double kManualHeight = 0.02;
-  private static final double kDownManualHeight = -0.02;
   private static final double kSequencesHeight = 0.8;
 
   // Member objects
@@ -115,12 +113,6 @@ public class Elevator extends SubsystemBase {
         break;
       case Third:
         m_targetMeter = kHeightThird;
-        break;
-      case Manual:
-        m_targetMeter = kManualHeight;
-        break;
-      case DownManual:
-        m_targetMeter = kDownManualHeight;
         break;
       case Sequences:
         m_targetMeter = kSequencesHeight;

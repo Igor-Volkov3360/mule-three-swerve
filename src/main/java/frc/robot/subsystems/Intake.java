@@ -65,10 +65,9 @@ public class Intake extends SubsystemBase {
       m_targetRad = (getAngleRad());
     }
 
-    // uncomment for pivot operation
     if (!isStopped) m_pivot.set(computePivotPercent());
 
-    System.out.println(hasCube());
+    // System.out.println(hasCube());
   }
 
   /**
