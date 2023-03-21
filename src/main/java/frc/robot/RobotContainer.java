@@ -101,7 +101,7 @@ public class RobotContainer {
   private static final CommandXboxController m_coDriverController = new CommandXboxController(1);
 
   // Process variables
-  private RobotMode m_currentMode = RobotMode.Cube;
+  private RobotMode m_currentMode = RobotMode.Cone;
 
   SendableChooser<Command> m_chooser;
   ComplexWidget chooserList;
