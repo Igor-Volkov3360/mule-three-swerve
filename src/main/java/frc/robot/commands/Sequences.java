@@ -22,14 +22,14 @@ public class Sequences {
   private static final double kLaunchTime = 0.5;
 
   public static Command PickConeFromFeeder(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
-    return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setTarget("up"));
+    return Commands.parallel(elevator.extendTo(Level.Feeder), pivotArm.setPivotState(true));
   }
 
   public static Command SwitchToCone(
       Elevator elevator, Intake intake, PivotArm pivotArm, Gripper gripper) {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
-        pivotArm.setTarget("up"),
+        pivotArm.setPivotState(true),
         new WaitCommand(kPreloadTime),
         elevator.extendTo(Level.Sequences),
         intake.setAngle(Position.Stored),
@@ -43,15 +43,17 @@ public class Sequences {
         new WaitCommand(0.3), // do NOT remove this delay, its perfect
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
-        pivotArm.setTarget("down"));
+        pivotArm.setPivotState(false),
+        intake.setAngle(Position.Retracted));
   }
 
   public static Command scoreConeThird(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
-    return Commands.sequence(elevator.extendTo(Elevator.Level.Third), pivotArm.setTarget("up"));
+    return Commands.sequence(elevator.extendTo(Elevator.Level.Third), pivotArm.setPivotState(true));
   }
 
   public static Command scoreConeSecond(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
-    return Commands.sequence(elevator.extendTo(Elevator.Level.Second), pivotArm.setTarget("up"));
+    return Commands.sequence(
+        elevator.extendTo(Elevator.Level.Second), pivotArm.setPivotState(false));
   }
 
   /**
@@ -63,8 +65,7 @@ public class Sequences {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         wheels.holdSpeed(Wheels.WheelLevel.Pickup).until(intake::hasCube),
-        intake.setAngle(Position.Retracted),
-        wheels.holdSpeed(Wheels.WheelLevel.Hold).until(intake::noCube));
+        intake.setAngle(Position.Retracted));
   }
 
   /**

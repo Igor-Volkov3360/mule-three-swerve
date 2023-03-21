@@ -135,7 +135,6 @@ public class RobotContainer {
             () -> m_driverController.getLeftX(),
             () -> -m_driverController.getRightX(),
             true));
-    m_gripper.setDefaultCommand(m_gripper.setTargetCurrent());
     // Configure the trigger bindings
 
     m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
@@ -163,9 +162,7 @@ public class RobotContainer {
                 .alongWith(m_rgbPanel.purpleCommand()));
 
     // retract intake
-    m_driverController
-        .b()
-        .onTrue(m_intake.setAngle(Position.Retracted) /* .unless(this::inConeMode)*/);
+    m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted).unless(this::inConeMode));
 
     // vomit cube to first lvl
     m_driverController.x().onTrue(Sequences.vomit(m_intake, m_wheels));
@@ -193,7 +190,14 @@ public class RobotContainer {
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbPanel.purpleCommand()));
 
-    m_coDriverController.b().onTrue(m_gripper.changeState().alongWith(m_rgbPanel.yellowCommand()));
+    m_coDriverController
+        .b()
+        .onTrue(
+            Commands.either(
+                m_gripper.setGripperState(false),
+                m_gripper.setGripperState(true),
+                m_gripper::gripperState));
+
     m_coDriverController
         .x()
         .onTrue(

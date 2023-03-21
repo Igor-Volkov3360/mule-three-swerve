@@ -34,7 +34,7 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command Command3360() {
-    return this.run(
+    return this.runOnce(
         () -> {
           select1.set(true);
           select2.set(false);
@@ -43,7 +43,7 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command blueCommand() {
-    return this.run(
+    return this.runOnce(
         () -> {
           select1.set(false);
           select2.set(true);
@@ -52,7 +52,7 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command greenCommand() {
-    return this.run(
+    return this.runOnce(
         () -> {
           select1.set(true);
           select2.set(false);
@@ -61,7 +61,7 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command redCommand() {
-    return this.run(
+    return this.runOnce(
         () -> {
           select1.set(false);
           select2.set(false);
@@ -70,7 +70,7 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command yellowCommand() {
-    return this.run(
+    return this.runOnce(
         () -> {
           select1.set(false);
           select2.set(true);
@@ -79,7 +79,7 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command purpleCommand() {
-    return this.run(
+    return this.runOnce(
         () -> {
           select1.set(true);
           select2.set(true);
@@ -88,7 +88,7 @@ public class RGBControl extends SubsystemBase {
   }
 
   public Command teamCommand() {
-    return this.run(
+    return this.runOnce(
         () -> {
           select1.set(false);
           select2.set(false);

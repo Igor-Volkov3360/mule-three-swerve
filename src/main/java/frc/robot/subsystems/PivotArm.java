@@ -27,6 +27,7 @@ public class PivotArm extends SubsystemBase {
   public final double kDown = 0.0; // when the gripper is PERPENDICULAR to the ground
   private static final double kCube = 0.8;
   private double m_target = kNeutralRad;
+  private boolean m_targetUp = false;
   private static final double kP = 0.15;
   private static final double kMaxVel = 1.8;
   private static final double kMaxAcc = 0.5 * kMaxVel;
@@ -59,31 +60,20 @@ public class PivotArm extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (DriverStation.isDisabled()) {
-      m_target = m_encoder.getPosition();
-    }
+    if (DriverStation.isDisabled()) m_target = m_encoder.getPosition();
+    else if (m_targetUp) m_target = kUp;
+    else m_target = kDown;
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
   }
 
-  /**
-   * This function sets the desired angle for the pivot arm
-   *
-   * @param position The desired position for the pivot arm, "up", "down", "cube"
-   * @return Desired angle for the pivot arm
-   */
-  public Command setTarget(String position) {
-    return this.runOnce(
-        () -> {
-          if (position == "up") m_target = kUp;
-          else if (position == "down") m_target = kDown;
-          else if (position == "cube") m_target = kCube;
-        });
+  public boolean isClawUp() {
+    return m_targetUp;
   }
 
-  public Command compensate(double position, double speed) {
-    return setTarget("down");
+  public Command setPivotState(boolean state) {
+    return this.runOnce(() -> m_targetUp = state);
   }
 
   public double getTarget() {
@@ -113,7 +103,7 @@ public class PivotArm extends SubsystemBase {
 
   public void setZero() {
     if (!hasSetZero) {
-      setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
+      setSpeed(-0.1).until(this::maxResReached).andThen(setPivotState(false));
       hasSetZero = true;
     }
   }
