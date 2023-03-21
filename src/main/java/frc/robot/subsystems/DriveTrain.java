@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -92,6 +94,8 @@ public class DriveTrain extends SubsystemBase {
   private final SlewRateLimiter m_yLimiter = new SlewRateLimiter(kMaxAccTrans);
   private final SlewRateLimiter m_zLimiter = new SlewRateLimiter(kMaxAccRot);
 
+  private Field2d m_field = new Field2d();
+
   private final Vision m_vision;
 
   LinearFilter m_xAccel = LinearFilter.movingAverage(30);
@@ -110,13 +114,13 @@ public class DriveTrain extends SubsystemBase {
     m_gyro.reset();
     // Run path planning server
     PathPlannerServer.startServer(kPathServerPort);
+    SmartDashboard.putData("field", m_field);
   }
 
   @Override
   public void periodic() {
     // resetOdometry();
     // Call module periodic
-    inDeadband();
     filteredX = m_xAccel.calculate(m_accelerometer.getX());
 
     for (final var module : m_modules) {
@@ -130,8 +134,7 @@ public class DriveTrain extends SubsystemBase {
     VisionMeasurement visionMes = m_vision.getMeasurement();
     if (visionMes != null && visionMes.m_timestamp != m_lastVisionTimestamp) {
       var visionPose =
-          new Pose2d(
-              visionMes.m_pose.getTranslation(), m_odometry.getEstimatedPosition().getRotation());
+          new Pose2d(visionMes.m_pose.getTranslation(), visionMes.m_pose.getRotation());
 
       if (m_lastVisionTimestamp < 0.0) {
         // Reset odometry to vision measurement on first observation
@@ -142,6 +145,7 @@ public class DriveTrain extends SubsystemBase {
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
 
+    m_field.setRobotPose(m_odometry.getEstimatedPosition());
     // System.out.println(m_accelerometer.getZ());
   }
 

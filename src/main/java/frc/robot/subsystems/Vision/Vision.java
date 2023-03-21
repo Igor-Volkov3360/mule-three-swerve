@@ -23,6 +23,12 @@ public class Vision extends SubsystemBase {
           .getDoubleArrayTopic("position")
           .subscribe(new double[] {});
 
+  private DoubleArraySubscriber m_camRotation =
+      NetworkTableInstance.getDefault()
+          .getTable("SmartDashboard")
+          .getDoubleArrayTopic("rotation")
+          .subscribe(new double[] {});
+
   /** Creates a new Vision. */
   public Vision() {}
 
@@ -31,22 +37,24 @@ public class Vision extends SubsystemBase {
     // This method will be called once per scheduler run
 
     final var position = m_camPose.get();
+    final var rotation = m_camRotation.get();
     // System.out.println(position.length);
 
-    if (position.length == 3) {
-
+    if (position.length == 3 && rotation.length == 3) {
+      var tagRotation = Rotation2d.fromDegrees(rotation[1]);
+      var robotRotation = tagRotation;
+      if (position[0] < 7.5) {
+        robotRotation = tagRotation.rotateBy(Rotation2d.fromDegrees(180));
+      }
       var measurement = new VisionMeasurement();
-      measurement.m_timestamp = Timer.getFPGATimestamp();
-      measurement.m_pose =
-          new Pose2d(new Translation2d(position[0], position[1]), new Rotation2d());
 
-      // System.out.println(measurement);
+      measurement.m_timestamp = Timer.getFPGATimestamp();
+      measurement.m_pose = new Pose2d(new Translation2d(position[0], position[1]), robotRotation);
 
       if (m_latestMeasure == null
           || (m_latestMeasure.m_pose.getX() != measurement.m_pose.getX()
               || m_latestMeasure.m_pose.getY() != measurement.m_pose.getY())) {
         m_latestMeasure = measurement;
-        // System.out.println(measurement);
       }
     }
   }
