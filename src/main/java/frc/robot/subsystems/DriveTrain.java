@@ -103,7 +103,7 @@ public class DriveTrain extends SubsystemBase {
 
   // Process variables
   private double m_lastVisionTimestamp = -1.0;
-  private PathPlannerTrajectory m_scoringTrajectory = null;
+  private Command m_scoringCommand = Commands.none();
 
   /** Creates a new DriveTrain. */
   public DriveTrain(Vision vision) {
@@ -155,8 +155,10 @@ public class DriveTrain extends SubsystemBase {
     switch (mode) {
       case New:
         this.resetToCLosestScoringPos();
+        this.goToTargetGoal();
         break;
       case Last:
+
       case Disabled:
     }
   }
@@ -374,9 +376,16 @@ public class DriveTrain extends SubsystemBase {
    * @return commands that make the robot go to the right scoring pos
    */
   public Command goToTargetGoal() {
-    return Commands.sequence(
-        this.runOnce(() -> m_scoringTrajectory = this.onTheFlyToScoringPos()),
-        this.followPathCommand(m_scoringTrajectory, false, false));
+    return this.runOnce(
+        () -> {
+          final var traj = this.onTheFlyToScoringPos();
+          m_scoringCommand = this.followPathCommand(traj, false, false);
+          m_scoringCommand.schedule();
+        });
+  }
+
+  public Command stop() {
+    return this.runOnce(() -> this.driveWithSpeed(0.0, 0.0, 0.0));
   }
 
   /**
@@ -392,16 +401,19 @@ public class DriveTrain extends SubsystemBase {
   public void incrementScorePosition(boolean direction) {
     if (direction) YScoringPos += 0.6;
     else YScoringPos -= 0.6;
-
+    System.out.println("incrementing" + YScoringPos);
     // clamps around min and max value to insure we don't run into the walls
-    MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
+    YScoringPos = MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
   }
 
   /* reset the yScoringPos to closest scoring area */
-  public void resetToCLosestScoringPos() {
-    double YCurrentPos = m_odometry.getEstimatedPosition().getY();
-    double YCurrentBox = (YCurrentPos - minYScoringPos) / scoringGridIncrements;
-    YScoringPos = (Math.round(YCurrentBox) * scoringGridIncrements) + minYScoringPos;
+  public Command resetToCLosestScoringPos() {
+    return this.runOnce(
+        () -> {
+          double YCurrentPos = m_odometry.getEstimatedPosition().getY();
+          double YCurrentBox = (YCurrentPos - minYScoringPos) / scoringGridIncrements;
+          YScoringPos = (Math.round(YCurrentBox) * scoringGridIncrements) + minYScoringPos;
+        });
   }
 
   /**
