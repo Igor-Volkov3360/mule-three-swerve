@@ -26,6 +26,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Sequences;
 import frc.robot.subsystems.BuddyClimb;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.DriveTrain.Mode;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
@@ -179,8 +180,12 @@ public class RobotContainer {
     m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
     // should enable vision mode
-    // m_driverController.leftBumper().whileTrue(m_drive.setVisionMode(Mode.Last));
-    // m_driverController.rightBumper().whileTrue(m_drive.setVisionMode(Mode.New));
+    m_driverController
+        .leftBumper()
+        .whileTrue(m_drive.setVisionMode(Mode.Last).andThen(m_drive.goToTargetGoal()));
+    m_driverController
+        .rightBumper()
+        .whileTrue(m_drive.setVisionMode(Mode.New).andThen(m_drive.goToTargetGoal()));
 
     // m_driverController.rightBumper().onTrue(invertJoystick());
 

@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -115,6 +116,7 @@ public class DriveTrain extends SubsystemBase {
     // Run path planning server
     PathPlannerServer.startServer(kPathServerPort);
     SmartDashboard.putData("field", m_field);
+    Shuffleboard.getTab("positions").add("y position", YScoringPos);
   }
 
   @Override
@@ -153,11 +155,8 @@ public class DriveTrain extends SubsystemBase {
     switch (mode) {
       case New:
         this.resetToCLosestScoringPos();
-        this.goToTargetGoal();
         break;
       case Last:
-        this.goToTargetGoal();
-        break;
       case Disabled:
     }
   }
