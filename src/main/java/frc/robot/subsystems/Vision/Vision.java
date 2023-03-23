@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Vision extends SubsystemBase {
 
   VisionMeasurement m_latestMeasure = null;
-
+  double m_visionZRotate = 0;
+  double cubeX = 0;
+  double cubeY = 0;
   private DoubleArraySubscriber m_camPose =
       NetworkTableInstance.getDefault()
           .getTable("SmartDashboard")
@@ -27,6 +29,12 @@ public class Vision extends SubsystemBase {
       NetworkTableInstance.getDefault()
           .getTable("SmartDashboard")
           .getDoubleArrayTopic("rotation")
+          .subscribe(new double[] {});
+
+  private DoubleArraySubscriber m_detection =
+      NetworkTableInstance.getDefault()
+          .getTable("SmartDashboard")
+          .getDoubleArrayTopic("detection")
           .subscribe(new double[] {});
 
   /** Creates a new Vision. */
@@ -54,9 +62,11 @@ public class Vision extends SubsystemBase {
       if (m_latestMeasure == null
           || (m_latestMeasure.m_pose.getX() != measurement.m_pose.getX()
               || m_latestMeasure.m_pose.getY() != measurement.m_pose.getY())) {
+        m_visionZRotate = Rotation2d.fromDegrees(rotation[0]).getDegrees();
         m_latestMeasure = measurement;
       }
     }
+    System.out.println("cube position :  x : " + getCubeXpos() + " y : " + getCubeYpos());
   }
 
   /**
@@ -66,5 +76,33 @@ public class Vision extends SubsystemBase {
    */
   public VisionMeasurement getMeasurement() {
     return this.m_latestMeasure;
+  }
+
+  public double getZRotate() {
+    return m_visionZRotate;
+  }
+
+  public boolean isRobotTooFar() {
+    return m_visionZRotate < 18;
+  }
+
+  public double getCubeYpos() {
+    final var pos = m_detection.get();
+    double xPos = 0;
+    if (pos.length == 4) {
+      xPos = pos[2];
+      xPos = 0.0023 * xPos - 0.6187;
+    }
+    return xPos;
+  }
+
+  public double getCubeXpos() {
+    final var pos = m_detection.get();
+    double yPos = 0;
+    if (pos.length == 4) {
+      yPos = pos[3];
+      yPos = -0.0058 * yPos + 2.782;
+    }
+    return yPos;
   }
 }

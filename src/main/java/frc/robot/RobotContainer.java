@@ -182,16 +182,15 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
     m_driverController.leftBumper().onFalse(m_drive.stop());
 
-    m_driverController
-        .rightBumper()
-        .whileTrue(Commands.sequence(m_drive.resetToCLosestScoringPos(), m_drive.goToTargetGoal()));
-
+    m_driverController.rightBumper().onTrue(m_drive.goToTargetCube());
+    m_driverController.rightBumper().onFalse(m_drive.stop());
     // m_driverController.rightBumper().onTrue(invertJoystick());
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
 
-    m_driverController.povUp().onTrue(m_drive.balance());
+    m_driverController.povUp().onTrue(m_drive.autoBalance());
+    m_driverController.povUp().onFalse(m_drive.stop());
 
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbPanel.purpleCommand()));

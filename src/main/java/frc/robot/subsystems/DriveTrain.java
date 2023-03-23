@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -121,6 +122,8 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    System.out.println("isBalanced : " + isBalanced());
     // resetOdometry();
     // Call module periodic
     filteredX = m_xAccel.calculate(m_accelerometer.getX());
@@ -321,6 +324,20 @@ public class DriveTrain extends SubsystemBase {
     return PathPlanner.generatePath(new PathConstraints(4, 4), getOnTheFlyStart(), scoringPos);
   }
 
+  private PathPlannerTrajectory onTheFlyToCube() {
+
+    var robotPos = m_odometry.getEstimatedPosition().getTranslation();
+    var tempPoint = new Translation2d(m_vision.getCubeXpos(), m_vision.getCubeYpos());
+    tempPoint.rotateBy(m_odometry.getEstimatedPosition().getRotation().unaryMinus());
+    var scoringPos =
+        new PathPoint(
+            tempPoint.plus(robotPos),
+            Rotation2d.fromDegrees(0),
+            m_odometry.getEstimatedPosition().getRotation());
+
+    return PathPlanner.generatePath(new PathConstraints(4, 4), getOnTheFlyStart(), scoringPos);
+  }
+
   private PathPoint getOnTheFlyStart() {
     var translation = m_odometry.getEstimatedPosition().getTranslation();
     var holonomicRot = m_odometry.getEstimatedPosition().getRotation();
@@ -379,6 +396,15 @@ public class DriveTrain extends SubsystemBase {
     return this.runOnce(
         () -> {
           final var traj = this.onTheFlyToScoringPos();
+          m_scoringCommand = this.followPathCommand(traj, false, false);
+          m_scoringCommand.schedule();
+        });
+  }
+
+  public Command goToTargetCube() {
+    return this.runOnce(
+        () -> {
+          final var traj = this.onTheFlyToCube();
           m_scoringCommand = this.followPathCommand(traj, false, false);
           m_scoringCommand.schedule();
         });
@@ -443,8 +469,37 @@ public class DriveTrain extends SubsystemBase {
 
   }
   */
+  public void autoBalance1() {
+    if (hasRecentTarget()) {
+      if (!isBalanced()) drive(0.25, 0, 0, false);
+      else stop();
+    } else drive(-0.25, 0, 0, false);
+  }
+
+  public Command autoBalance() {
+    return this.run(() -> this.autoBalance1());
+  }
+
+  public Command backtrackBalance() {
+    return Commands.either(
+        this.runOnce(() -> this.stop()),
+        this.run(() -> this.drive(0.25, 0, 0, false)),
+        this::isBalanced);
+  }
 
   public Command driveWithSpeed(double speedX, double speedY, double rotation) {
     return this.runOnce(() -> this.drive(speedX, speedY, rotation, true));
+  }
+
+  public boolean hasRecentTarget() {
+    return Timer.getFPGATimestamp() - m_lastVisionTimestamp < 0.25;
+  }
+
+  public double timeSinceLastTarget() {
+    return Timer.getFPGATimestamp() - m_lastVisionTimestamp;
+  }
+
+  public boolean isBalanced() {
+    return hasRecentTarget() && !m_vision.isRobotTooFar();
   }
 }
