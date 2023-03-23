@@ -25,7 +25,6 @@ public class PivotArm extends SubsystemBase {
 
   public final double kUp = 2.2; // when the gripper is PARRALLEL to the ground
   public final double kDown = 0.0; // when the gripper is PERPENDICULAR to the ground
-  private static final double kCube = 0.8;
   private double m_target = kNeutralRad;
   private boolean m_targetUp = false;
   private static final double kP = 0.15;

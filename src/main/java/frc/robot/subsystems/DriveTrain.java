@@ -367,14 +367,10 @@ public class DriveTrain extends SubsystemBase {
     m_odometry.resetPosition(m_gyro.getRotation2d(), this.getModulePositions(), start.poseMeters);
   }
 
-  private boolean inDeadband() {
-    return m_gyro.getAngle() < 0.2 && m_gyro.getAngle() > -0.2;
-  }
-
   public Command balance() {
     return this.run(() -> drive(0.6, 0, 0, true))
         .until(this::inAngle)
-        .andThen(this.run(() -> drive(0.4, 0, 0, true)))
+        .andThen(this.run(() -> drive(0.3, 0, 0, true)))
         .until(this::parallel)
         .andThen(this.runOnce(() -> drive(0, 0, 0, true)));
   }
