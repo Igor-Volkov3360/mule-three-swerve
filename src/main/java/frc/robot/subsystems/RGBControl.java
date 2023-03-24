@@ -31,8 +31,6 @@ public class RGBControl extends SubsystemBase {
   private static Solenoid green = new Solenoid(PneumaticsModuleType.CTREPCM, greenChannel);
   private static Solenoid blue = new Solenoid(PneumaticsModuleType.CTREPCM, blueChannel);
 
-  private boolean m_state = false;
-
   /** Creates a new RGBControl. */
   public RGBControl() {}
 
@@ -104,10 +102,6 @@ public class RGBControl extends SubsystemBase {
           select2.set(false);
           select3.set(false);
         });
-  }
-
-  public Command onPdp(boolean isOn) {
-    return this.runOnce(() -> m_state = isOn);
   }
 
   public Command redCommandStrip(boolean state) {
