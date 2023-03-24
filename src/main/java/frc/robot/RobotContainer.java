@@ -189,8 +189,8 @@ public class RobotContainer {
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
 
-    m_driverController.povUp().onTrue(m_drive.autoBalance());
-    m_driverController.povUp().onFalse(m_drive.stop());
+    // m_driverController.povUp().onTrue(m_drive.autoBalance());
+    // m_driverController.povUp().onFalse(m_drive.stop());
 
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbPanel.purpleCommand()));

@@ -314,14 +314,54 @@ public class DriveTrain extends SubsystemBase {
     final var alliance = DriverStation.getAlliance();
     final var scoringDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
     final var scoringX = alliance == Alliance.Blue ? 2.0 : 14.7;
+    final var robotPos = m_odometry.getEstimatedPosition().getTranslation();
+    double waypointY = 4.75;
+    double waypointX = 5.5;
+    double scorePosY = this.YScoringPos;
+    var headingScore = Rotation2d.fromDegrees(90);
+    var headingWay = Rotation2d.fromDegrees(180);
 
+    // sets the right X coordinate according to color
+    if (alliance == Alliance.Red) {
+      waypointX = 13.0;
+      headingWay = Rotation2d.fromDegrees(0);
+    }
+    // decides if the robots goes around the left or right side
+    if (robotPos.getY() < 2.75) waypointY = 0.75;
+
+    var waypoint1 =
+        new PathPoint(
+            new Translation2d(waypointX, waypointY),
+            headingWay,
+            Rotation2d.fromDegrees(scoringDirDeg));
+
+    var waypoint2 =
+        new PathPoint(
+            new Translation2d(scoringX, waypointY),
+            headingWay,
+            Rotation2d.fromDegrees(scoringDirDeg));
+
+    if (alliance == Alliance.Blue) {
+      if (waypointY > scorePosY) headingScore = Rotation2d.fromDegrees(270);
+    }
+    if (alliance == Alliance.Red) {
+      if (waypointY < scorePosY) headingScore = Rotation2d.fromDegrees(270);
+    }
     var scoringPos =
         new PathPoint(
             new Translation2d(scoringX, this.YScoringPos),
-            Rotation2d.fromDegrees(0),
+            headingScore,
             Rotation2d.fromDegrees(scoringDirDeg));
 
-    return PathPlanner.generatePath(new PathConstraints(4, 4), getOnTheFlyStart(), scoringPos);
+    if (robotPos.getX() > 4.5 && robotPos.getX() < 12) {
+      return PathPlanner.generatePath(
+          new PathConstraints(4, 4), getOnTheFlyStart(), waypoint1, waypoint2, scoringPos);
+    } else if (robotPos.getX() > 2.5 && robotPos.getX() < 14) {
+      return PathPlanner.generatePath(
+          new PathConstraints(4, 4), getOnTheFlyStart(), waypoint2, scoringPos);
+    } else {
+      return PathPlanner.generatePath(new PathConstraints(4, 4), getOnTheFlyStart(), scoringPos);
+    }
   }
 
   private PathPlannerTrajectory onTheFlyToCube() {

@@ -9,18 +9,28 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /** Subsystem for the RGBPanel */
 public class RGBControl extends SubsystemBase {
 
+  private static final int redChannel = 0;
+  private static final int greenChannel = 1;
+  private static final int blueChannel = 2;
+
   private static DigitalOutput select1 = new DigitalOutput(0);
   private static DigitalOutput select2 = new DigitalOutput(1);
   private static DigitalOutput select3 = new DigitalOutput(2);
   private static PowerDistribution m_pdp = new PowerDistribution(20, ModuleType.kRev);
+  private static Solenoid red = new Solenoid(PneumaticsModuleType.CTREPCM, redChannel);
+  private static Solenoid green = new Solenoid(PneumaticsModuleType.CTREPCM, greenChannel);
+  private static Solenoid blue = new Solenoid(PneumaticsModuleType.CTREPCM, blueChannel);
+
   private boolean m_state = false;
 
   /** Creates a new RGBControl. */
@@ -98,5 +108,17 @@ public class RGBControl extends SubsystemBase {
 
   public Command onPdp(boolean isOn) {
     return this.runOnce(() -> m_state = isOn);
+  }
+
+  public Command redCommandStrip(boolean state) {
+    return this.runOnce(() -> red.set(state));
+  }
+
+  public Command greenCommandStrip(boolean state) {
+    return this.runOnce(() -> green.set(state));
+  }
+
+  public Command blueCommandStrip(boolean state) {
+    return this.runOnce(() -> blue.set(state));
   }
 }
