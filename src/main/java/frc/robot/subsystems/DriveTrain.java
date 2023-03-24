@@ -315,7 +315,7 @@ public class DriveTrain extends SubsystemBase {
     final var scoringDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
     final var scoringX = alliance == Alliance.Blue ? 2.0 : 14.7;
     final var robotPos = m_odometry.getEstimatedPosition().getTranslation();
-    double waypointY = 4.75;
+    double waypointY = 4.65;
     double waypointX = 5.5;
     double scorePosY = this.YScoringPos;
     var headingScore = Rotation2d.fromDegrees(90);
@@ -355,27 +355,13 @@ public class DriveTrain extends SubsystemBase {
 
     if (robotPos.getX() > 4.5 && robotPos.getX() < 12) {
       return PathPlanner.generatePath(
-          new PathConstraints(4, 4), getOnTheFlyStart(), waypoint1, waypoint2, scoringPos);
+          new PathConstraints(3, 3), getOnTheFlyStart(), waypoint1, waypoint2, scoringPos);
     } else if (robotPos.getX() > 2.5 && robotPos.getX() < 14) {
       return PathPlanner.generatePath(
-          new PathConstraints(4, 4), getOnTheFlyStart(), waypoint2, scoringPos);
+          new PathConstraints(3, 3), getOnTheFlyStart(), waypoint2, scoringPos);
     } else {
-      return PathPlanner.generatePath(new PathConstraints(4, 4), getOnTheFlyStart(), scoringPos);
+      return PathPlanner.generatePath(new PathConstraints(3, 3), getOnTheFlyStart(), scoringPos);
     }
-  }
-
-  private PathPlannerTrajectory onTheFlyToCube() {
-
-    var robotPos = m_odometry.getEstimatedPosition().getTranslation();
-    var tempPoint = new Translation2d(m_vision.getCubeXpos(), m_vision.getCubeYpos());
-    tempPoint.rotateBy(m_odometry.getEstimatedPosition().getRotation().unaryMinus());
-    var scoringPos =
-        new PathPoint(
-            tempPoint.plus(robotPos),
-            Rotation2d.fromDegrees(0),
-            m_odometry.getEstimatedPosition().getRotation());
-
-    return PathPlanner.generatePath(new PathConstraints(4, 4), getOnTheFlyStart(), scoringPos);
   }
 
   private PathPoint getOnTheFlyStart() {
@@ -438,12 +424,7 @@ public class DriveTrain extends SubsystemBase {
   }
 
   public Command goToTargetCube() {
-    return this.runOnce(
-        () -> {
-          final var traj = this.onTheFlyToCube();
-          m_scoringCommand = this.followPathCommand(traj, false, false);
-          m_scoringCommand.schedule();
-        });
+    return driveWithSpeed(m_vision.getCubeYpos(), m_vision.getCubeXpos(), 0);
   }
 
   public Command stop() {
@@ -451,10 +432,14 @@ public class DriveTrain extends SubsystemBase {
   }
 
   /**
-   * @param toTheRight true means robot goes right
+   * @param toTheRight true means robot goes right, flips automatically with the color
    */
   public Command moveScorePosition(boolean toTheRight) {
-    return this.runOnce(() -> incrementScorePosition(toTheRight));
+    return this.runOnce(
+        () -> {
+          boolean temp = DriverStation.getAlliance() == Alliance.Red ? !toTheRight : toTheRight;
+          this.incrementScorePosition(temp);
+        });
   }
 
   /**
@@ -497,13 +482,6 @@ public class DriveTrain extends SubsystemBase {
         m_odometry.resetPosition(
             m_gyro.getRotation2d(), this.getModulePositions(), m_vision.getMeasurement().m_pose);
     }
-
-  public Command alignWithVision() {
-
-    return () -> this.resetToCLosestScoringPos();
-    // drive there
-
-  }
   */
   public void autoBalance1() {
     if (hasRecentTarget()) {

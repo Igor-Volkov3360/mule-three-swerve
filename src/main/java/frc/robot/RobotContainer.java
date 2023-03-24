@@ -178,7 +178,7 @@ public class RobotContainer {
 
     m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
-    // should enable vision mode
+    // moves the robot the the designed goal (increment goal using codriver POV)
     m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
     m_driverController.leftBumper().onFalse(m_drive.stop());
 
@@ -244,8 +244,8 @@ public class RobotContainer {
                 .alongWith(new PrintCommand("Cone Mode"))
                 .unless(this::inConeMode));
 
-    m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(false));
-    m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(true));
+    m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(true));
+    m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(false));
   }
 
   /**
