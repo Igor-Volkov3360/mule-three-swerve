@@ -313,9 +313,10 @@ public class DriveTrain extends SubsystemBase {
 
     final var alliance = DriverStation.getAlliance();
     final var scoringDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
-    final var scoringX = alliance == Alliance.Blue ? 2.0 : 14.7;
+    final var scoringX = alliance == Alliance.Blue ? 2.1 : 14.6;
     final var robotPos = m_odometry.getEstimatedPosition().getTranslation();
-    double waypointY = 4.65;
+    double waypointY = 4.75;
+    double waypoint2X = alliance == Alliance.Blue ? 2.3 : 14.4;
     double waypointX = 5.5;
     double scorePosY = this.YScoringPos;
     var headingScore = Rotation2d.fromDegrees(90);
@@ -337,7 +338,7 @@ public class DriveTrain extends SubsystemBase {
 
     var waypoint2 =
         new PathPoint(
-            new Translation2d(scoringX, waypointY),
+            new Translation2d(waypoint2X, waypointY),
             headingWay,
             Rotation2d.fromDegrees(scoringDirDeg));
 
@@ -355,16 +356,17 @@ public class DriveTrain extends SubsystemBase {
 
     if (robotPos.getX() > 4.5 && robotPos.getX() < 12) {
       return PathPlanner.generatePath(
-          new PathConstraints(3, 3), getOnTheFlyStart(), waypoint1, waypoint2, scoringPos);
+          new PathConstraints(3, 3), getOnTheFlyStart(false), waypoint1, waypoint2, scoringPos);
     } else if (robotPos.getX() > 2.5 && robotPos.getX() < 14) {
       return PathPlanner.generatePath(
-          new PathConstraints(3, 3), getOnTheFlyStart(), waypoint2, scoringPos);
+          new PathConstraints(3, 3), getOnTheFlyStart(false), waypoint2, scoringPos);
     } else {
-      return PathPlanner.generatePath(new PathConstraints(3, 3), getOnTheFlyStart(), scoringPos);
+      return PathPlanner.generatePath(
+          new PathConstraints(3, 3), getOnTheFlyStart(true), scoringPos);
     }
   }
 
-  private PathPoint getOnTheFlyStart() {
+  private PathPoint getOnTheFlyStart(boolean headingOverride) {
     var translation = m_odometry.getEstimatedPosition().getTranslation();
     var holonomicRot = m_odometry.getEstimatedPosition().getRotation();
     var chassisSpeed = m_kinematics.toChassisSpeeds(getModuleStates());
@@ -376,7 +378,8 @@ public class DriveTrain extends SubsystemBase {
     var vx = fieldSpeed.getX();
     var vy = fieldSpeed.getY();
     var magnitude = Math.sqrt(vx * vx + vy * vy);
-    var direction = Rotation2d.fromRadians(Math.atan2(vy, vx));
+    var direction =
+        headingOverride ? Rotation2d.fromDegrees(90) : Rotation2d.fromRadians(Math.atan2(vy, vx));
 
     return new PathPoint(translation, direction, holonomicRot, magnitude);
   }
@@ -423,8 +426,22 @@ public class DriveTrain extends SubsystemBase {
         });
   }
 
+  public Command autoPath(PathPlannerTrajectory traj) {
+    return this.runOnce(
+        () -> {
+          final var m_traj = traj;
+          m_scoringCommand = this.followPathCommand(m_traj, false, false);
+          m_scoringCommand.schedule();
+        });
+  }
+
   public Command goToTargetCube() {
-    return driveWithSpeed(m_vision.getCubeYpos(), m_vision.getCubeXpos(), 0);
+    return this.run(
+        () -> {
+          double xSpeed = m_vision.getCubeYpos();
+          double ySpeed = m_vision.getCubeXpos();
+          this.driveWithSpeed(xSpeed, ySpeed, 0);
+        });
   }
 
   public Command stop() {
