@@ -493,13 +493,6 @@ public class DriveTrain extends SubsystemBase {
     return m_visionMode == Mode.Disabled;
   }
 
-  /*
-    public void resetOdometry() {
-      if (m_vision.getMeasurement().m_pose != null)
-        m_odometry.resetPosition(
-            m_gyro.getRotation2d(), this.getModulePositions(), m_vision.getMeasurement().m_pose);
-    }
-  */
   public void autoBalance1() {
     if (hasRecentTarget()) {
       if (!isBalanced()) drive(0.25, 0, 0, false);
