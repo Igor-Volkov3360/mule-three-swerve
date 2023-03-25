@@ -182,8 +182,8 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
     m_driverController.leftBumper().onFalse(m_drive.stop());
 
-    m_driverController.rightBumper().whileTrue(m_drive.goToTargetCube());
-    m_driverController.rightBumper().onFalse(m_drive.stop());
+    //m_driverController.rightBumper().whileTrue(m_drive.goToTargetCube());
+    //m_driverController.rightBumper().onFalse(m_drive.stop());
     // m_driverController.rightBumper().onTrue(invertJoystick());
 
     // activate buddyClimb
@@ -229,7 +229,7 @@ public class RobotContainer {
     m_coDriverController
         .start()
         .onTrue(
-            Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm)
+            Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
                 .andThen(this.setMode(RobotMode.Cube))
                 .andThen(m_rgbPanel.purpleCommand())
                 .alongWith(new PrintCommand("Cube Mode"))
@@ -324,13 +324,13 @@ public class RobotContainer {
 
   public Command autoPlaceCone() {
     return m_gripper
-        .setGripperState(false)
+        .defaultWinch()
         .andThen(new WaitCommand(0.1))
         .andThen(Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper))
         .andThen(new WaitCommand(0.1))
         .andThen(m_gripper.setGripperState(true))
         .andThen(new WaitCommand(0.25))
-        .andThen(Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm))
+        .andThen(Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels))
         .andThen(this.setMode(RobotMode.Cube));
   }
 }
