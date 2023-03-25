@@ -21,7 +21,7 @@ public class PivotArm extends SubsystemBase {
   private static final double kNativeToRad = 1.0;
   private static final double kNominalVolt = 10.0;
   private static final double kHorizontalPercent = 0.02;
-  private static final double kNeutralRad = 0.0;
+  private static final double kNeutralRad = 0.7;
 
   public final double kUp = 2.2; // when the gripper is PARRALLEL to the ground
   public final double kDown = 0.0; // when the gripper is PERPENDICULAR to the ground
@@ -87,18 +87,6 @@ public class PivotArm extends SubsystemBase {
   public boolean maxResReached() {
     return m_pivot.getOutputCurrent() > maxResistance;
   }
-
-  /*
-  public Command setZero() {
-    return this.runOnce(
-        () -> {
-          if (hasSetZero == false) {
-            setSpeed(-0.1).until(this::maxResReached).andThen(setTarget("down"));
-            hasSetZero = true;
-          }
-        });
-  }
-  */
 
   public void setZero() {
     if (!hasSetZero) {

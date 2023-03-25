@@ -12,6 +12,7 @@ import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Position;
+import frc.robot.subsystems.Wheels.WheelLevel;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.Wheels;
 
@@ -37,14 +38,15 @@ public class Sequences {
         elevator.extendTo(Level.Down));
   }
 
-  public static Command SwitchToCube(Elevator elevator, Intake intake, PivotArm pivotArm) {
+  public static Command SwitchToCube(Elevator elevator, Intake intake, PivotArm pivotArm, Wheels wheels) {
     return Commands.sequence(
         elevator.extendTo(Level.Sequences),
         new WaitCommand(0.3), // do NOT remove this delay, its perfect
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
         pivotArm.setPivotState(false),
-        intake.setAngle(Position.Retracted));
+        intake.setAngle(Position.Retracted),
+        wheels.stop());
   }
 
   public static Command scoreConeThird(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
@@ -53,7 +55,7 @@ public class Sequences {
 
   public static Command scoreConeSecond(Elevator elevator, PivotArm pivotArm, Gripper gripper) {
     return Commands.sequence(
-        elevator.extendTo(Elevator.Level.Second), pivotArm.setPivotState(false));
+        elevator.extendTo(Elevator.Level.Second), pivotArm.setPivotState(true));
   }
 
   /**
@@ -65,7 +67,8 @@ public class Sequences {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         wheels.holdSpeed(Wheels.WheelLevel.Pickup).until(intake::hasCube),
-        intake.setAngle(Position.Retracted));
+        intake.setAngle(Position.Retracted),
+        wheels.setTargetLevel(Wheels.WheelLevel.Hold));
   }
 
   /**
@@ -90,11 +93,17 @@ public class Sequences {
 
   public static Command setTargetThirdIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
-        intake.setAngle(Intake.Position.Launch), wheels.setTargetLevel(Wheels.WheelLevel.Third));
+      intake.setAngle(Intake.Position.Launch),
+      wheels.setTargetLevel(Wheels.WheelLevel.Hold), 
+      wheels.setSpeedWithTarget(), 
+      wheels.setTargetLevel(Wheels.WheelLevel.Third));
   }
 
   public static Command setTargetSecondIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
-        intake.setAngle(Intake.Position.Launch), wheels.setTargetLevel(Wheels.WheelLevel.Second));
+        intake.setAngle(Intake.Position.Launch),
+        wheels.setTargetLevel(Wheels.WheelLevel.Hold), 
+        wheels.setSpeedWithTarget(), 
+        wheels.setTargetLevel(Wheels.WheelLevel.Second));
   }
 }

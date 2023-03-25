@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 public class Wheels extends SubsystemBase {
 
@@ -27,8 +28,8 @@ public class Wheels extends SubsystemBase {
   private static final int kWheelsRight = 18;
 
   private static final double kWheelSpeedPreload = -0.25;
-  private static final double kWheelSpeed2nd = 0.22;
-  private static final double kWheelSpeed3rd = 0.45;
+  private static final double kWheelSpeed2nd = 0.20;
+  private static final double kWheelSpeed3rd = 0.43;
   private static final double kWheelSpeedHold = -0.05;
   private static final double kWheelSpeedPickup = -0.3;
   private static final double kWheelSpeedFirst = 0.10;
@@ -56,14 +57,11 @@ public class Wheels extends SubsystemBase {
 
     m_wheelsLeft.burnFlash();
     m_wheelsRight.burnFlash();
-
-    this.setDefaultCommand(this.stop());
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if (m_intake.getPosition() == m_intake.kInsideRad) m_wheelSpeed = kWheelSpeedHold;
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
 
@@ -123,8 +121,10 @@ public class Wheels extends SubsystemBase {
   public Command launchTo() {
     return Commands.sequence(
         this.holdSpeed(WheelLevel.Preload).withTimeout(kPreloadTime),
-        this.setSpeedWithTarget().withTimeout(kLaunchTime),
-        this.stop());
+        this.setSpeedWithTarget(),
+        new WaitCommand(kLaunchTime),
+        this.stop(),
+        m_intake.setAngle(Intake.Position.Retracted));
   }
 
   public Command setTargetLevel(WheelLevel level) {
@@ -132,6 +132,6 @@ public class Wheels extends SubsystemBase {
   }
 
   public Command setSpeedWithTarget() {
-    return this.run(() -> this.setSpeedFor(m_targetLevel));
+    return this.runOnce(() -> this.setSpeedFor(m_targetLevel));
   }
 }

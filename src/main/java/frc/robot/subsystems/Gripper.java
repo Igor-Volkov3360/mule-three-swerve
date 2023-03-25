@@ -24,8 +24,9 @@ public class Gripper extends SubsystemBase {
   private double cmd = 0;
   private static final int kMaxCurrent = 10;
 
-  private double m_target = kOpenPosition;
-  private boolean m_open = true;
+  private double m_target = kClosePositionCone;
+  private boolean m_open = false;
+  private boolean m_isReseting = false;
 
   // Member objects
   private final CANSparkMax m_gripper = new CANSparkMax(kGripperId, MotorType.kBrushless);
@@ -43,10 +44,15 @@ public class Gripper extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    setTarget();
-    err = m_target - m_gripper.getEncoder().getPosition();
-    cmd = err * kp;
-    m_gripper.set(MathUtil.clamp(cmd, -0.7, 0.7));
+    if(!m_isReseting){
+      setTarget();
+      err = m_target - m_gripper.getEncoder().getPosition();
+      cmd = err * kp;
+      m_gripper.set(MathUtil.clamp(cmd, -0.7, 0.7));
+    } else {
+      m_gripper.set(-0.4);
+    }
+    
 
     // System.out.println(m_open);
   }
@@ -72,8 +78,8 @@ public class Gripper extends SubsystemBase {
         });
   }
 
-  public void manualWind() {
-    m_gripper.set(-0.7);
+  public void reset(boolean resetOn) {
+    m_isReseting = resetOn;
   }
 
   /**
@@ -97,11 +103,11 @@ public class Gripper extends SubsystemBase {
   // }
 
   public Command defaultWinch() {
-    return this.run(() -> m_gripper.set(-0.4))
-        .withTimeout(2)
+    return this.run(() -> this.reset(true))
+        .withTimeout(1)
         .andThen(this.runOnce(() -> m_gripper.getEncoder().setPosition(0.0)))
-        .andThen(runOnce(() -> m_open = true))
-        .andThen(this.runOnce(() -> this.setTarget()));
+        .andThen(this.runOnce(() -> this.reset(false)))
+        .andThen(runOnce(() -> m_open = false));
   }
 
   public Command setTargetCurrent() {

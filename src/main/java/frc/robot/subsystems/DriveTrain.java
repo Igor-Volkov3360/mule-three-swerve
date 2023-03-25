@@ -312,7 +312,7 @@ public class DriveTrain extends SubsystemBase {
   private PathPlannerTrajectory onTheFlyToScoringPos() {
 
     final var alliance = DriverStation.getAlliance();
-    final var scoringDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
+    final var scoringDirDeg = alliance == Alliance.Blue ? 183.0 : 3.0;
     final var scoringX = alliance == Alliance.Blue ? 2.1 : 14.6;
     final var robotPos = m_odometry.getEstimatedPosition().getTranslation();
     double waypointY = 4.75;
