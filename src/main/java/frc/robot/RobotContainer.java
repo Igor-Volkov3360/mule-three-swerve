@@ -118,7 +118,7 @@ public class RobotContainer {
     // create options for auto mode
     m_chooser.setDefaultOption("shoot cube dont move", this.shootCube());
     m_chooser.addOption("stop", this.stop());
-    m_chooser.addOption("line", m_drive.followPathCommand(line, true, true));
+    m_chooser.addOption("place cone grab cube", this.placeConeGrabCube());
     m_chooser.addOption("balance", this.runPathBalance());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
@@ -139,7 +139,7 @@ public class RobotContainer {
             true));
     // Configure the trigger bindings
 
-    m_rgbPanel.setDefaultCommand(m_rgbPanel.teamCommand());
+    m_rgbPanel.setDefaultCommand(new InstantCommand(m_rgbPanel::redCommand, m_rgbPanel));
 
     configureBindings();
   }
@@ -182,8 +182,8 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
     m_driverController.leftBumper().onFalse(m_drive.stop());
 
-    //m_driverController.rightBumper().whileTrue(m_drive.goToTargetCube());
-    //m_driverController.rightBumper().onFalse(m_drive.stop());
+    // m_driverController.rightBumper().whileTrue(m_drive.goToTargetCube());
+    // m_driverController.rightBumper().onFalse(m_drive.stop());
     // m_driverController.rightBumper().onTrue(invertJoystick());
 
     // activate buddyClimb
@@ -332,5 +332,9 @@ public class RobotContainer {
         .andThen(new WaitCommand(0.25))
         .andThen(Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels))
         .andThen(this.setMode(RobotMode.Cube));
+  }
+
+  public Command placeConeGrabCube() {
+    return autoPlaceCone().andThen(m_drive.driveWithSpeed(0.5, 0, 0).withTimeout(1));
   }
 }

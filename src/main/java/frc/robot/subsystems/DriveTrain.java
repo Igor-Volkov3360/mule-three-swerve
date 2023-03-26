@@ -123,7 +123,7 @@ public class DriveTrain extends SubsystemBase {
   @Override
   public void periodic() {
 
-    System.out.println("isBalanced : " + isBalanced());
+    // System.out.println("isBalanced : " + isBalanced());
     // resetOdometry();
     // Call module periodic
     filteredX = m_xAccel.calculate(m_accelerometer.getX());

@@ -66,7 +66,7 @@ public class Vision extends SubsystemBase {
         m_latestMeasure = measurement;
       }
     }
-    System.out.println("cube position :  x : " + getCubeXpos() + " y : " + getCubeYpos());
+    // System.out.println("cube position :  x : " + getCubeXpos() + " y : " + getCubeYpos());
   }
 
   /**

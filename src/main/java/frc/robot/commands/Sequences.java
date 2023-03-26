@@ -12,7 +12,6 @@ import frc.robot.subsystems.Elevator.Level;
 import frc.robot.subsystems.Gripper;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Position;
-import frc.robot.subsystems.Wheels.WheelLevel;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.Wheels;
 
@@ -38,7 +37,8 @@ public class Sequences {
         elevator.extendTo(Level.Down));
   }
 
-  public static Command SwitchToCube(Elevator elevator, Intake intake, PivotArm pivotArm, Wheels wheels) {
+  public static Command SwitchToCube(
+      Elevator elevator, Intake intake, PivotArm pivotArm, Wheels wheels) {
     return Commands.sequence(
         elevator.extendTo(Level.Sequences),
         new WaitCommand(0.3), // do NOT remove this delay, its perfect
@@ -93,17 +93,17 @@ public class Sequences {
 
   public static Command setTargetThirdIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
-      intake.setAngle(Intake.Position.Launch),
-      wheels.setTargetLevel(Wheels.WheelLevel.Hold), 
-      wheels.setSpeedWithTarget(), 
-      wheels.setTargetLevel(Wheels.WheelLevel.Third));
+        intake.setAngle(Intake.Position.Launch),
+        wheels.setTargetLevel(Wheels.WheelLevel.Hold),
+        wheels.setSpeedWithTarget(),
+        wheels.setTargetLevel(Wheels.WheelLevel.Third));
   }
 
   public static Command setTargetSecondIntake(Intake intake, Wheels wheels) {
     return Commands.sequence(
         intake.setAngle(Intake.Position.Launch),
-        wheels.setTargetLevel(Wheels.WheelLevel.Hold), 
-        wheels.setSpeedWithTarget(), 
+        wheels.setTargetLevel(Wheels.WheelLevel.Hold),
+        wheels.setSpeedWithTarget(),
         wheels.setTargetLevel(Wheels.WheelLevel.Second));
   }
 }

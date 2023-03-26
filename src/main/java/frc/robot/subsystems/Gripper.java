@@ -44,7 +44,7 @@ public class Gripper extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(!m_isReseting){
+    if (!m_isReseting) {
       setTarget();
       err = m_target - m_gripper.getEncoder().getPosition();
       cmd = err * kp;
@@ -52,7 +52,6 @@ public class Gripper extends SubsystemBase {
     } else {
       m_gripper.set(-0.4);
     }
-    
 
     // System.out.println(m_open);
   }

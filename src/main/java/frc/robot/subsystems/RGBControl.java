@@ -22,14 +22,16 @@ public class RGBControl extends SubsystemBase {
   private static final int redChannel = 0;
   private static final int greenChannel = 1;
   private static final int blueChannel = 2;
+  private static final int groundChannel = 3;
 
   private static DigitalOutput select1 = new DigitalOutput(0);
   private static DigitalOutput select2 = new DigitalOutput(1);
   private static DigitalOutput select3 = new DigitalOutput(2);
   private static PowerDistribution m_pdp = new PowerDistribution(20, ModuleType.kRev);
-  private static Solenoid red = new Solenoid(PneumaticsModuleType.CTREPCM, redChannel);
-  private static Solenoid green = new Solenoid(PneumaticsModuleType.CTREPCM, greenChannel);
-  private static Solenoid blue = new Solenoid(PneumaticsModuleType.CTREPCM, blueChannel);
+  private static Solenoid red = new Solenoid(21, PneumaticsModuleType.CTREPCM, redChannel);
+  private static Solenoid green = new Solenoid(21, PneumaticsModuleType.CTREPCM, greenChannel);
+  private static Solenoid blue = new Solenoid(21, PneumaticsModuleType.CTREPCM, blueChannel);
+  private static Solenoid ground = new Solenoid(21, PneumaticsModuleType.CTREPCM, groundChannel);
 
   /** Creates a new RGBControl. */
   public RGBControl() {}
@@ -39,6 +41,7 @@ public class RGBControl extends SubsystemBase {
     // This method will be called once per scheduler run
 
     m_pdp.setSwitchableChannel(DriverStation.isEnabled());
+    System.out.println(red.get());
   }
 
   public Command Command3360() {
@@ -104,15 +107,27 @@ public class RGBControl extends SubsystemBase {
         });
   }
 
-  public Command redCommandStrip(boolean state) {
-    return this.runOnce(() -> red.set(state));
+  public void off() {
+    red.set(false);
+    green.set(false);
+    blue.set(false);
   }
 
-  public Command greenCommandStrip(boolean state) {
-    return this.runOnce(() -> green.set(state));
+  public void red() {
+    red.set(true);
+    green.set(false);
+    blue.set(false);
   }
 
-  public Command blueCommandStrip(boolean state) {
-    return this.runOnce(() -> blue.set(state));
+  public void green() {
+    red.set(false);
+    green.set(true);
+    blue.set(false);
+  }
+
+  public void blue() {
+    red.set(false);
+    green.set(false);
+    blue.set(true);
   }
 }
