@@ -51,9 +51,10 @@ public class Vision extends SubsystemBase {
     if (position.length == 3 && rotation.length == 3) {
       var tagRotation = Rotation2d.fromDegrees(rotation[1]);
       var robotRotation = tagRotation;
-      if (position[0] < 7.5) {
+      if (position[0] < 8.25) {
         robotRotation = tagRotation.rotateBy(Rotation2d.fromDegrees(180));
       }
+      System.out.println("robot rotation : " + robotRotation);
       var measurement = new VisionMeasurement();
 
       measurement.m_timestamp = Timer.getFPGATimestamp();
@@ -82,8 +83,16 @@ public class Vision extends SubsystemBase {
     return m_visionZRotate;
   }
 
-  public boolean isRobotTooFar() {
-    return m_visionZRotate < 18;
+  public boolean RobotOnTargetBalance() {
+    return getMeasurement().m_pose.getX() < 3.97 || getMeasurement().m_pose.getX() > 12.73;
+  }
+
+  public boolean RobotisTooFar() {
+    return getMeasurement().m_pose.getX() < 3.7 || getMeasurement().m_pose.getX() > 12.9;
+  }
+
+  public boolean RobotisTooClose() {
+    return getMeasurement().m_pose.getX() > 3.4 || getMeasurement().m_pose.getX() < 13.2;
   }
 
   public double getCubeYpos() {

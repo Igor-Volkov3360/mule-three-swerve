@@ -8,7 +8,6 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
-import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
@@ -120,9 +119,10 @@ public class RobotContainer {
     m_chooser.addOption("stop", this.stop());
     m_chooser.addOption("place cone grab cube", this.placeConeGrabCube());
     m_chooser.addOption("balance", this.runPathBalance());
+    m_chooser.addOption("place cone balance", placeConeBalance());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
-    camera = Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
+    // camera = Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
 
     // Drive in robot relative velocities
     m_drive.setDefaultCommand(
@@ -188,9 +188,12 @@ public class RobotContainer {
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
+    m_driverController
+        .povUp()
+        .whileTrue(m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance));
 
-    m_driverController.povUp().onTrue(autoPlaceCone());
-
+    ;
+    m_driverController.povUp().onFalse(m_drive.stop());
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbPanel.purpleCommand()));
 
@@ -198,7 +201,7 @@ public class RobotContainer {
         .b()
         .onTrue(
             Commands.either(
-                m_gripper.setGripperState(false),
+                m_gripper.defaultWinch(),
                 m_gripper.setGripperState(true),
                 m_gripper::gripperState));
 
@@ -325,16 +328,33 @@ public class RobotContainer {
   public Command autoPlaceCone() {
     return m_gripper
         .defaultWinch()
+        .andThen(m_pivotArm.setPivotState(true))
         .andThen(new WaitCommand(0.1))
         .andThen(Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper))
         .andThen(new WaitCommand(0.1))
         .andThen(m_gripper.setGripperState(true))
-        .andThen(new WaitCommand(0.25))
-        .andThen(Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels))
-        .andThen(this.setMode(RobotMode.Cube));
+        .andThen(new WaitCommand(0.25));
   }
 
   public Command placeConeGrabCube() {
-    return autoPlaceCone().andThen(m_drive.driveWithSpeed(0.5, 0, 0).withTimeout(1));
+    return autoPlaceCone()
+        .andThen(
+            m_drive
+                .runAuto1stMove()
+                .alongWith(
+                    Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
+                        .andThen(this.setMode(RobotMode.Cube))))
+        .andThen(m_drive.runAuto2ndMove().alongWith(Sequences.pickup(m_intake, m_wheels)));
+  }
+
+  public Command placeConeBalance() {
+    return autoPlaceCone()
+        .andThen(
+            m_drive
+                .runAutoBalancePath()
+                .alongWith(
+                    Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
+                        .andThen(this.setMode(RobotMode.Cube))))
+        .andThen(m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance));
   }
 }

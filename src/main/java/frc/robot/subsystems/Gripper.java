@@ -90,16 +90,15 @@ public class Gripper extends SubsystemBase {
     return this.runOnce(() -> m_open = state);
   }
 
-  // public Command changeState() {
-  //   Command tempCommand;
-  //   if (m_open == true)
-  //     tempCommand =
-  //         this.runOnce(() -> m_open = false).andThen(this.runOnce(() -> this.setTarget()));
-  //   else
-  //     tempCommand = this.runOnce(() -> m_open = true).andThen(this.runOnce(() ->
-  // this.setTarget()));
-  //   return tempCommand;
-  // }
+  /*public Command changeState() {
+    Command tempCommand;
+    if (m_open == true)
+      tempCommand =
+          this.runOnce(() -> m_open = false).andThen(this.runOnce(() -> this.setTarget()));
+    else
+      tempCommand = this.runOnce(() -> m_open = true).andThen(this.runOnce(() -> this.setTarget()));
+    return tempCommand;
+  }*/
 
   public Command defaultWinch() {
     return this.run(() -> this.reset(true))

@@ -153,19 +153,6 @@ public class DriveTrain extends SubsystemBase {
     m_field.setRobotPose(m_odometry.getEstimatedPosition());
     // System.out.println(m_accelerometer.getZ());
   }
-
-  private void setVisionFor(Mode mode) {
-    switch (mode) {
-      case New:
-        this.resetToCLosestScoringPos();
-        this.goToTargetGoal();
-        break;
-      case Last:
-
-      case Disabled:
-    }
-  }
-
   /**
    * Gets the current position of all modules
    *
@@ -303,6 +290,81 @@ public class DriveTrain extends SubsystemBase {
                 this));
   }
 
+  public PathPlannerTrajectory autoPathBalance() {
+
+    final var alliance = DriverStation.getAlliance();
+    final var moveDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
+    final var balanceX = alliance == Alliance.Blue ? 5.5 : 11.0;
+    final var startX = alliance == Alliance.Blue ? 2.1 : 14.6;
+    final var headingMove = alliance == Alliance.Blue ? 0.0 : 180.0;
+    final var waypointY = 4.75;
+    final var balanceY = 2.75;
+
+    PathPoint startPoint =
+        new PathPoint(
+            new Translation2d(startX, 5),
+            Rotation2d.fromDegrees(0),
+            Rotation2d.fromDegrees(moveDirDeg));
+
+    PathPoint move1 =
+        new PathPoint(
+            new Translation2d(balanceX, waypointY),
+            Rotation2d.fromDegrees(headingMove),
+            Rotation2d.fromDegrees(moveDirDeg));
+
+    PathPoint balance =
+        new PathPoint(
+            new Translation2d(balanceX, balanceY),
+            Rotation2d.fromDegrees(90),
+            Rotation2d.fromDegrees(moveDirDeg));
+
+    return PathPlanner.generatePath(new PathConstraints(2, 2), startPoint, move1, balance);
+  }
+
+  public PathPlannerTrajectory autoPathIntake(boolean firstMove) {
+
+    final var alliance = DriverStation.getAlliance();
+    final var intakeDirDeg = alliance == Alliance.Red ? 180.0 : 0.0;
+    final var moveDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
+    final var intakeX = alliance == Alliance.Blue ? 6.8 : 9.7;
+    final var startX = alliance == Alliance.Blue ? 2.1 : 14.6;
+    final var waypoint1X = alliance == Alliance.Blue ? 4.5 : 12.0;
+    final var waypoint2X = alliance == Alliance.Blue ? 5.5 : 11.0;
+    final var headingMove = alliance == Alliance.Blue ? 0.0 : 180.0;
+    final var waypointY = 4.75;
+    final var intakeY = 4.4;
+
+    PathPoint startPoint =
+        new PathPoint(
+            new Translation2d(startX, 5),
+            Rotation2d.fromDegrees(0),
+            Rotation2d.fromDegrees(moveDirDeg));
+
+    PathPoint move1 =
+        new PathPoint(
+            new Translation2d(waypoint1X, waypointY),
+            Rotation2d.fromDegrees(headingMove),
+            Rotation2d.fromDegrees(moveDirDeg));
+
+    PathPoint move2 =
+        new PathPoint(
+            new Translation2d(waypoint2X, intakeY),
+            Rotation2d.fromDegrees(headingMove),
+            Rotation2d.fromDegrees(intakeDirDeg));
+
+    PathPoint intake =
+        new PathPoint(
+            new Translation2d(intakeX, intakeY),
+            Rotation2d.fromDegrees(headingMove),
+            Rotation2d.fromDegrees(intakeDirDeg));
+
+    if (firstMove) {
+      return PathPlanner.generatePath(new PathConstraints(0.8, 0.8), startPoint, move1, move2);
+    } else {
+      return PathPlanner.generatePath(new PathConstraints(1.5, 1.5), move2, intake);
+    }
+  }
+
   /**
    * More complex path with holonomic rotation. Non-zero starting velocity Max velocity of 4 m/s and
    * max accel of 3 m/s^2
@@ -426,13 +488,16 @@ public class DriveTrain extends SubsystemBase {
         });
   }
 
-  public Command autoPath(PathPlannerTrajectory traj) {
-    return this.runOnce(
-        () -> {
-          final var m_traj = traj;
-          m_scoringCommand = this.followPathCommand(m_traj, false, false);
-          m_scoringCommand.schedule();
-        });
+  public Command runAuto1stMove() {
+    return this.followPathCommand(autoPathIntake(true), false, false);
+  }
+
+  public Command runAuto2ndMove() {
+    return this.followPathCommand(autoPathIntake(false), false, false);
+  }
+
+  public Command runAutoBalancePath() {
+    return this.followPathCommand(autoPathBalance(), false, false);
   }
 
   public Command goToTargetCube() {
@@ -480,39 +545,17 @@ public class DriveTrain extends SubsystemBase {
         });
   }
 
-  /**
-   * @param mode Mode == new or latest
-   * @return
-   */
-  public Command setVisionMode(Mode mode) {
-    m_visionMode = mode;
-    return this.runOnce(() -> setVisionFor(mode));
-  }
-
-  public boolean visionDisabled() {
-    return m_visionMode == Mode.Disabled;
-  }
-
-  public void autoBalance1() {
-    if (hasRecentTarget()) {
-      if (!isBalanced()) drive(0.25, 0, 0, false);
-      else stop();
-    } else drive(-0.25, 0, 0, false);
-  }
-
   public Command autoBalance() {
-    return this.run(() -> this.autoBalance1());
-  }
-
-  public Command backtrackBalance() {
-    return Commands.either(
-        this.runOnce(() -> this.stop()),
-        this.run(() -> this.drive(0.25, 0, 0, false)),
-        this::isBalanced);
+    return this.run(() -> this.drive(1.0, 0.0, 0.0, true)).until(m_vision::RobotOnTargetBalance);
   }
 
   public Command driveWithSpeed(double speedX, double speedY, double rotation) {
-    return this.runOnce(() -> this.drive(speedX, speedY, rotation, true));
+    return this.run(() -> this.drive(speedX, speedY, rotation, true));
+  }
+
+  public Command driveWithSpeedWithTimeout(
+      double speedX, double speedY, double rotation, double time) {
+    return this.run(() -> this.drive(speedX, speedY, rotation, true)).withTimeout(time);
   }
 
   public boolean hasRecentTarget() {
@@ -521,9 +564,5 @@ public class DriveTrain extends SubsystemBase {
 
   public double timeSinceLastTarget() {
     return Timer.getFPGATimestamp() - m_lastVisionTimestamp;
-  }
-
-  public boolean isBalanced() {
-    return hasRecentTarget() && !m_vision.isRobotTooFar();
   }
 }

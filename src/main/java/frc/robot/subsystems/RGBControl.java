@@ -41,7 +41,6 @@ public class RGBControl extends SubsystemBase {
     // This method will be called once per scheduler run
 
     m_pdp.setSwitchableChannel(DriverStation.isEnabled());
-    System.out.println(red.get());
   }
 
   public Command Command3360() {

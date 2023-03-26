@@ -33,18 +33,18 @@ public class Sequences {
         new WaitCommand(kPreloadTime),
         elevator.extendTo(Level.Sequences),
         intake.setAngle(Position.Stored),
-        new WaitCommand(0.3),
+        new WaitCommand(0.1),
         elevator.extendTo(Level.Down));
   }
 
   public static Command SwitchToCube(
       Elevator elevator, Intake intake, PivotArm pivotArm, Wheels wheels) {
     return Commands.sequence(
-        elevator.extendTo(Level.Sequences),
-        new WaitCommand(0.3), // do NOT remove this delay, its perfect
+        elevator.extendTo(Level.Sequences), // do NOT remove this delay, its perfect
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
         pivotArm.setPivotState(false),
+        new WaitCommand(0.25),
         intake.setAngle(Position.Retracted),
         wheels.stop());
   }
