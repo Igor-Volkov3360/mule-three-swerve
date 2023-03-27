@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,6 +42,8 @@ import frc.robot.subsystems.WCPSwerveModule.WCPSwerveModuleFactory;
 import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {
+
+  public ShuffleboardTab driverInterface = Shuffleboard.getTab("driver interface");
 
   public enum Mode {
     New,
@@ -74,6 +77,7 @@ public class DriveTrain extends SubsystemBase {
   public static final double maxYScoringPos = 5;
   public static final double scoringGridIncrements = (maxYScoringPos - minYScoringPos) / 8;
   public double YScoringPos = 0.5;
+  public boolean m_hadRecentVision = false;
 
   public Mode m_visionMode = Mode.Disabled;
 
@@ -117,12 +121,10 @@ public class DriveTrain extends SubsystemBase {
     // Run path planning server
     PathPlannerServer.startServer(kPathServerPort);
     SmartDashboard.putData("field", m_field);
-    Shuffleboard.getTab("positions").add("y position", YScoringPos);
   }
 
   @Override
   public void periodic() {
-
     // System.out.println("isBalanced : " + isBalanced());
     // resetOdometry();
     // Call module periodic
@@ -149,6 +151,10 @@ public class DriveTrain extends SubsystemBase {
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
+    // if (Timer.getFPGATimestamp() - m_lastVisionTimestamp > 0.5) m_hadRecentVision = false;
+    // else m_hadRecentVision = true;
+
+    // driverInterface.add("vision reading", m_hadRecentVision);
 
     m_field.setRobotPose(m_odometry.getEstimatedPosition());
     // System.out.println(m_accelerometer.getZ());
@@ -533,6 +539,9 @@ public class DriveTrain extends SubsystemBase {
     System.out.println("incrementing" + YScoringPos);
     // clamps around min and max value to insure we don't run into the walls
     YScoringPos = MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
+    double gridPos = (YScoringPos - minYScoringPos) / 0.6;
+    if (DriverStation.getAlliance() == Alliance.Red) gridPos = 10 - gridPos;
+    driverInterface.add("grid position (left - right)", gridPos);
   }
 
   /* reset the yScoringPos to closest scoring area */

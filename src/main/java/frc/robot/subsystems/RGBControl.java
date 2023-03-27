@@ -112,13 +112,13 @@ public class RGBControl extends SubsystemBase {
     blue.set(false);
   }
 
-  public void red() {
+  public static void red() {
     red.set(true);
     green.set(false);
     blue.set(false);
   }
 
-  public void green() {
+  public static void green() {
     red.set(false);
     green.set(true);
     blue.set(false);

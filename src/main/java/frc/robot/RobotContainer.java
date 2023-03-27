@@ -8,11 +8,13 @@ import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -61,7 +63,7 @@ public class RobotContainer {
   private final Intake m_intake = new Intake();
   private final PivotArm m_pivotArm = new PivotArm();
   private final Gripper m_gripper = new Gripper(m_pivotArm);
-  private final RGBControl m_rgbPanel = new RGBControl();
+  private final RGBControl m_rgbControl = new RGBControl();
   private final Wheels m_wheels = new Wheels(m_intake);
   private final BuddyClimb m_buddyClimb = new BuddyClimb(m_intake, m_wheels, m_elevator);
 
@@ -106,7 +108,7 @@ public class RobotContainer {
 
   SendableChooser<Command> m_chooser;
   ComplexWidget chooserList;
-  ComplexWidget camera;
+  SimpleWidget driverInterface;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -122,7 +124,7 @@ public class RobotContainer {
     m_chooser.addOption("place cone balance", placeConeBalance());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
-    // camera = Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
+    m_drive.driverInterface.add("Vision", CameraServer.startAutomaticCapture());
 
     // Drive in robot relative velocities
     m_drive.setDefaultCommand(
@@ -139,7 +141,7 @@ public class RobotContainer {
             true));
     // Configure the trigger bindings
 
-    m_rgbPanel.setDefaultCommand(new InstantCommand(m_rgbPanel::redCommand, m_rgbPanel));
+    m_rgbControl.setDefaultCommand(new InstantCommand(m_rgbControl::redCommand, m_rgbControl));
 
     configureBindings();
   }
@@ -161,7 +163,7 @@ public class RobotContainer {
         .onTrue(
             Sequences.pickup(m_intake, m_wheels)
                 .unless(this::inConeMode)
-                .alongWith(m_rgbPanel.purpleCommand()));
+                .alongWith(m_rgbControl.purpleCommand()));
 
     // retract intake
     m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted).unless(this::inConeMode));
@@ -195,7 +197,7 @@ public class RobotContainer {
     ;
     m_driverController.povUp().onFalse(m_drive.stop());
     // launches cube to right lvl if in cube mode, and cone if in cone mode
-    m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbPanel.purpleCommand()));
+    m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbControl.purpleCommand()));
 
     m_coDriverController
         .b()
@@ -210,9 +212,9 @@ public class RobotContainer {
         .onTrue(
             Commands.either(
                 Sequences.setTargetSecondIntake(m_intake, m_wheels)
-                    .alongWith(m_rgbPanel.purpleCommand()),
+                    .alongWith(m_rgbControl.purpleCommand()),
                 Sequences.scoreConeSecond(m_elevator, m_pivotArm, m_gripper)
-                    .alongWith(m_rgbPanel.yellowCommand()),
+                    .alongWith(m_rgbControl.yellowCommand()),
                 this::inCubeMode));
 
     m_coDriverController
@@ -220,9 +222,9 @@ public class RobotContainer {
         .onTrue(
             Commands.either(
                 Sequences.setTargetThirdIntake(m_intake, m_wheels)
-                    .alongWith(m_rgbPanel.purpleCommand()),
+                    .alongWith(m_rgbControl.purpleCommand()),
                 Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper)
-                    .alongWith(m_rgbPanel.yellowCommand()),
+                    .alongWith(m_rgbControl.yellowCommand()),
                 this::inCubeMode));
 
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
@@ -234,7 +236,7 @@ public class RobotContainer {
         .onTrue(
             Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
                 .andThen(this.setMode(RobotMode.Cube))
-                .andThen(m_rgbPanel.purpleCommand())
+                .andThen(m_rgbControl.purpleCommand())
                 .alongWith(new PrintCommand("Cube Mode"))
                 .unless(this::inCubeMode));
     m_coDriverController
@@ -242,7 +244,7 @@ public class RobotContainer {
         .onTrue(
             Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm, m_gripper)
                 .andThen(this.setMode(RobotMode.Cone))
-                .andThen(m_rgbPanel.yellowCommand())
+                .andThen(m_rgbControl.yellowCommand())
                 .alongWith(new PrintCommand("Cone Mode"))
                 .unless(this::inConeMode));
 
