@@ -29,8 +29,6 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,8 +40,6 @@ import frc.robot.subsystems.WCPSwerveModule.WCPSwerveModuleFactory;
 import java.util.function.DoubleSupplier;
 
 public class DriveTrain extends SubsystemBase {
-
-  public ShuffleboardTab driverInterface = Shuffleboard.getTab("driver interface");
 
   public enum Mode {
     New,
@@ -76,7 +72,7 @@ public class DriveTrain extends SubsystemBase {
   public static final double minYScoringPos = 0.5;
   public static final double maxYScoringPos = 5;
   public static final double scoringGridIncrements = (maxYScoringPos - minYScoringPos) / 8;
-  public double YScoringPos = 0.5;
+  public double YScoringPos = 2.75;
   public boolean m_hadRecentVision = false;
 
   public Mode m_visionMode = Mode.Disabled;
@@ -151,10 +147,9 @@ public class DriveTrain extends SubsystemBase {
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
     }
-    // if (Timer.getFPGATimestamp() - m_lastVisionTimestamp > 0.5) m_hadRecentVision = false;
-    // else m_hadRecentVision = true;
+    m_hadRecentVision = (Timer.getFPGATimestamp() - m_lastVisionTimestamp < 0.5);
 
-    // driverInterface.add("vision reading", m_hadRecentVision);
+    SmartDashboard.putBoolean("vision reading", m_hadRecentVision);
 
     m_field.setRobotPose(m_odometry.getEstimatedPosition());
     // System.out.println(m_accelerometer.getZ());
@@ -301,7 +296,7 @@ public class DriveTrain extends SubsystemBase {
     final var alliance = DriverStation.getAlliance();
     final var moveDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
     final var balanceX = alliance == Alliance.Blue ? 5.5 : 11.0;
-    final var startX = alliance == Alliance.Blue ? 2.1 : 14.6;
+    final var startX = alliance == Alliance.Blue ? 2.1 : 14.4;
     final var headingMove = alliance == Alliance.Blue ? 0.0 : 180.0;
     final var waypointY = 4.75;
     final var balanceY = 2.75;
@@ -333,7 +328,7 @@ public class DriveTrain extends SubsystemBase {
     final var intakeDirDeg = alliance == Alliance.Red ? 180.0 : 0.0;
     final var moveDirDeg = alliance == Alliance.Blue ? 180.0 : 0.0;
     final var intakeX = alliance == Alliance.Blue ? 6.8 : 9.7;
-    final var startX = alliance == Alliance.Blue ? 2.1 : 14.6;
+    final var startX = alliance == Alliance.Blue ? 2.1 : 14.4;
     final var waypoint1X = alliance == Alliance.Blue ? 4.5 : 12.0;
     final var waypoint2X = alliance == Alliance.Blue ? 5.5 : 11.0;
     final var headingMove = alliance == Alliance.Blue ? 0.0 : 180.0;
@@ -371,6 +366,36 @@ public class DriveTrain extends SubsystemBase {
     }
   }
 
+  private PathPlannerTrajectory onTheFlyToIntake() {
+
+    final var alliance = DriverStation.getAlliance();
+    final var scoringDirDeg = alliance == Alliance.Blue ? 0.0 : 180.0;
+    final var intakeX = alliance == Alliance.Blue ? 15.3 : 1.2;
+    final var intakeY = alliance == Alliance.Blue ? 7.4 : 6.15;
+    final var robotPos = m_odometry.getEstimatedPosition().getTranslation();
+    double waypointX = alliance == Alliance.Blue ? 14.8 : 1.7;
+
+    var waypoint1 =
+        new PathPoint(
+            new Translation2d(waypointX, intakeY),
+            Rotation2d.fromDegrees(0.0),
+            Rotation2d.fromDegrees(scoringDirDeg));
+
+    var intake =
+        new PathPoint(
+            new Translation2d(intakeX, intakeY),
+            Rotation2d.fromDegrees(0.0),
+            Rotation2d.fromDegrees(scoringDirDeg));
+
+    if (alliance == alliance.Blue && robotPos.getX() > 13) {
+      return PathPlanner.generatePath(
+          new PathConstraints(2, 2), getOnTheFlyStart(false), waypoint1, intake);
+    } else if (alliance == alliance.Red && robotPos.getX() < 3.5) {
+      return PathPlanner.generatePath(
+          new PathConstraints(2, 2), getOnTheFlyStart(false), waypoint1, intake);
+    } else return null;
+  }
+
   /**
    * More complex path with holonomic rotation. Non-zero starting velocity Max velocity of 4 m/s and
    * max accel of 3 m/s^2
@@ -381,10 +406,10 @@ public class DriveTrain extends SubsystemBase {
 
     final var alliance = DriverStation.getAlliance();
     final var scoringDirDeg = alliance == Alliance.Blue ? 183.0 : 3.0;
-    final var scoringX = alliance == Alliance.Blue ? 2.1 : 14.6;
+    final var scoringX = alliance == Alliance.Blue ? 2.1 : 14.4;
     final var robotPos = m_odometry.getEstimatedPosition().getTranslation();
     double waypointY = 4.75;
-    double waypoint2X = alliance == Alliance.Blue ? 2.3 : 14.4;
+    double waypoint2X = alliance == Alliance.Blue ? 2.3 : 14.1;
     double waypointX = 5.5;
     double scorePosY = this.YScoringPos;
     var headingScore = Rotation2d.fromDegrees(90);
@@ -494,6 +519,17 @@ public class DriveTrain extends SubsystemBase {
         });
   }
 
+  public Command goToHpIntake() {
+    return this.runOnce(
+        () -> {
+          final var traj = this.onTheFlyToIntake();
+          if (traj != null) {
+            m_scoringCommand = this.followPathCommand(traj, false, false);
+            m_scoringCommand.schedule();
+          }
+        });
+  }
+
   public Command runAuto1stMove() {
     return this.followPathCommand(autoPathIntake(true), false, false);
   }
@@ -534,14 +570,14 @@ public class DriveTrain extends SubsystemBase {
    * @param direction true means robot goes right
    */
   public void incrementScorePosition(boolean direction) {
-    if (direction) YScoringPos += 0.6;
-    else YScoringPos -= 0.6;
+    if (direction) YScoringPos += 0.5625;
+    else YScoringPos -= 0.5625;
     System.out.println("incrementing" + YScoringPos);
     // clamps around min and max value to insure we don't run into the walls
     YScoringPos = MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
-    double gridPos = (YScoringPos - minYScoringPos) / 0.6;
-    if (DriverStation.getAlliance() == Alliance.Red) gridPos = 10 - gridPos;
-    driverInterface.add("grid position (left - right)", gridPos);
+    double gridPos = ((YScoringPos - minYScoringPos) / 0.5625) + 1;
+    if (DriverStation.getAlliance() == Alliance.Blue) gridPos = 10 - gridPos;
+    SmartDashboard.putNumber("Grid Position (left to right", gridPos);
   }
 
   /* reset the yScoringPos to closest scoring area */

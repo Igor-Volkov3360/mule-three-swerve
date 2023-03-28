@@ -7,7 +7,6 @@ package frc.robot;
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
-import com.pathplanner.lib.commands.FollowPathWithEvents;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -117,14 +116,13 @@ public class RobotContainer {
     m_chooser = new SendableChooser<>();
 
     // create options for auto mode
-    m_chooser.setDefaultOption("shoot cube dont move", this.shootCube());
-    m_chooser.addOption("stop", this.stop());
-    m_chooser.addOption("place cone grab cube", this.placeConeGrabCube());
-    m_chooser.addOption("balance", this.runPathBalance());
+    m_chooser.setDefaultOption("place cone grab cube", this.placeConeGrabCube());
     m_chooser.addOption("place cone balance", placeConeBalance());
+    m_chooser.addOption("shoot cube dont move", this.shootCube());
+    m_chooser.addOption("stop", this.stop());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
-    m_drive.driverInterface.add("Vision", CameraServer.startAutomaticCapture());
+    Shuffleboard.getTab("SmartDashboard").add(CameraServer.startAutomaticCapture());
 
     // Drive in robot relative velocities
     m_drive.setDefaultCommand(
@@ -184,18 +182,21 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
     m_driverController.leftBumper().onFalse(m_drive.stop());
 
-    // m_driverController.rightBumper().whileTrue(m_drive.goToTargetCube());
-    // m_driverController.rightBumper().onFalse(m_drive.stop());
+    m_driverController.rightBumper().whileTrue(m_drive.goToHpIntake());
+    m_driverController.rightBumper().onFalse(m_drive.stop());
+    m_driverController
+        .rightBumper()
+        .toggleOnTrue(
+            Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
+                .unless(this::inCubeMode));
+
+    m_driverController
+        .rightBumper()
+        .toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
     // m_driverController.rightBumper().onTrue(invertJoystick());
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
-    m_driverController
-        .povUp()
-        .whileTrue(m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance));
-
-    ;
-    m_driverController.povUp().onFalse(m_drive.stop());
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbControl.purpleCommand()));
 
@@ -280,6 +281,10 @@ public class RobotContainer {
     return this.m_currentMode == RobotMode.Cone;
   }
 
+  public boolean isBlue() {
+    return DriverStation.getAlliance() == Alliance.Blue;
+  }
+
   /**
    * Sets the current mode
    *
@@ -296,22 +301,6 @@ public class RobotContainer {
 
   public static CommandXboxController getCoPilot() {
     return m_coDriverController;
-  }
-
-  /**
-   * starting here, commands define complex paths for autonomous aka with events
-   *
-   * @return the autonomous path
-   */
-  public Command runPathBalance() {
-    eventMap.clear();
-    eventMap.put("balance", new PrintCommand("balance")); // m_drive.balance()
-
-    FollowPathWithEvents balance =
-        new FollowPathWithEvents(
-            m_drive.followPathCommand(pathBalance, true, true), pathBalance.getMarkers(), eventMap);
-
-    return balance;
   }
 
   public Command stop() {
@@ -350,13 +339,25 @@ public class RobotContainer {
   }
 
   public Command placeConeBalance() {
-    return autoPlaceCone()
+    /*
+    * return autoPlaceCone()
+       .andThen(
+           m_drive
+               .runAutoBalancePath()
+               .alongWith(
+                   Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
+                       .andThen(this.setMode(RobotMode.Cube))))
+       .andThen(m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance));
+    */
+    return m_drive
+        .runAutoBalancePath()
+        .alongWith(
+            Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
+                .andThen(this.setMode(RobotMode.Cube)))
         .andThen(
-            m_drive
-                .runAutoBalancePath()
-                .alongWith(
-                    Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
-                        .andThen(this.setMode(RobotMode.Cube))))
-        .andThen(m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance));
+            Commands.either(
+                m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance),
+                m_drive.driveWithSpeed(1.0, 0, 0).until(m_vision::RobotOnTargetBalance),
+                this::isBlue));
   }
 }
