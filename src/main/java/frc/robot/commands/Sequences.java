@@ -14,6 +14,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.Position;
 import frc.robot.subsystems.PivotArm;
 import frc.robot.subsystems.Wheels;
+import frc.robot.subsystems.Wheels.WheelLevel;
 
 /** Add your docs here. */
 public class Sequences {
@@ -29,9 +30,9 @@ public class Sequences {
       Elevator elevator, Intake intake, PivotArm pivotArm, Gripper gripper) {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
-        pivotArm.setPivotState(true),
         new WaitCommand(kPreloadTime),
         elevator.extendTo(Level.Sequences),
+        pivotArm.setPivotState(true),
         intake.setAngle(Position.Stored),
         new WaitCommand(0.1),
         elevator.extendTo(Level.Down));
@@ -40,7 +41,7 @@ public class Sequences {
   public static Command SwitchToCube(
       Elevator elevator, Intake intake, PivotArm pivotArm, Wheels wheels) {
     return Commands.sequence(
-        elevator.extendTo(Level.Sequences), // do NOT remove this delay, its perfect
+        elevator.extendTo(Level.Sequences),
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
         pivotArm.setPivotState(false),
@@ -67,8 +68,8 @@ public class Sequences {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         wheels.holdSpeed(Wheels.WheelLevel.Pickup).until(intake::hasCube),
-        intake.setAngle(Position.Retracted),
-        wheels.setTargetLevel(Wheels.WheelLevel.Hold));
+        wheels.holdSpeed(WheelLevel.Hold),
+        intake.setAngle(Position.Retracted));
   }
 
   /**

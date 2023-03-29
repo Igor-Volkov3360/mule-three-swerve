@@ -121,8 +121,6 @@ public class DriveTrain extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // System.out.println("isBalanced : " + isBalanced());
-    // resetOdometry();
     // Call module periodic
     filteredX = m_xAccel.calculate(m_accelerometer.getX());
 
@@ -152,7 +150,6 @@ public class DriveTrain extends SubsystemBase {
     SmartDashboard.putBoolean("vision reading", m_hadRecentVision);
 
     m_field.setRobotPose(m_odometry.getEstimatedPosition());
-    // System.out.println(m_accelerometer.getZ());
   }
   /**
    * Gets the current position of all modules
@@ -387,10 +384,10 @@ public class DriveTrain extends SubsystemBase {
             Rotation2d.fromDegrees(0.0),
             Rotation2d.fromDegrees(scoringDirDeg));
 
-    if (alliance == alliance.Blue && robotPos.getX() > 13) {
+    if (alliance == Alliance.Blue && robotPos.getX() > 13) {
       return PathPlanner.generatePath(
           new PathConstraints(2, 2), getOnTheFlyStart(false), waypoint1, intake);
-    } else if (alliance == alliance.Red && robotPos.getX() < 3.5) {
+    } else if (alliance == Alliance.Red && robotPos.getX() < 3.5) {
       return PathPlanner.generatePath(
           new PathConstraints(2, 2), getOnTheFlyStart(false), waypoint1, intake);
     } else return null;

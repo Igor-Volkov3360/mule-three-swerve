@@ -64,8 +64,6 @@ public class Wheels extends SubsystemBase {
     // This method will be called once per scheduler run
     m_wheelsLeft.set(m_wheelSpeed);
     m_wheelsRight.set(m_wheelSpeed);
-
-    // System.out.println(m_wheelSpeed + "    " + m_targetLevel);
   }
 
   /**

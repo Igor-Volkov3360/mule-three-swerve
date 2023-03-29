@@ -22,7 +22,6 @@ public class RGBControl extends SubsystemBase {
   private static final int redChannel = 0;
   private static final int greenChannel = 1;
   private static final int blueChannel = 2;
-  private static final int groundChannel = 3;
 
   private static DigitalOutput select1 = new DigitalOutput(0);
   private static DigitalOutput select2 = new DigitalOutput(1);
@@ -31,7 +30,6 @@ public class RGBControl extends SubsystemBase {
   private static Solenoid red = new Solenoid(21, PneumaticsModuleType.CTREPCM, redChannel);
   private static Solenoid green = new Solenoid(21, PneumaticsModuleType.CTREPCM, greenChannel);
   private static Solenoid blue = new Solenoid(21, PneumaticsModuleType.CTREPCM, blueChannel);
-  private static Solenoid ground = new Solenoid(21, PneumaticsModuleType.CTREPCM, groundChannel);
 
   /** Creates a new RGBControl. */
   public RGBControl() {}

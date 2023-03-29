@@ -49,7 +49,6 @@ public class BuddyClimb extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // System.out.println(RobotContainer.getPilot().getLeftTriggerAxis());
 
     if (m_isBuddyClimbActivated) {
       m_buddyLeft.set(

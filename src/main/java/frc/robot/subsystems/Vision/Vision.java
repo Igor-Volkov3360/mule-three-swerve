@@ -46,7 +46,6 @@ public class Vision extends SubsystemBase {
 
     final var position = m_camPose.get();
     final var rotation = m_camRotation.get();
-    // System.out.println(position.length);
 
     if (position.length == 3 && rotation.length == 3) {
       var tagRotation = Rotation2d.fromDegrees(rotation[1]);
@@ -66,7 +65,6 @@ public class Vision extends SubsystemBase {
         m_latestMeasure = measurement;
       }
     }
-    // System.out.println("cube position :  x : " + getCubeXpos() + " y : " + getCubeYpos());
   }
 
   /**

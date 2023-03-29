@@ -59,9 +59,9 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // set the LED strip colour depending on if it has a coob
-    if (this.hasCube()) RGBControl.green();
-    else if (!this.hasCube()) RGBControl.red();
+
+    if (this.hasCube()) this.runOnce(() -> RGBControl.green());
+    else RGBControl.red();
 
     // Set target to current when robot is disabled to prevent sudden motion on enable
     if (DriverStation.isDisabled()) {
@@ -70,6 +70,8 @@ public class Intake extends SubsystemBase {
 
     // for pivot operation
     if (!isStopped) m_pivot.set(computePivotPercent());
+
+    System.out.println(hasCube());
   }
 
   /**

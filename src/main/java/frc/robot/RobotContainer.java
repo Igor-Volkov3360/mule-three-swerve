@@ -4,16 +4,12 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.PathConstraints;
-import com.pathplanner.lib.PathPlanner;
-import com.pathplanner.lib.PathPlannerTrajectory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.ComplexWidget;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -66,34 +62,9 @@ public class RobotContainer {
   private final Wheels m_wheels = new Wheels(m_intake);
   private final BuddyClimb m_buddyClimb = new BuddyClimb(m_intake, m_wheels, m_elevator);
 
-  private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
-  // different trajectories
-
-  PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
-
-  PathPlannerTrajectory pathScoreCone2CubesLeft =
-      PathPlanner.loadPath("begin with cone 2 cubes left", constraints);
-
-  PathPlannerTrajectory pathScoreConeShootCubeBalanceLeft =
-      PathPlanner.loadPath("cone cube balance left", constraints);
-
-  PathPlannerTrajectory pathScoreConeShootCubeBalanceRight =
-      PathPlanner.loadPath("cone cube balance right", constraints);
-
-  PathPlannerTrajectory pathScoreCone2CubesRight =
-      PathPlanner.loadPath("begin with cone 2 cubes right", constraints);
-
-  PathPlannerTrajectory pathBalance = PathPlanner.loadPath("balance", constraints);
-
-  PathPlannerTrajectory pathConeBalance = PathPlanner.loadPath("cone balance", constraints);
-
-  PathPlannerTrajectory pathCubeBalance = PathPlanner.loadPath("cube balance", constraints);
-
-  PathPlannerTrajectory pathCube = PathPlanner.loadPath("cube", constraints);
-
-  PathPlannerTrajectory pathSingleCube = PathPlanner.loadPath("single cube", constraints);
-
-  PathPlannerTrajectory path2Cubes = PathPlanner.loadPath("2 cubes", constraints);
+  // keep as example in case we want to reuse pathplanner
+  // private static final PathConstraints constraints = new PathConstraints(4.0, 8.0);
+  // PathPlannerTrajectory line = PathPlanner.loadPath("line", constraints);
 
   public static HashMap<String, Command> eventMap = new HashMap<>();
 
@@ -107,7 +78,6 @@ public class RobotContainer {
 
   SendableChooser<Command> m_chooser;
   ComplexWidget chooserList;
-  SimpleWidget driverInterface;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -164,24 +134,32 @@ public class RobotContainer {
                 .alongWith(m_rgbControl.purpleCommand()));
 
     // retract intake
-    m_driverController.b().onTrue(m_intake.setAngle(Position.Retracted).unless(this::inConeMode));
+    m_driverController
+        .b()
+        .onTrue(
+            m_intake
+                .setAngle(Position.Retracted)
+                .alongWith(m_wheels.holdSpeed(WheelLevel.Hold))
+                .unless(this::inConeMode));
 
     // vomit cube to first lvl
     m_driverController.x().onTrue(Sequences.vomit(m_intake, m_wheels));
 
-    // pick a cone from the feeder station
+    // pick a cone from the feeder station manually
     m_driverController
         .y()
         .toggleOnTrue(
             Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
                 .unless(this::inCubeMode));
 
+    // keep elevator retracted manual
     m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
     // moves the robot the the designed goal (increment goal using codriver POV)
     m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
     m_driverController.leftBumper().onFalse(m_drive.stop());
 
+    // human player intake automatic
     m_driverController.rightBumper().whileTrue(m_drive.goToHpIntake());
     m_driverController.rightBumper().onFalse(m_drive.stop());
     m_driverController
@@ -193,13 +171,14 @@ public class RobotContainer {
     m_driverController
         .rightBumper()
         .toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
-    // m_driverController.rightBumper().onTrue(invertJoystick());
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
+
     // launches cube to right lvl if in cube mode, and cone if in cone mode
     m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbControl.purpleCommand()));
 
+    // open/close gripper
     m_coDriverController
         .b()
         .onTrue(
@@ -208,6 +187,7 @@ public class RobotContainer {
                 m_gripper.setGripperState(true),
                 m_gripper::gripperState));
 
+    // score second depending on mode (cone/cube)
     m_coDriverController
         .x()
         .onTrue(
@@ -218,6 +198,7 @@ public class RobotContainer {
                     .alongWith(m_rgbControl.yellowCommand()),
                 this::inCubeMode));
 
+    // score third depending on mode (cone/cube)
     m_coDriverController
         .y()
         .onTrue(
@@ -228,10 +209,14 @@ public class RobotContainer {
                     .alongWith(m_rgbControl.yellowCommand()),
                 this::inCubeMode));
 
+    // make elevator go down
     m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
+
+    // rewinch gripper
     m_coDriverController.rightBumper().onTrue(m_gripper.defaultWinch());
 
     // toggle robot modes
+    // cube
     m_coDriverController
         .start()
         .onTrue(
@@ -240,6 +225,8 @@ public class RobotContainer {
                 .andThen(m_rgbControl.purpleCommand())
                 .alongWith(new PrintCommand("Cube Mode"))
                 .unless(this::inCubeMode));
+
+    // cone
     m_coDriverController
         .back()
         .onTrue(
@@ -249,6 +236,7 @@ public class RobotContainer {
                 .alongWith(new PrintCommand("Cone Mode"))
                 .unless(this::inConeMode));
 
+    // increment on scoring grid
     m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(true));
     m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(false));
   }
@@ -295,27 +283,54 @@ public class RobotContainer {
     return new InstantCommand(() -> m_currentMode = newMode);
   }
 
+  /**
+   * get the pilot controller
+   *
+   * @return pilot controller
+   */
   public static CommandXboxController getPilot() {
     return m_driverController;
   }
 
+  /**
+   * get the coPilot controller
+   *
+   * @return coPilot controller
+   */
   public static CommandXboxController getCoPilot() {
     return m_coDriverController;
   }
 
+  /**
+   * stops the robot
+   *
+   * @return stop
+   */
   public Command stop() {
     Command stopComamnd = m_drive.driveWithSpeed(0, 0, 0);
     return stopComamnd;
   }
 
+  /**
+   * shoots the cube to third lvl in autonomous mode
+   *
+   * @return shoots cube
+   */
   public Command shootCube() {
-    return m_intake
-        .setAngle(Position.Launch)
-        .andThen(new WaitCommand(3))
-        .andThen(m_wheels.setTargetLevel(WheelLevel.Third))
-        .andThen(m_wheels.launchTo());
+    return this.setMode(RobotMode.Cube)
+        .andThen(
+            m_intake
+                .setAngle(Position.Launch)
+                .andThen(new WaitCommand(3))
+                .andThen(m_wheels.setTargetLevel(WheelLevel.Third))
+                .andThen(m_wheels.launchTo()));
   }
 
+  /**
+   * place cone to third lvl in autonomous mode
+   *
+   * @return score cone
+   */
   public Command autoPlaceCone() {
     return m_gripper
         .defaultWinch()
@@ -327,6 +342,11 @@ public class RobotContainer {
         .andThen(new WaitCommand(0.25));
   }
 
+  /**
+   * place a cone third lvl and get a cube in autonomous mode
+   *
+   * @return score cone get cube
+   */
   public Command placeConeGrabCube() {
     return autoPlaceCone()
         .andThen(
@@ -338,22 +358,20 @@ public class RobotContainer {
         .andThen(m_drive.runAuto2ndMove().alongWith(Sequences.pickup(m_intake, m_wheels)));
   }
 
+  /**
+   * score a cone third lvl and balance in autonomous mode
+   *
+   * @return score cone balance
+   */
   public Command placeConeBalance() {
-    /*
-    * return autoPlaceCone()
-       .andThen(
-           m_drive
-               .runAutoBalancePath()
-               .alongWith(
-                   Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
-                       .andThen(this.setMode(RobotMode.Cube))))
-       .andThen(m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance));
-    */
-    return m_drive
-        .runAutoBalancePath()
-        .alongWith(
-            Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
-                .andThen(this.setMode(RobotMode.Cube)))
+
+    return autoPlaceCone()
+        .andThen(
+            m_drive
+                .runAutoBalancePath()
+                .alongWith(
+                    Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
+                        .andThen(this.setMode(RobotMode.Cube))))
         .andThen(
             Commands.either(
                 m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance),

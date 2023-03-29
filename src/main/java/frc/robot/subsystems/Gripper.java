@@ -52,8 +52,6 @@ public class Gripper extends SubsystemBase {
     } else {
       m_gripper.set(-0.4);
     }
-
-    // System.out.println(m_open);
   }
 
   /**
@@ -89,16 +87,6 @@ public class Gripper extends SubsystemBase {
   public Command setGripperState(boolean state) {
     return this.runOnce(() -> m_open = state);
   }
-
-  /*public Command changeState() {
-    Command tempCommand;
-    if (m_open == true)
-      tempCommand =
-          this.runOnce(() -> m_open = false).andThen(this.runOnce(() -> this.setTarget()));
-    else
-      tempCommand = this.runOnce(() -> m_open = true).andThen(this.runOnce(() -> this.setTarget()));
-    return tempCommand;
-  }*/
 
   public Command defaultWinch() {
     return this.run(() -> this.reset(true))
