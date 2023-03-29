@@ -607,4 +607,22 @@ public class DriveTrain extends SubsystemBase {
   public double timeSinceLastTarget() {
     return Timer.getFPGATimestamp() - m_lastVisionTimestamp;
   }
+
+  public Command resetOdometryRedSideAuto() {
+    return this.runOnce(
+        () ->
+            m_odometry.resetPosition(
+                m_gyro.getRotation2d(),
+                getModulePositions(),
+                new Pose2d(14.4, 5, Rotation2d.fromDegrees(0))));
+  }
+
+  public Command resetOdometryBlueSideAuto() {
+    return this.runOnce(
+        () ->
+            m_odometry.resetPosition(
+                m_gyro.getRotation2d(),
+                getModulePositions(),
+                new Pose2d(2.1, 5, Rotation2d.fromDegrees(180))));
+  }
 }

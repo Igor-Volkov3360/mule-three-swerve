@@ -21,12 +21,13 @@ public class PivotArm extends SubsystemBase {
   private static final double kNativeToRad = 1.0;
   private static final double kNominalVolt = 10.0;
   private static final double kHorizontalPercent = 0.02;
-  private static final double kNeutralRad = 0.9;
+  private static final double kNeutralRad = 1.1;
 
   public final double kUp = 2.2; // when the gripper is PARRALLEL to the ground
   public final double kDown = 0.0; // when the gripper is PERPENDICULAR to the ground
   private double m_target = kNeutralRad;
   private boolean m_targetUp = false;
+  private boolean m_targetDown = false;
   private static final double kP = 0.15;
   private static final double kMaxVel = 1.8;
   private static final double kMaxAcc = 0.5 * kMaxVel;
@@ -61,7 +62,8 @@ public class PivotArm extends SubsystemBase {
 
     if (DriverStation.isDisabled()) m_target = m_encoder.getPosition();
     else if (m_targetUp) m_target = kUp;
-    else m_target = kDown;
+    else if (m_targetDown) m_target = kDown;
+    else m_target = kNeutralRad;
 
     final var ff = kHorizontalPercent * Math.sin(m_encoder.getPosition());
     m_pid.setReference(m_target, ControlType.kPosition, 0, ff, ArbFFUnits.kPercentOut);
@@ -72,7 +74,11 @@ public class PivotArm extends SubsystemBase {
   }
 
   public Command setPivotState(boolean state) {
-    return this.runOnce(() -> m_targetUp = state);
+    return this.runOnce(
+        () -> {
+          m_targetUp = state;
+          m_targetDown = !state;
+        });
   }
 
   public double getTarget() {

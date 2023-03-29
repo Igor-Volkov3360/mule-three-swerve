@@ -90,6 +90,7 @@ public class RobotContainer {
     m_chooser.addOption("place cone balance", placeConeBalance());
     m_chooser.addOption("shoot cube dont move", this.shootCube());
     m_chooser.addOption("stop", this.stop());
+    m_chooser.addOption("resetPosition", autoReset());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
     Shuffleboard.getTab("SmartDashboard").add(CameraServer.startAutomaticCapture());
@@ -332,14 +333,20 @@ public class RobotContainer {
    * @return score cone
    */
   public Command autoPlaceCone() {
-    return m_gripper
-        .defaultWinch()
+    return Commands.either(
+            m_drive.resetOdometryBlueSideAuto(), m_drive.resetOdometryRedSideAuto(), this::isBlue)
+        .andThen(m_gripper.defaultWinch())
         .andThen(m_pivotArm.setPivotState(true))
         .andThen(new WaitCommand(0.1))
         .andThen(Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper))
         .andThen(new WaitCommand(0.1))
         .andThen(m_gripper.setGripperState(true))
         .andThen(new WaitCommand(0.25));
+  }
+
+  public Command autoReset() {
+    return Commands.either(
+        m_drive.resetOdometryBlueSideAuto(), m_drive.resetOdometryRedSideAuto(), this::isBlue);
   }
 
   /**

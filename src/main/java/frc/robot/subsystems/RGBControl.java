@@ -22,14 +22,16 @@ public class RGBControl extends SubsystemBase {
   private static final int redChannel = 0;
   private static final int greenChannel = 1;
   private static final int blueChannel = 2;
+  private static final int commonChannel = 3;
 
   private static DigitalOutput select1 = new DigitalOutput(0);
   private static DigitalOutput select2 = new DigitalOutput(1);
   private static DigitalOutput select3 = new DigitalOutput(2);
   private static PowerDistribution m_pdp = new PowerDistribution(20, ModuleType.kRev);
-  private static Solenoid red = new Solenoid(21, PneumaticsModuleType.CTREPCM, redChannel);
-  private static Solenoid green = new Solenoid(21, PneumaticsModuleType.CTREPCM, greenChannel);
-  private static Solenoid blue = new Solenoid(21, PneumaticsModuleType.CTREPCM, blueChannel);
+  private static Solenoid red = new Solenoid(0, PneumaticsModuleType.CTREPCM, redChannel);
+  private static Solenoid green = new Solenoid(0, PneumaticsModuleType.CTREPCM, greenChannel);
+  private static Solenoid blue = new Solenoid(0, PneumaticsModuleType.CTREPCM, blueChannel);
+  private static Solenoid common = new Solenoid(0, PneumaticsModuleType.CTREPCM, commonChannel);
 
   /** Creates a new RGBControl. */
   public RGBControl() {}
@@ -105,26 +107,30 @@ public class RGBControl extends SubsystemBase {
   }
 
   public void off() {
-    red.set(false);
-    green.set(false);
-    blue.set(false);
+    red.set(true);
+    green.set(true);
+    blue.set(true);
+    common.set(true);
   }
 
   public static void red() {
-    red.set(true);
-    green.set(false);
-    blue.set(false);
+    red.set(false);
+    green.set(true);
+    blue.set(true);
+    common.set(true);
   }
 
   public static void green() {
-    red.set(false);
-    green.set(true);
-    blue.set(false);
+    red.set(true);
+    green.set(false);
+    blue.set(true);
+    common.set(true);
   }
 
   public void blue() {
-    red.set(false);
-    green.set(false);
-    blue.set(true);
+    red.set(true);
+    green.set(true);
+    blue.set(false);
+    common.set(true);
   }
 }

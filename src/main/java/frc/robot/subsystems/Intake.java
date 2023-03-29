@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -42,7 +43,7 @@ public class Intake extends SubsystemBase {
   private final DigitalInput m_limitSwitch = new DigitalInput(8);
 
   // Process variables
-  private double m_targetRad = kInsideRad;
+  private double m_targetRad = kOutsideRad;
   private boolean isStopped = false;
 
   /** Creates a new Intake. */
@@ -59,10 +60,6 @@ public class Intake extends SubsystemBase {
 
   @Override
   public void periodic() {
-
-    if (this.hasCube()) this.runOnce(() -> RGBControl.green());
-    else RGBControl.red();
-
     // Set target to current when robot is disabled to prevent sudden motion on enable
     if (DriverStation.isDisabled()) {
       m_targetRad = (getAngleRad());
@@ -70,8 +67,7 @@ public class Intake extends SubsystemBase {
 
     // for pivot operation
     if (!isStopped) m_pivot.set(computePivotPercent());
-
-    System.out.println(hasCube());
+    SmartDashboard.putBoolean("HAS CUBE :", hasCube());
   }
 
   /**

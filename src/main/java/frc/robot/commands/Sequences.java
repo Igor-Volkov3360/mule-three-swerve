@@ -45,7 +45,7 @@ public class Sequences {
         intake.setAngle(Position.Pickup),
         elevator.extendTo(Level.Down),
         pivotArm.setPivotState(false),
-        new WaitCommand(0.25),
+        new WaitCommand(0.7),
         intake.setAngle(Position.Retracted),
         wheels.stop());
   }
@@ -68,8 +68,8 @@ public class Sequences {
     return Commands.sequence(
         intake.setAngle(Position.Pickup),
         wheels.holdSpeed(Wheels.WheelLevel.Pickup).until(intake::hasCube),
-        wheels.holdSpeed(WheelLevel.Hold),
-        intake.setAngle(Position.Retracted));
+        intake.setAngle(Position.Retracted),
+        wheels.holdSpeed(WheelLevel.Hold));
   }
 
   /**
