@@ -50,9 +50,6 @@ public class Vision extends SubsystemBase {
     if (position.length == 3 && rotation.length == 3) {
       var tagRotation = Rotation2d.fromDegrees(rotation[1]);
       var robotRotation = tagRotation;
-      if (position[0] < 8.25) {
-        robotRotation = tagRotation.rotateBy(Rotation2d.fromDegrees(180));
-      }
       var measurement = new VisionMeasurement();
 
       measurement.m_timestamp = Timer.getFPGATimestamp();

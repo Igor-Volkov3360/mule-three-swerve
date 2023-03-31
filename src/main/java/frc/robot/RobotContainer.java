@@ -93,7 +93,7 @@ public class RobotContainer {
     m_chooser.addOption("resetPosition", autoReset());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
-    Shuffleboard.getTab("SmartDashboard").add(CameraServer.startAutomaticCapture());
+    Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
 
     // Drive in robot relative velocities
     m_drive.setDefaultCommand(
@@ -149,29 +149,29 @@ public class RobotContainer {
     // pick a cone from the feeder station manually
     m_driverController
         .y()
-        .toggleOnTrue(
+        .onTrue(
             Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
                 .unless(this::inCubeMode));
 
     // keep elevator retracted manual
-    m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
+    // m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
     // moves the robot the the designed goal (increment goal using codriver POV)
     m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
     m_driverController.leftBumper().onFalse(m_drive.stop());
 
     // human player intake automatic
-    m_driverController.rightBumper().whileTrue(m_drive.goToHpIntake());
+    m_driverController.rightBumper().onTrue(m_drive.goToHpIntake());
     m_driverController.rightBumper().onFalse(m_drive.stop());
     m_driverController
         .rightBumper()
-        .toggleOnTrue(
+        .onTrue(
             Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
                 .unless(this::inCubeMode));
 
     m_driverController
         .rightBumper()
-        .toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
+        .onFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
     // activate buddyClimb
     m_driverController.start().onTrue(m_buddyClimb.activate());
@@ -381,8 +381,8 @@ public class RobotContainer {
                         .andThen(this.setMode(RobotMode.Cube))))
         .andThen(
             Commands.either(
-                m_drive.driveWithSpeed(-1.0, 0, 0).until(m_vision::RobotOnTargetBalance),
-                m_drive.driveWithSpeed(1.0, 0, 0).until(m_vision::RobotOnTargetBalance),
+                m_drive.driveWithSpeed(-0.75, 0, 0).until(m_vision::RobotOnTargetBalance),
+                m_drive.driveWithSpeed(0.75, 0, 0).until(m_vision::RobotOnTargetBalance),
                 this::isBlue));
   }
 }

@@ -134,13 +134,25 @@ public class DriveTrain extends SubsystemBase {
     // Add vision measurement if it's available
     VisionMeasurement visionMes = m_vision.getMeasurement();
     if (visionMes != null && visionMes.m_timestamp != m_lastVisionTimestamp) {
-      var visionPose =
-          new Pose2d(visionMes.m_pose.getTranslation(), visionMes.m_pose.getRotation());
+      Pose2d visionPose;
+
+      if (m_odometry.getEstimatedPosition().getRotation().getDegrees() > 90
+          || m_odometry.getEstimatedPosition().getRotation().getDegrees() < -90) {
+        visionPose =
+            new Pose2d(
+                visionMes.m_pose.getTranslation(),
+                visionMes.m_pose.getRotation().rotateBy(Rotation2d.fromDegrees(180)));
+      } else {
+        visionPose = new Pose2d(visionMes.m_pose.getTranslation(), visionMes.m_pose.getRotation());
+      }
 
       if (m_lastVisionTimestamp < 0.0) {
         // Reset odometry to vision measurement on first observation
         m_odometry.resetPosition(m_gyro.getRotation2d(), this.getModulePositions(), visionPose);
       } else {
+        m_odometry.addVisionMeasurement(visionPose, visionMes.m_timestamp);
+        m_odometry.addVisionMeasurement(visionPose, visionMes.m_timestamp);
+        m_odometry.addVisionMeasurement(visionPose, visionMes.m_timestamp);
         m_odometry.addVisionMeasurement(visionPose, visionMes.m_timestamp);
       }
       m_lastVisionTimestamp = visionMes.m_timestamp;
@@ -574,7 +586,8 @@ public class DriveTrain extends SubsystemBase {
     YScoringPos = MathUtil.clamp(YScoringPos, minYScoringPos, maxYScoringPos);
     double gridPos = ((YScoringPos - minYScoringPos) / 0.5625) + 1;
     if (DriverStation.getAlliance() == Alliance.Blue) gridPos = 10 - gridPos;
-    SmartDashboard.putNumber("Grid Position (left to right", gridPos);
+    SmartDashboard.putNumber("Grid Position (left to right)", gridPos);
+    System.out.println(gridPos);
   }
 
   /* reset the yScoringPos to closest scoring area */
