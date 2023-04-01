@@ -390,8 +390,8 @@ public class RobotContainer {
         .andThen(m_elevator.extendTo(Level.Down))
         .andThen(
             Commands.either(
-                m_drive.driveWithSpeed(1, 0, 0).withTimeout(3.0),
-                m_drive.driveWithSpeed(-1, 0, 0).withTimeout(3.0),
+                m_drive.driveWithSpeed(1, 0, 0).withTimeout(4.92),
+                m_drive.driveWithSpeed(-1, 0, 0).withTimeout(4.92),
                 this::isBlue));
   }
 }
