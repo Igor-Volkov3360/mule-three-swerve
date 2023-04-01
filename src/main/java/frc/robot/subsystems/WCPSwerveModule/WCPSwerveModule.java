@@ -63,6 +63,7 @@ public class WCPSwerveModule implements SwerveModule {
     m_turnMotor.setInverted(InvertType.InvertMotorOutput);
     m_turnMotor.configVoltageCompSaturation(kNominalVolt);
     m_turnMotor.enableVoltageCompensation(true);
+    m_turnMotor.setNeutralMode(NeutralMode.Brake);
 
     m_turnMotor.config_kP(0, kTurnKp);
     m_turnMotor.config_kI(0, kTurnKi);

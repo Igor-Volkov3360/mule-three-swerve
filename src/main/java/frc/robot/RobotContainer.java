@@ -86,11 +86,11 @@ public class RobotContainer {
     m_chooser = new SendableChooser<>();
 
     // create options for auto mode
-    m_chooser.setDefaultOption("place cone grab cube", this.placeConeGrabCube());
+    m_chooser.setDefaultOption("place cone move back", this.placeConeMoveBack());
     m_chooser.addOption("place cone balance", placeConeBalance());
     m_chooser.addOption("shoot cube dont move", this.shootCube());
     m_chooser.addOption("stop", this.stop());
-    m_chooser.addOption("resetPosition", autoReset());
+    m_chooser.addOption("do nothing", autoReset());
     chooserList =
         Shuffleboard.getTab("auto").add(m_chooser).withWidget(BuiltInWidgets.kComboBoxChooser);
     Shuffleboard.getTab("vision").add(CameraServer.startAutomaticCapture());
@@ -354,15 +354,14 @@ public class RobotContainer {
    *
    * @return score cone get cube
    */
-  public Command placeConeGrabCube() {
+  public Command placeConeMove() {
     return autoPlaceCone()
         .andThen(
             m_drive
-                .runAuto1stMove()
+                .runAutoBalancePath()
                 .alongWith(
                     Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
-                        .andThen(this.setMode(RobotMode.Cube))))
-        .andThen(m_drive.runAuto2ndMove().alongWith(Sequences.pickup(m_intake, m_wheels)));
+                        .andThen(this.setMode(RobotMode.Cube))));
   }
 
   /**
@@ -383,6 +382,16 @@ public class RobotContainer {
             Commands.either(
                 m_drive.driveWithSpeed(-0.75, 0, 0).until(m_vision::RobotOnTargetBalance),
                 m_drive.driveWithSpeed(0.75, 0, 0).until(m_vision::RobotOnTargetBalance),
+                this::isBlue));
+  }
+
+  public Command placeConeMoveBack() {
+    return autoPlaceCone()
+        .andThen(m_elevator.extendTo(Level.Down))
+        .andThen(
+            Commands.either(
+                m_drive.driveWithSpeed(1, 0, 0).withTimeout(3.0),
+                m_drive.driveWithSpeed(-1, 0, 0).withTimeout(3.0),
                 this::isBlue));
   }
 }

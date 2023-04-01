@@ -77,16 +77,26 @@ public class Vision extends SubsystemBase {
     return m_visionZRotate;
   }
 
+  public boolean hasMesure() {
+    return this.getMeasurement() != null;
+  }
+
   public boolean RobotOnTargetBalance() {
-    return getMeasurement().m_pose.getX() < 3.97 || getMeasurement().m_pose.getX() > 12.73;
+    if (this.hasMesure())
+      return getMeasurement().m_pose.getX() < 3.99 || getMeasurement().m_pose.getX() > 12.71;
+    else return true;
   }
 
   public boolean RobotisTooFar() {
-    return getMeasurement().m_pose.getX() < 3.7 || getMeasurement().m_pose.getX() > 12.9;
+    if (this.hasMesure())
+      return getMeasurement().m_pose.getX() < 3.7 || getMeasurement().m_pose.getX() > 12.9;
+    else return false;
   }
 
   public boolean RobotisTooClose() {
-    return getMeasurement().m_pose.getX() > 3.4 || getMeasurement().m_pose.getX() < 13.2;
+    if (this.hasMesure())
+      return getMeasurement().m_pose.getX() > 3.4 || getMeasurement().m_pose.getX() < 13.2;
+    else return false;
   }
 
   public double getCubeYpos() {

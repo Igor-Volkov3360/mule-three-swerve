@@ -308,7 +308,7 @@ public class DriveTrain extends SubsystemBase {
     final var startX = alliance == Alliance.Blue ? 2.1 : 14.4;
     final var headingMove = alliance == Alliance.Blue ? 0.0 : 180.0;
     final var waypointY = 4.75;
-    final var balanceY = 2.75;
+    final var balanceY = 3.25;
 
     PathPoint startPoint =
         new PathPoint(
