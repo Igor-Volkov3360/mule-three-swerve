@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
+// import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -74,7 +74,7 @@ public class RobotContainer {
   private static final CommandXboxController m_coDriverController = new CommandXboxController(1);
 
   // Process variables
-  private RobotMode m_currentMode = RobotMode.Cone;
+  private RobotMode m_currentMode = RobotMode.Cube;
 
   SendableChooser<Command> m_chooser;
   ComplexWidget chooserList;
@@ -107,7 +107,7 @@ public class RobotContainer {
               return DriverStation.getAlliance() == Alliance.Blue ? -driverX : driverX;
             },
             () -> -m_driverController.getRightX(),
-            true));
+            false));
     // Configure the trigger bindings
 
     m_rgbControl.setDefaultCommand(new InstantCommand(m_rgbControl::redCommand, m_rgbControl));
@@ -143,103 +143,115 @@ public class RobotContainer {
                 .alongWith(m_wheels.holdSpeed(WheelLevel.Hold))
                 .unless(this::inConeMode));
 
+    m_driverController
+        .rightTrigger()
+        .onTrue(
+            Sequences.launch(m_intake, m_wheels, WheelLevel.Second, Position.Launch)
+                .unless(this::inConeMode));
+
+    m_driverController
+        .leftTrigger()
+        .onTrue(
+            Sequences.launch(m_intake, m_wheels, WheelLevel.Third, Position.Launch)
+                .unless(this::inConeMode));
+
     // vomit cube to first lvl
     m_driverController.x().onTrue(Sequences.vomit(m_intake, m_wheels));
 
     // pick a cone from the feeder station manually
-    m_driverController
-        .y()
-        .onTrue(
-            Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
-                .unless(this::inCubeMode));
+    // m_driverController
+    //     .y()
+    //     .onTrue(
+    //         Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
+    //             .unless(this::inCubeMode));
 
     // keep elevator retracted manual
     // m_driverController.y().toggleOnFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
     // moves the robot the the designed goal (increment goal using codriver POV)
-    m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
-    m_driverController.leftBumper().onFalse(m_drive.stop());
+    // m_driverController.leftBumper().onTrue(m_drive.goToTargetGoal());
+    // m_driverController.leftBumper().onFalse(m_drive.stop());
 
-    // human player intake automatic
-    m_driverController.rightBumper().onTrue(m_drive.goToHpIntake());
-    m_driverController.rightBumper().onFalse(m_drive.stop());
-    m_driverController
-        .rightBumper()
-        .onTrue(
-            Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
-                .unless(this::inCubeMode));
+    // // human player intake automatic
+    // m_driverController.rightBumper().onTrue(m_drive.goToHpIntake());
+    // m_driverController.rightBumper().onFalse(m_drive.stop());
+    // m_driverController
+    //     .rightBumper()
+    //     .onTrue(
+    //         Sequences.PickConeFromFeeder(m_elevator, m_pivotArm, m_gripper)
+    //             .unless(this::inCubeMode));
 
-    m_driverController
-        .rightBumper()
-        .onFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
+    // m_driverController
+    //     .rightBumper()
+    //     .onFalse(m_elevator.extendTo(Level.Down).unless(this::inCubeMode));
 
-    // activate buddyClimb
-    m_driverController.start().onTrue(m_buddyClimb.activate());
+    // // activate buddyClimb
+    // m_driverController.start().onTrue(m_buddyClimb.activate());
 
     // launches cube to right lvl if in cube mode, and cone if in cone mode
-    m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbControl.purpleCommand()));
+    // m_coDriverController.a().onTrue(m_wheels.launchTo().alongWith(m_rgbControl.purpleCommand()));
 
-    // open/close gripper
-    m_coDriverController
-        .b()
-        .onTrue(
-            Commands.either(
-                m_gripper.defaultWinch(),
-                m_gripper.setGripperState(true),
-                m_gripper::gripperState));
+    // // open/close gripper
+    // m_coDriverController
+    //     .b()
+    //     .onTrue(
+    //         Commands.either(
+    //             m_gripper.defaultWinch(),
+    //             m_gripper.setGripperState(true),
+    //             m_gripper::gripperState));
 
-    // score second depending on mode (cone/cube)
-    m_coDriverController
-        .x()
-        .onTrue(
-            Commands.either(
-                Sequences.setTargetSecondIntake(m_intake, m_wheels)
-                    .alongWith(m_rgbControl.purpleCommand()),
-                Sequences.scoreConeSecond(m_elevator, m_pivotArm, m_gripper)
-                    .alongWith(m_rgbControl.yellowCommand()),
-                this::inCubeMode));
+    // // score second depending on mode (cone/cube)
+    // m_coDriverController
+    //     .x()
+    //     .onTrue(
+    //         Commands.either(
+    //             Sequences.setTargetSecondIntake(m_intake, m_wheels)
+    //                 .alongWith(m_rgbControl.purpleCommand()),
+    //             Sequences.scoreConeSecond(m_elevator, m_pivotArm, m_gripper)
+    //                 .alongWith(m_rgbControl.yellowCommand()),
+    //             this::inCubeMode));
 
-    // score third depending on mode (cone/cube)
-    m_coDriverController
-        .y()
-        .onTrue(
-            Commands.either(
-                Sequences.setTargetThirdIntake(m_intake, m_wheels)
-                    .alongWith(m_rgbControl.purpleCommand()),
-                Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper)
-                    .alongWith(m_rgbControl.yellowCommand()),
-                this::inCubeMode));
+    // // score third depending on mode (cone/cube)
+    // m_coDriverController
+    //     .y()
+    //     .onTrue(
+    //         Commands.either(
+    //             Sequences.setTargetThirdIntake(m_intake, m_wheels)
+    //                 .alongWith(m_rgbControl.purpleCommand()),
+    //             Sequences.scoreConeThird(m_elevator, m_pivotArm, m_gripper)
+    //                 .alongWith(m_rgbControl.yellowCommand()),
+    //             this::inCubeMode));
 
-    // make elevator go down
-    m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
+    // // make elevator go down
+    // m_coDriverController.leftBumper().onTrue(m_elevator.extendTo(Elevator.Level.Down));
 
-    // rewinch gripper
-    m_coDriverController.rightBumper().onTrue(m_gripper.defaultWinch());
+    // // rewinch gripper
+    // m_coDriverController.rightBumper().onTrue(m_gripper.defaultWinch());
 
-    // toggle robot modes
-    // cube
-    m_coDriverController
-        .start()
-        .onTrue(
-            Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
-                .andThen(this.setMode(RobotMode.Cube))
-                .andThen(m_rgbControl.purpleCommand())
-                .alongWith(new PrintCommand("Cube Mode"))
-                .unless(this::inCubeMode));
+    // // toggle robot modes
+    // // cube
+    // m_coDriverController
+    //     .start()
+    //     .onTrue(
+    //         Sequences.SwitchToCube(m_elevator, m_intake, m_pivotArm, m_wheels)
+    //             .andThen(this.setMode(RobotMode.Cube))
+    //             .andThen(m_rgbControl.purpleCommand())
+    //             .alongWith(new PrintCommand("Cube Mode"))
+    //             .unless(this::inCubeMode));
 
-    // cone
-    m_coDriverController
-        .back()
-        .onTrue(
-            Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm, m_gripper)
-                .andThen(this.setMode(RobotMode.Cone))
-                .andThen(m_rgbControl.yellowCommand())
-                .alongWith(new PrintCommand("Cone Mode"))
-                .unless(this::inConeMode));
+    // // cone
+    // m_coDriverController
+    //     .back()
+    //     .onTrue(
+    //         Sequences.SwitchToCone(m_elevator, m_intake, m_pivotArm, m_gripper)
+    //             .andThen(this.setMode(RobotMode.Cone))
+    //             .andThen(m_rgbControl.yellowCommand())
+    //             .alongWith(new PrintCommand("Cone Mode"))
+    //             .unless(this::inConeMode));
 
-    // increment on scoring grid
-    m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(true));
-    m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(false));
+    // // increment on scoring grid
+    // m_coDriverController.povLeft().onTrue(m_drive.moveScorePosition(true));
+    // m_coDriverController.povRight().onTrue(m_drive.moveScorePosition(false));
   }
 
   /**
